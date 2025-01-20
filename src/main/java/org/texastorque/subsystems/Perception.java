@@ -4,8 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.texastorque.AprilTagList.AlignPose2d;
-import org.texastorque.AprilTagList.AlignPose2d.Relation;
+import org.texastorque.AlignPose2d;
+import org.texastorque.AlignPose2d.Placement;
+import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.AprilTagList;
 import org.texastorque.LimeLightHelpers;
 import org.texastorque.LimeLightHelpers.PoseEstimate;
@@ -54,7 +55,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	// Used to filter some noise directly out of the pose measurements.
     private final TorqueRollingMedian filteredX, filteredY;
-    private Pose2d finalPose = new Pose2d();
+	private Pose2d finalPose;
 
 	private final Field2d field = new Field2d();
 
@@ -70,7 +71,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	final String LIMELIGHT = "limelight"; // 'limelight' - The name for the LL3G that is used for pose estimation
-	final String LIMELIGHT_AI = "limelight-ai"; // 'limelight-ai' - The name for the LL3 that is used for note detection
 
 	@Override
 	public void initialize(TorqueMode mode) {}
@@ -83,8 +83,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		LimeLightHelpers.SetRobotOrientation(LIMELIGHT, getHeading().getDegrees(), 0, 0, 0, 0, 0);
 		LimeLightHelpers.PoseEstimate visionEstimate = getVisionEstimate();
 		
-		final Pose2d estimatedPose = poseEstimator.update(getHeading(), drivebase.getModulePositions());
-		finalPose = estimatedPose;
+		final Pose2d odometryPose = poseEstimator.update(getHeading(), drivebase.getModulePositions());
+		finalPose = odometryPose;
 
 		if (visionEstimate != null) {
 			if (visionEstimate.tagCount > 0) {
@@ -92,20 +92,16 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			}
 
 			finalPose = new Pose2d(
-					filteredX.calculate(estimatedPose.getX()),
-					filteredY.calculate(estimatedPose.getY()),
+					filteredX.calculate(poseEstimator.getEstimatedPosition().getX()),
+					filteredY.calculate(poseEstimator.getEstimatedPosition().getY()),
 					getHeading()
 			);
-			
-			SmartDashboard.putBoolean("Sees Tag", LimeLightHelpers.getTargetCount(LIMELIGHT) > 0);
 		}
 		field.setRobotPose(finalPose);
 
-		// final int notesDetected = LimeLightHelpers.getTargetCount(LIMELIGHT_AI);
-
 		SmartDashboard.putBoolean("In Zone", zone.contains(finalPose));
 		SmartDashboard.putString("Current Pose", finalPose.toString());
-		// SmartDashboard.putNumber("Notes Detected", notesDetected);
+		SmartDashboard.putBoolean("Sees Tag", LimeLightHelpers.getTargetCount(LIMELIGHT) > 0);
 	}
 
 	@Override
@@ -136,10 +132,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	  return finalPose;
 	}
 
-	public Optional<Pose2d> getAlignPose(final Relation relation) {
+	public RawFiducial getBestDetection() {
 		// Get best apriltag detection (closest to center of frame)
 		final PoseEstimate estimate = getVisionEstimate();
-		if (estimate.rawFiducials.length == 0) return Optional.empty();
+		if (estimate.rawFiducials.length == 0) return null;
 		
 		final List<RawFiducial> detections = Arrays.asList(estimate.rawFiducials);
 		RawFiducial bestDetection = detections.get(0);
@@ -149,6 +145,12 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 				bestDetection = raw;
 			}
 		}
+		return bestDetection;
+	}
+
+	public Optional<Pose2d> getAlignPose(final Relation relation) {
+		final RawFiducial bestDetection = getBestDetection();
+		if (bestDetection == null) return Optional.empty();
 		
 		final AlignPose2d[] alignPoses = AprilTagList.values()[bestDetection.id - 1].alignPoses;
 		for (AlignPose2d alignPose : alignPoses) {

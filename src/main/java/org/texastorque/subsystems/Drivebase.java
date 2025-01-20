@@ -3,7 +3,8 @@ package org.texastorque.subsystems;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
-import org.texastorque.AprilTagList.AlignPose2d.Relation;
+import org.texastorque.AlignPose2d.Relation;
+import org.texastorque.AprilTagList;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDrivebase;
@@ -18,6 +19,7 @@ import org.texastorque.torquelib.swerve.TorqueSwerveModuleNEO;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -63,7 +65,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     private Relation relation;
 
     private final PIDController apriltagAlignRotationPID;
-    private final PIDController apriltagAlignTranslationPID;
+    private final PIDController apriltagAlignXPID;
+    private final PIDController apriltagAlignYPID;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -80,8 +83,9 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
 
-        apriltagAlignTranslationPID = new PIDController(4, 0, 0);
-        apriltagAlignRotationPID = new PIDController(.1, 0, 0);
+        apriltagAlignXPID = new PIDController(1, 0, 0);
+        apriltagAlignYPID = new PIDController(1, 0, 0);
+        apriltagAlignRotationPID = new PIDController(.082, 0, 0);
         apriltagAlignRotationPID.enableContinuousInput(0, 360);
     }
 
@@ -114,6 +118,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         );
     }
 
+    final Pose2d targetPose = new Pose2d(2.6576, 4.02659, Rotation2d.fromDegrees(270));
+
     @Override
     public final void update(final TorqueMode mode) {
         if (wantsState(State.FIELD_RELATIVE)) {
@@ -121,18 +127,18 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
         
         if (wantsState(State.ALIGN_TO_APRILTAG)) {
-            final Optional<Pose2d> alignPose = perception.getAlignPose(relation);
-            if (alignPose.isPresent() && relation != null) {
-                final Pose2d targetPose = alignPose.get();
+            // final Optional<Pose2d> alignPose = perception.getAlignPose(relation);
+            // if (alignPose.isPresent() && relation != null && ) {
+            //     SmartDashboard.putString("Align Target Pose", alignPose.get().toString());
+            //     final Pose2d targetPose = alignPose.get();
 
-                final double xPower = apriltagAlignTranslationPID.calculate(perception.getPose().getX(), targetPose.getX());
-                final double yPower = apriltagAlignTranslationPID.calculate(perception.getPose().getY(), targetPose.getY());
-                final double omegaPower = apriltagAlignRotationPID.calculate(perception.getHeading().getDegrees(), targetPose.getRotation().getDegrees());
+            final double xPower = apriltagAlignXPID.calculate(perception.getPose().getX(), targetPose.getX());
+            final double yPower = apriltagAlignYPID.calculate(perception.getPose().getY(), targetPose.getY());
+            final double omegaPower = apriltagAlignRotationPID.calculate(perception.getHeading().getDegrees(), targetPose.getRotation().getDegrees());
 
-                inputSpeeds.vxMetersPerSecond = xPower;
-                inputSpeeds.vyMetersPerSecond = yPower;
-                inputSpeeds.omegaRadiansPerSecond = omegaPower;
-            }
+            inputSpeeds.vxMetersPerSecond = yPower;
+            inputSpeeds.vyMetersPerSecond = -xPower;
+            inputSpeeds.omegaRadiansPerSecond = omegaPower;
         }
         SmartDashboard.putString("Drivebase State", desiredState.toString());
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
@@ -167,13 +173,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         isSlowMode = !isSlowMode;
         activeMaxVelocity = isSlowMode ? MAX_VELOCITY / 10 : MAX_VELOCITY;
         activeMaxAngularVelocity = isSlowMode ? MAX_ANGULAR_VELOCITY / 10 : MAX_ANGULAR_VELOCITY;
-
-        System.out.println(isSlowMode ? "Slow Mode Enabled" : "Slow Mode Disabled");
     }
-
-    // public boolean isAligned() {
-    //     return TorqueMath.toleranced(perception.getHeading().getRadians(), alignSetpoint, .0523); // radians
-    // }
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {
         this.inputSpeeds = inputSpeeds;
@@ -196,11 +196,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             bl.getPosition(), br.getPosition()
         };
     }
-
-    // public void setAlignSetpoint(double setpoint) {
-    //     setState(State.ALIGN_TO_ANGLE);
-    //     alignSetpoint = setpoint;
-    // }
 
     public double getRadius() {
         return WIDTH * Math.sqrt(2);

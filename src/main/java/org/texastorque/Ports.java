@@ -8,4 +8,9 @@ public final class Ports {
     public static final SwervePorts FL_MOD = new SwervePorts(3, 4, 10);
     public static final SwervePorts FR_MOD = new SwervePorts(5, 6, 12);
     public static final SwervePorts BR_MOD = new SwervePorts(7, 8, 11);
+
+    public static final int ELEVATOR = 16;
+    public static final int ELEVATOR_ENCODER = 17;
+    public static final int CLAW = 18;
+    public static final int CLAW_ENCODER = 0;
 }
