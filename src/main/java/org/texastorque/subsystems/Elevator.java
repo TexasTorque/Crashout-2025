@@ -61,7 +61,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         elevatorPID = new PIDController(0.005, 0, 0);
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
         autoScore = null;
-        score = false;
     }
 
     @Override
@@ -70,14 +69,20 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     @Override
     public final void update(final TorqueMode mode) {
         SmartDashboard.putNumber("Elevator Encoder", getElevatorPosition());
-        if(autoScore == null){
-            autoScore = new Scoring(desiredState, claw.getState());
-        }
 
-        if(score){
+        // if(score){
+        //     autoScore = new Scoring(desiredState, claw.getState());
+        //     autoScore.run();
+        // }else{
+        //     autoScore = null;
+        // }
+
+        if (autoScore != null) {
             autoScore.run();
-        }else{
-            autoScore = null;
+
+            if (autoScore.ended) {
+                autoScore = null;
+            }
         }
     }
 
@@ -90,7 +95,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     public final void startScoreSequence() {
-        score = true;
+        autoScore = new Scoring(desiredState, claw.getState());
+    }
+
+    public final boolean isScoring() {
+        return autoScore != null;
     }
 
     @Override
