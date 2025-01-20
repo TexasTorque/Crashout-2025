@@ -28,6 +28,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public final PIDController elevatorPID;
     public final CANcoder elevatorEncoder;
     private Scoring autoScore;
+    private boolean score;
 
     public static enum State implements TorqueState {
         ZERO(0), SCORE_L1(2000), STOW(3000), SCORE_L2(4000), SCORE_L3(5000), 
@@ -60,6 +61,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         elevatorPID = new PIDController(0.005, 0, 0);
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
         autoScore = null;
+        score = false;
     }
 
     @Override
@@ -72,7 +74,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             autoScore = new Scoring(desiredState, claw.getState());
         }
 
-        if(getState() == State.SCORE){
+        if(score){
             autoScore.run();
         }else{
             autoScore = null;
@@ -85,6 +87,10 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public final double getElevatorPosition() {
         return elevatorEncoder.getPosition().getValueAsDouble();
+    }
+
+    public final void startScoreSequence() {
+        score = true;
     }
 
     @Override

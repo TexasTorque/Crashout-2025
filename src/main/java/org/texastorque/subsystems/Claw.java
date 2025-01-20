@@ -21,6 +21,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private final TorqueNEO claw;
     private final PIDController clawPID;
     private final CANcoder clawEncoder;
+    private final boolean score;
 
     public static enum State implements TorqueState {
         ZERO(0), STOW(90), SCORE_LOW(120), SCORE_HIGH(160);
@@ -42,6 +43,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         claw = new TorqueNEO(Ports.CLAW);
         clawEncoder = new CANcoder(Ports.CLAW_ENCODER);
         clawPID = new PIDController(1, 0, 0);
+        score = false;
     }
 
     @Override
@@ -49,7 +51,9 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     @Override
     public final void update(final TorqueMode mode) {
-        claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
+        if(score){
+            claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
+        }
     }
 
     public final boolean isAtState(){
