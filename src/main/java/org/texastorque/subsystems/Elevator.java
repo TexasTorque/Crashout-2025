@@ -28,11 +28,15 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public final PIDController elevatorPID;
     public final CANcoder elevatorEncoder;
     private Scoring autoScore;
-    private boolean score;
 
     public static enum State implements TorqueState {
-        ZERO(0), SCORE_L1(2000), STOW(3000), SCORE_L2(4000), SCORE_L3(5000), 
-        SCORE_L4(6000), NET(7000), SCORE(0);
+        ZERO(0),
+        SCORE_L1(2000),
+        STOW(3000),
+        SCORE_L2(4000),
+        SCORE_L3(5000), 
+        SCORE_L4(6000),
+        NET(7000);
 
         public final double position;
 
@@ -52,6 +56,10 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
             addBlock(new TorqueWaitUntil(() -> Claw.getInstance().isAtState()));
 
+            // More because actually have to score
+
+            addBlock(new TorqueRun(() -> elevator.setState(State.STOW)));
+            addBlock(new TorqueRun(() -> claw.setState(Claw.State.STOW)));
         }
     }
 
@@ -70,13 +78,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public final void update(final TorqueMode mode) {
         SmartDashboard.putNumber("Elevator Encoder", getElevatorPosition());
 
-        // if(score){
-        //     autoScore = new Scoring(desiredState, claw.getState());
-        //     autoScore.run();
-        // }else{
-        //     autoScore = null;
-        // }
-
         if (autoScore != null) {
             autoScore.run();
 
@@ -84,6 +85,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
                 autoScore = null;
             }
         }
+    }
+
+    @Override
+    public final void clean(final TorqueMode mode) {
+        
     }
 
     public final boolean isAtState() {
@@ -100,11 +106,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public final boolean isScoring() {
         return autoScore != null;
-    }
-
-    @Override
-    public final void clean(final TorqueMode mode) {
-        desiredState = State.STOW;
     }
 
     public static final synchronized Elevator getInstance() {

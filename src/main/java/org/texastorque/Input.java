@@ -45,6 +45,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateClaw();
     }
 
+    public boolean isDebugMode() {
+        return false;
+    }
+
     public final void updateDrivebase() {
         resetGyro.onTrue(() -> perception.resetHeading());
         apriltagAlign.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN_TO_APRILTAG));
@@ -77,10 +81,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         L2Mode.onTrue(() -> claw.setState(Claw.State.SCORE_LOW));
         L3Mode.onTrue(() -> claw.setState(Claw.State.SCORE_LOW));
         L4Mode.onTrue(() -> claw.setState(Claw.State.SCORE_HIGH));
-    }
-
-    public boolean isDebugMode() {
-        return false;
     }
 
     public static final synchronized Input getInstance() {

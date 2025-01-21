@@ -1,6 +1,5 @@
 package org.texastorque.subsystems;
 
-import org.texastorque.Input;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.base.TorqueMode;
@@ -9,11 +8,9 @@ import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.motors.TorqueNEO;
 import org.texastorque.torquelib.util.TorqueMath;
 
-import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Subsystems {
 
@@ -21,6 +18,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private final TorqueNEO claw, algaeRollers, coralRollers;
     private final PIDController clawPID;
     private final CANcoder clawEncoder;
+    private AlgaeState algaeState;
+    private CoralState coralState;
 
     public static enum State implements TorqueState {
         ZERO(0), STOW(90), SCORE_LOW(120), SCORE_HIGH(160), INTAKE(100);
@@ -73,6 +72,9 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE);
         coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL);
+
+        algaeState = AlgaeState.OFF;
+        coralState = CoralState.OFF;
     }
 
     @Override
@@ -80,19 +82,20 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     @Override
     public final void update(final TorqueMode mode) {
-        AlgaeState algaeState = AlgaeState.OFF;
-        CoralState coralState = CoralState.OFF;
-
-        if(elevator.isScoring()){
+        if (elevator.isScoring()) {
             claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
         }
 
         algaeRollers.setVolts(algaeState.getVolts());
         coralRollers.setVolts(coralState.getVolts());
+    }
+
+	@Override
+    public final void clean(final TorqueMode mode) {
         
     }
 
-    public final boolean isAtState(){
+    public final boolean isAtState() {
         return TorqueMath.toleranced(getClawAngle(), desiredState.getAngle());
     }
 
@@ -100,9 +103,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         return clawEncoder.getPosition().getValueAsDouble();
     }
 
-    @Override
-    public final void clean(final TorqueMode mode) {
-        desiredState = State.STOW;
+    public void setAlgaeState(AlgaeState algaeState) {
+        this.algaeState = algaeState;
+    }
+
+    public void setCoralState(CoralState coralState) {
+        this.coralState = coralState;
     }
 
     public static final synchronized Claw getInstance() {

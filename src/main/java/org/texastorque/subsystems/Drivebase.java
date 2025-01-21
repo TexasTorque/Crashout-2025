@@ -1,10 +1,7 @@
 package org.texastorque.subsystems;
 
-import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.AlignPose2d.Relation;
-import org.texastorque.AprilTagList;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDrivebase;
@@ -19,7 +16,6 @@ import org.texastorque.torquelib.swerve.TorqueSwerveModuleNEO;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
