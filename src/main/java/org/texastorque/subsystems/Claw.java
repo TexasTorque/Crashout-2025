@@ -18,12 +18,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Subsystems {
 
     private static volatile Claw instance;
-    private final TorqueNEO claw;
+    private final TorqueNEO claw, algaeRollers, coralRollers;
     private final PIDController clawPID;
     private final CANcoder clawEncoder;
 
     public static enum State implements TorqueState {
-        ZERO(0), STOW(90), SCORE_LOW(120), SCORE_HIGH(160);
+        ZERO(0), STOW(90), SCORE_LOW(120), SCORE_HIGH(160), INTAKE(100);
 
         private final double angle;
 
@@ -37,11 +37,42 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     }
 
+    public static enum AlgaeState implements TorqueState {
+        INTAKE(-4), SHOOT(4), OFF(0);
+
+        private final double volts;
+
+        private AlgaeState(double volts){
+            this.volts = volts;
+        }
+
+        public double getVolts() {
+            return volts;
+        }
+    }
+
+    public static enum CoralState implements TorqueState {
+        INTAKE(-4), SHOOT(4), OFF(0);
+
+        private final double volts;
+
+        private CoralState(double volts){
+            this.volts = volts;
+        }
+
+        public double getVolts() {
+            return volts;
+        }
+    }
+
     private Claw() {
         super(State.ZERO);
         claw = new TorqueNEO(Ports.CLAW);
         clawEncoder = new CANcoder(Ports.CLAW_ENCODER);
         clawPID = new PIDController(1, 0, 0);
+
+        algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE);
+        coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL);
     }
 
     @Override
@@ -49,9 +80,16 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     @Override
     public final void update(final TorqueMode mode) {
+        AlgaeState algaeState = AlgaeState.OFF;
+        CoralState coralState = CoralState.OFF;
+
         if(elevator.isScoring()){
             claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
         }
+
+        algaeRollers.setVolts(algaeState.getVolts());
+        coralRollers.setVolts(coralState.getVolts());
+        
     }
 
     public final boolean isAtState(){

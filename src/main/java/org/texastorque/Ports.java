@@ -11,6 +11,10 @@ public final class Ports {
 
     public static final int ELEVATOR = 16;
     public static final int ELEVATOR_ENCODER = 17;
+
     public static final int CLAW = 18;
-    public static final int CLAW_ENCODER = 0;
+    public static final int CLAW_ENCODER = 19;
+
+    public static final int ROLLERS_CORAL = 20;
+    public static final int ROLLERS_ALGAE = 21;
 }
