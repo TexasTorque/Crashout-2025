@@ -4,6 +4,8 @@ import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
+import org.texastorque.subsystems.Claw.AlgaeState;
+import org.texastorque.subsystems.Claw.CoralState;
 import org.texastorque.subsystems.Claw.Gamepiece;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
@@ -16,7 +18,8 @@ import org.texastorque.torquelib.util.TorqueMath;
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueBoolSupplier resetGyro, slowMode, L1Mode, L2Mode, L3Mode, L4Mode, scoreSequence, scoreSequenceNoAlign, gamepieceMode, leftRelation, rightRelation;
+    private final TorqueBoolSupplier resetGyro, debug, slowMode, L1Mode, L2Mode, L3Mode, L4Mode,
+            scoreSequence, scoreSequenceNoAlign, gamepieceMode, leftRelation, rightRelation, intake, outtake;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -24,6 +27,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         // Driver
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
+        debug = new TorqueBoolSupplier(driver::isLeftCenterButtonDown);
         slowMode = new TorqueBoolSupplier(driver::isRightBumperPressed);
 
         L1Mode = new TorqueBoolSupplier(operator::isAButtonDown);
@@ -37,6 +41,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
         rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
+
+        intake = new TorqueBoolSupplier(driver::isLeftTriggerDown);
+        outtake = new TorqueBoolSupplier(driver::isRightTriggerDown);
     }
 
     @Override
@@ -44,10 +51,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateDrivebase();
         updateElevator();
         updateClaw();
-    }
-
-    public boolean isDebugMode() {
-        return false;
     }
 
     public final void updateDrivebase() {
@@ -77,13 +80,36 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             drivebase.setState(Drivebase.State.ALIGN_TO_APRILTAG);
             elevator.startScoreSequence(gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL);
         });
-        scoreSequenceNoAlign.onTrue(() -> elevator.startScoreSequence(gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL));
+        scoreSequenceNoAlign.onTrue(() -> elevator.startScoreSequence(getGamepieceMode()));
     }
 
     public final void updateClaw() {
         L2Mode.onTrue(() -> claw.setState(Claw.State.SCORE_LOW));
         L3Mode.onTrue(() -> claw.setState(Claw.State.SCORE_LOW));
         L4Mode.onTrue(() -> claw.setState(Claw.State.SCORE_HIGH));
+
+        intake.onTrue(() -> {
+            if (getGamepieceMode() == Gamepiece.ALGAE) {
+                claw.setAlgaeState(AlgaeState.INTAKE);
+            } else if (getGamepieceMode() == Gamepiece.CORAL) {
+                claw.setCoralState(CoralState.INTAKE);
+            }
+        });
+        outtake.onTrue(() -> {
+            if (getGamepieceMode() == Gamepiece.ALGAE) {
+                claw.setAlgaeState(AlgaeState.SHOOT);
+            } else if (getGamepieceMode() == Gamepiece.CORAL) {
+                claw.setCoralState(CoralState.SHOOT);
+            }
+        });
+    }
+
+    public Gamepiece getGamepieceMode() {
+        return gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL;
+    }
+
+    public boolean isDebugMode() {
+        return debug.get();
     }
 
     public static final synchronized Input getInstance() {

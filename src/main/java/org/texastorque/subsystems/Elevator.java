@@ -23,7 +23,7 @@ import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implements Subsystems {
 
     private static volatile Elevator instance;
-    private final TorqueNEO elevator;
+    private final TorqueNEO elevatorLeft, elevatorRight;
     public final PIDController elevatorPID;
     public final CANcoder elevatorEncoder;
     private Scoring autoScore;
@@ -64,7 +64,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     private Elevator() {
         super(State.ZERO);
-        elevator = new TorqueNEO(Ports.ELEVATOR);
+        elevatorLeft = new TorqueNEO(Ports.ELEVATOR_LEFT);
+        elevatorRight = new TorqueNEO(Ports.ELEVATOR_RIGHT);
         elevatorPID = new PIDController(0.005, 0, 0);
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
         autoScore = null;
@@ -86,7 +87,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             }
         }
 
-        elevator.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
+        elevatorLeft.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
+        elevatorRight.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
     }
 
     @Override

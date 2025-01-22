@@ -18,8 +18,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private final TorqueNEO claw, algaeRollers, coralRollers;
     private final PIDController clawPID;
     private final CANcoder clawEncoder;
-    private AlgaeState algaeState;
-    private CoralState coralState;
+    private AlgaeState algaeState = AlgaeState.OFF;
+    private CoralState coralState = CoralState.OFF;
 
     public static enum State implements TorqueState {
         ZERO(0), STOW(90), SCORE_LOW(120), SCORE_HIGH(160), INTAKE(100);
@@ -77,9 +77,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE);
         coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL);
-
-        algaeState = AlgaeState.OFF;
-        coralState = CoralState.OFF;
     }
 
     @Override
@@ -89,6 +86,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public final void update(final TorqueMode mode) {
         if (elevator.isScoring()) {
             claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
+        } else {
+            claw.setVolts(clawPID.calculate(getClawAngle(), State.STOW.getAngle()));
         }
 
         algaeRollers.setVolts(algaeState.getVolts());
@@ -97,7 +96,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
 	@Override
     public final void clean(final TorqueMode mode) {
-        
+        algaeState = AlgaeState.OFF;
+        coralState = CoralState.OFF;
     }
 
     public final boolean isAtState() {
