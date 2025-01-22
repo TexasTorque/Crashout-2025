@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.texastorque.AlignPose2d;
-import org.texastorque.AlignPose2d.Placement;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.AprilTagList;
 import org.texastorque.LimeLightHelpers;
@@ -54,7 +53,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private double gyro_simulated = 0;
 
 	// Used to filter some noise directly out of the pose measurements.
-    private final TorqueRollingMedian filteredX, filteredY;
+	private final TorqueRollingMedian filteredX, filteredY;
 	private Pose2d finalPose;
 
 	private final Field2d field = new Field2d();
@@ -70,7 +69,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.field("Field", field);
 	}
 
-	final String LIMELIGHT = "limelight"; // 'limelight' - The name for the LL3G that is used for pose estimation
+	// Limelight names from being viewed from the rear as if the endeffector is forward in relation to the elevator being backwards
+	final String LIMELIGHT_LEFT = "limelight-left";
+	final String LIMELIGHT_RIGHT = "limelight-right";
 
 	@Override
 	public void initialize(TorqueMode mode) {}
@@ -80,15 +81,17 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		gyro_simulated += drivebase.inputSpeeds.omegaRadiansPerSecond / 180 * Math.PI;
 		gyro_simulated %= 2 * Math.PI;
 
-		LimeLightHelpers.SetRobotOrientation(LIMELIGHT, getHeading().getDegrees(), 0, 0, 0, 0, 0);
-		LimeLightHelpers.PoseEstimate visionEstimate = getVisionEstimate();
+		LimeLightHelpers.SetRobotOrientation(LIMELIGHT_LEFT, getHeading().getDegrees(), 0, 0, 0, 0, 0);
+		LimeLightHelpers.SetRobotOrientation(LIMELIGHT_RIGHT, getHeading().getDegrees(), 0, 0, 0, 0, 0);
+		LimeLightHelpers.PoseEstimate visionEstimateLeft = getVisionEstimate(LIMELIGHT_LEFT);
+		LimeLightHelpers.PoseEstimate visionEstimateRight = getVisionEstimate(LIMELIGHT_RIGHT);
 		
 		final Pose2d odometryPose = poseEstimator.update(getHeading(), drivebase.getModulePositions());
-		finalPose = odometryPose;
 
-		if (visionEstimate != null) {
-			if (visionEstimate.tagCount > 0) {
-				poseEstimator.addVisionMeasurement(visionEstimate.pose, visionEstimate.timestampSeconds);
+		if (visionEstimateLeft != null && visionEstimateRight != null) {
+			final Pose2d visionPose = getFusedVisionPose(visionEstimateLeft.pose, visionEstimateRight.pose);
+			if (seesTag()) {
+				poseEstimator.addVisionMeasurement(visionPose, visionEstimateLeft.timestampSeconds);
 			}
 
 			finalPose = new Pose2d(
@@ -96,12 +99,15 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 					filteredY.calculate(poseEstimator.getEstimatedPosition().getY()),
 					getHeading()
 			);
+		} else {
+			finalPose = odometryPose;
 		}
+
 		field.setRobotPose(finalPose);
 
 		SmartDashboard.putBoolean("In Zone", zone.contains(finalPose));
 		SmartDashboard.putString("Current Pose", finalPose.toString());
-		SmartDashboard.putBoolean("Sees Tag", LimeLightHelpers.getTargetCount(LIMELIGHT) > 0);
+		SmartDashboard.putBoolean("Sees Tag", seesTag());
 	}
 
 	@Override
@@ -117,8 +123,29 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
         poseEstimator.resetPosition(getHeading(), drivebase.getModulePositions(), pose);
     }
 
-	private PoseEstimate getVisionEstimate() {
-		return LimeLightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+	private PoseEstimate getVisionEstimate(final String limelightName) {
+		return LimeLightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
+	}
+	
+	private Pose2d getFusedVisionPose(final Pose2d left, final Pose2d right) {
+		final Pose2d pastPose = getPose();
+
+		// If the the two poses are more than a half-meter away from each other, disregard both
+		if (left.getTranslation().getDistance(right.getTranslation()) > .5) {
+			return pastPose;
+		}
+
+		// If not, return average pose
+		final Pose2d fusedPose = new Pose2d(
+			(left.getX() + right.getX()) / 2,
+			(left.getY() + right.getY()) / 2,
+			getHeading()
+		);
+		return fusedPose;
+	}
+
+	private boolean seesTag() {
+		return LimeLightHelpers.getTargetCount(LIMELIGHT_LEFT) > 0 || LimeLightHelpers.getTargetCount(LIMELIGHT_RIGHT) > 0;
 	}
 
 	public Rotation2d getHeading() {
@@ -132,9 +159,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	  return finalPose;
 	}
 
-	public RawFiducial getBestDetection() {
+	public RawFiducial getAlignDetection() {
 		// Get best apriltag detection (closest to center of frame)
-		final PoseEstimate estimate = getVisionEstimate();
+		final PoseEstimate estimate = getVisionEstimate(LIMELIGHT_LEFT); // Whichever limelight is facing towards where we score
 		if (estimate.rawFiducials.length == 0) return null;
 		
 		final List<RawFiducial> detections = Arrays.asList(estimate.rawFiducials);
@@ -149,7 +176,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	public Optional<Pose2d> getAlignPose(final Relation relation) {
-		final RawFiducial bestDetection = getBestDetection();
+		final RawFiducial bestDetection = getAlignDetection();
 		if (bestDetection == null) return Optional.empty();
 		
 		final AlignPose2d[] alignPoses = AprilTagList.values()[bestDetection.id - 1].alignPoses;

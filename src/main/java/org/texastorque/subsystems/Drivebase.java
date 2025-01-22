@@ -1,5 +1,7 @@
 package org.texastorque.subsystems;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Ports;
@@ -114,27 +116,26 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         );
     }
 
-    final Pose2d targetPose = new Pose2d(2.6576, 4.02659, Rotation2d.fromDegrees(270));
-
     @Override
     public final void update(final TorqueMode mode) {
         if (wantsState(State.FIELD_RELATIVE)) {
             inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
         }
         
-        if (wantsState(State.ALIGN_TO_APRILTAG)) {
-            // final Optional<Pose2d> alignPose = perception.getAlignPose(relation);
-            // if (alignPose.isPresent() && relation != null && ) {
-            //     SmartDashboard.putString("Align Target Pose", alignPose.get().toString());
-            //     final Pose2d targetPose = alignPose.get();
+        if (wantsState(State.ALIGN_TO_APRILTAG) && relation != null) {
+            final Optional<Pose2d> alignPose = perception.getAlignPose(relation);
+            if (alignPose.isPresent()) {
+                SmartDashboard.putString("Align Target Pose", alignPose.get().toString());
+                final Pose2d targetPose = alignPose.get();
 
-            final double xPower = apriltagAlignXPID.calculate(perception.getPose().getX(), targetPose.getX());
-            final double yPower = apriltagAlignYPID.calculate(perception.getPose().getY(), targetPose.getY());
-            final double omegaPower = apriltagAlignRotationPID.calculate(perception.getHeading().getDegrees(), targetPose.getRotation().getDegrees());
+                final double xPower = apriltagAlignXPID.calculate(perception.getPose().getX(), targetPose.getX());
+                final double yPower = apriltagAlignYPID.calculate(perception.getPose().getY(), targetPose.getY());
+                final double omegaPower = apriltagAlignRotationPID.calculate(perception.getHeading().getDegrees(), targetPose.getRotation().getDegrees());
 
-            inputSpeeds.vxMetersPerSecond = yPower;
-            inputSpeeds.vyMetersPerSecond = -xPower;
-            inputSpeeds.omegaRadiansPerSecond = omegaPower;
+                inputSpeeds.vxMetersPerSecond = yPower;
+                inputSpeeds.vyMetersPerSecond = -xPower;
+                inputSpeeds.omegaRadiansPerSecond = omegaPower;
+            }
         }
         SmartDashboard.putString("Drivebase State", desiredState.toString());
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);

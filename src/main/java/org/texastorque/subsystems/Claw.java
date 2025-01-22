@@ -41,7 +41,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         private final double volts;
 
-        private AlgaeState(double volts){
+        private AlgaeState(double volts) {
             this.volts = volts;
         }
 
@@ -55,13 +55,18 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         private final double volts;
 
-        private CoralState(double volts){
+        private CoralState(double volts) {
             this.volts = volts;
         }
 
         public double getVolts() {
             return volts;
         }
+    }
+
+    public enum Gamepiece {
+        CORAL,
+        ALGAE;
     }
 
     private Claw() {

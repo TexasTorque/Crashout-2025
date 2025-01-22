@@ -1,15 +1,14 @@
 package org.texastorque;
 
-import java.lang.annotation.ElementType;
-
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
+import org.texastorque.subsystems.Claw.Gamepiece;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
+import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
-import org.texastorque.torquelib.sensors.TorqueController.DPADState;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
@@ -17,7 +16,7 @@ import org.texastorque.torquelib.util.TorqueMath;
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueBoolSupplier resetGyro, apriltagAlign, slowMode, L2Mode, L3Mode, L4Mode, scoreSequence;
+    private final TorqueBoolSupplier resetGyro, slowMode, L1Mode, L2Mode, L3Mode, L4Mode, scoreSequence, scoreSequenceNoAlign, gamepieceMode, leftRelation, rightRelation;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -25,17 +24,19 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         // Driver
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
-        apriltagAlign = new TorqueBoolSupplier(driver::isXButtonDown);
-
-        // Drive base slow mode
         slowMode = new TorqueBoolSupplier(driver::isRightBumperPressed);
 
-        // scoring modes
-        L2Mode = new TorqueBoolSupplier(operator::isAButtonDown);
+        L1Mode = new TorqueBoolSupplier(operator::isAButtonDown);
+        L2Mode = new TorqueBoolSupplier(operator::isXButtonDown);
         L3Mode = new TorqueBoolSupplier(operator::isBButtonDown);
         L4Mode = new TorqueBoolSupplier(operator::isYButtonDown);
+        gamepieceMode = new TorqueToggleSupplier(operator::isRightCenterButtonPressed); // Make sure this works (true is algae, false is coral)
 
-        scoreSequence = new TorqueBoolSupplier(operator::isRightTriggerDown);
+        scoreSequence = new TorqueBoolSupplier(operator::isRightBumperDown);
+        scoreSequenceNoAlign = new TorqueBoolSupplier(operator::isLeftBumperDown);
+
+        leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
+        rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
     }
 
     @Override
@@ -51,14 +52,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
     public final void updateDrivebase() {
         resetGyro.onTrue(() -> perception.resetHeading());
-        apriltagAlign.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN_TO_APRILTAG));
         slowMode.onTrue(drivebase::toggleSlowMode);
 
-        if (driver.isDPADLeftDown()) {
-            drivebase.setRelation(Relation.LEFT);
-        } else {
-            drivebase.setRelation(null);
-        }
+        leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
+        rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
 
         final double xVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftYAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.activeMaxVelocity;
@@ -71,10 +68,16 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     }
 
     public final void updateElevator() {
+        L1Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L1));
         L2Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L2));
         L3Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L3));
         L4Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L4));
-        scoreSequence.onTrue(() -> elevator.startScoreSequence());
+
+        scoreSequence.onTrue(() -> {
+            drivebase.setState(Drivebase.State.ALIGN_TO_APRILTAG);
+            elevator.startScoreSequence(gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL);
+        });
+        scoreSequenceNoAlign.onTrue(() -> elevator.startScoreSequence(gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL));
     }
 
     public final void updateClaw() {
