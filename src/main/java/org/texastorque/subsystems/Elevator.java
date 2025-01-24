@@ -29,13 +29,17 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     // private Scoring autoScore;
 
     public static enum State implements TorqueState {
-        ZERO(0),
         SCORE_L1(2000),
         STOW(3000),
         SCORE_L2(4000),
         SCORE_L3(5000), 
         SCORE_L4(6000),
-        NET(7000);
+        NET(7000),
+        ALGAE_REMOVAL_LOW(4000),
+        ALGAE_REMOVAL_HIGH(5000),
+        PROCESSOR(0),
+        ALGAE_GROUND_INTAKE(0),
+        CORAL_HP(1000);
 
         public final double position;
 
@@ -63,7 +67,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     // }
 
     private Elevator() {
-        super(State.ZERO);
+        super(State.STOW);
         elevatorLeft = new TorqueNEO(Ports.ELEVATOR_LEFT);
         elevatorRight = new TorqueNEO(Ports.ELEVATOR_RIGHT);
         elevatorPID = new PIDController(0.005, 0, 0);

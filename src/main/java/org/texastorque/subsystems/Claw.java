@@ -22,7 +22,15 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private CoralState coralState = CoralState.OFF;
 
     public static enum State implements TorqueState {
-        ZERO(0), STOW(90), SCORE_LOW(120), SCORE_HIGH(160), INTAKE(100);
+        STOW(90), 
+        L1_SCORE(120), 
+        MID_SCORE(160), 
+        L4_SCORE(180),
+        NET(180),
+        ALGAE_EXTRACTION(120),
+        PROCESSOR(170),
+        CORAL_HP(120),
+        ALGAE_GROUND_INTAKE(100);
 
         private final double angle;
 
@@ -70,7 +78,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     private Claw() {
-        super(State.ZERO);
+        super(State.STOW);
         claw = new TorqueNEO(Ports.CLAW);
         clawEncoder = new CANcoder(Ports.CLAW_ENCODER);
         clawPID = new PIDController(1, 0, 0);
