@@ -15,9 +15,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
-import org.texastorque.torquelib.auto.TorqueSequence;
-import org.texastorque.torquelib.auto.commands.TorqueRun;
-import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
+// import org.texastorque.torquelib.auto.TorqueSequence;
+// import org.texastorque.torquelib.auto.commands.TorqueRun;
+// import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 
 
 public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implements Subsystems {
@@ -26,7 +26,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final TorqueNEO elevatorLeft, elevatorRight;
     public final PIDController elevatorPID;
     public final CANcoder elevatorEncoder;
-    private Scoring autoScore;
+    // private Scoring autoScore;
 
     public static enum State implements TorqueState {
         ZERO(0),
@@ -44,23 +44,23 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         }
     }
 
-    public static final class Scoring extends TorqueSequence implements Subsystems {
-        public Scoring(final State elevatorState, final Claw.State clawState, final Gamepiece gamepiece) {
+    // public static final class Scoring extends TorqueSequence implements Subsystems {
+    //     public Scoring(final State elevatorState, final Claw.State clawState, final Gamepiece gamepiece) {
 
-            addBlock(new TorqueRun(() -> elevator.setState(elevatorState)));
+    //         addBlock(new TorqueRun(() -> elevator.setState(elevatorState)));
         
-            addBlock(new TorqueWaitUntil(() -> elevator.isAtState()));
+    //         addBlock(new TorqueWaitUntil(() -> elevator.isAtState()));
 
-            addBlock(new TorqueRun(() -> Claw.getInstance().setState(clawState)));
+    //         addBlock(new TorqueRun(() -> Claw.getInstance().setState(clawState)));
 
-            addBlock(new TorqueWaitUntil(() -> Claw.getInstance().isAtState()));
+    //         addBlock(new TorqueWaitUntil(() -> Claw.getInstance().isAtState()));
 
-            // More because actually have to score (set claw gamepiece state to intake/outtake)
+    //         // More because actually have to score (set claw gamepiece state to intake/outtake)
 
-            addBlock(new TorqueRun(() -> elevator.setState(State.STOW)));
-            addBlock(new TorqueRun(() -> claw.setState(Claw.State.STOW)));
-        }
-    }
+    //         addBlock(new TorqueRun(() -> elevator.setState(State.STOW)));
+    //         addBlock(new TorqueRun(() -> claw.setState(Claw.State.STOW)));
+    //     }
+    // }
 
     private Elevator() {
         super(State.ZERO);
@@ -68,7 +68,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         elevatorRight = new TorqueNEO(Ports.ELEVATOR_RIGHT);
         elevatorPID = new PIDController(0.005, 0, 0);
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
-        autoScore = null;
+        // autoScore = null;
     }
 
     @Override
@@ -78,14 +78,14 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public final void update(final TorqueMode mode) {
         SmartDashboard.putNumber("Elevator Encoder", getElevatorPosition());
 
-        if (autoScore != null) {
-            autoScore.run();
+        // if (autoScore != null) {
+        //     autoScore.run();
 
-            if (autoScore.ended) {
-                autoScore = null;
-                drivebase.setState(Drivebase.State.FIELD_RELATIVE);
-            }
-        }
+        //     if (autoScore.ended) {
+        //         autoScore = null;
+        //         drivebase.setState(Drivebase.State.FIELD_RELATIVE);
+        //     }
+        // }
 
         elevatorLeft.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
         elevatorRight.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
@@ -93,7 +93,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     @Override
     public final void clean(final TorqueMode mode) {
-        
+        desiredState = State.STOW;
     }
 
     public final boolean isAtState() {
@@ -104,13 +104,13 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         return elevatorEncoder.getPosition().getValueAsDouble();
     }
 
-    public final void startScoreSequence(final Gamepiece gamepiece) {
-        autoScore = new Scoring(desiredState, claw.getState(), gamepiece);
-    }
+    // public final void startScoreSequence(final Gamepiece gamepiece) {
+    //     autoScore = new Scoring(desiredState, claw.getState(), gamepiece);
+    // }
 
-    public final boolean isScoring() {
-        return autoScore != null;
-    }
+    // public final boolean isScoring() {
+    //     return autoScore != null;
+    // }
 
     public static final synchronized Elevator getInstance() {
         return instance == null ? instance = new Elevator() : instance;

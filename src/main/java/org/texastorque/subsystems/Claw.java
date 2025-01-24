@@ -84,12 +84,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     @Override
     public final void update(final TorqueMode mode) {
-        if (elevator.isScoring()) {
-            claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
-        } else {
-            claw.setVolts(clawPID.calculate(getClawAngle(), State.STOW.getAngle()));
-        }
-
+        claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
         algaeRollers.setVolts(algaeState.getVolts());
         coralRollers.setVolts(coralState.getVolts());
     }
@@ -98,6 +93,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public final void clean(final TorqueMode mode) {
         algaeState = AlgaeState.OFF;
         coralState = CoralState.OFF;
+        desiredState = State.STOW;
     }
 
     public final boolean isAtState() {

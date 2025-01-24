@@ -30,18 +30,21 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         debug = new TorqueBoolSupplier(driver::isLeftCenterButtonDown);
         slowMode = new TorqueBoolSupplier(driver::isRightBumperPressed);
 
+        // Elevator and Claw
         L1Mode = new TorqueBoolSupplier(operator::isAButtonDown);
         L2Mode = new TorqueBoolSupplier(operator::isXButtonDown);
         L3Mode = new TorqueBoolSupplier(operator::isBButtonDown);
         L4Mode = new TorqueBoolSupplier(operator::isYButtonDown);
         gamepieceMode = new TorqueToggleSupplier(operator::isRightCenterButtonPressed); // Make sure this works (true is algae, false is coral)
 
+        // In progress: Auto scoring
         scoreSequence = new TorqueBoolSupplier(operator::isRightBumperDown);
         scoreSequenceNoAlign = new TorqueBoolSupplier(operator::isLeftBumperDown);
 
         leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
         rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
 
+        // Rollers 
         intake = new TorqueBoolSupplier(driver::isLeftTriggerDown);
         outtake = new TorqueBoolSupplier(driver::isRightTriggerDown);
     }
@@ -76,11 +79,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         L3Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L3));
         L4Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L4));
 
-        scoreSequence.onTrue(() -> {
-            drivebase.setState(Drivebase.State.ALIGN_TO_APRILTAG);
-            elevator.startScoreSequence(gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL);
-        });
-        scoreSequenceNoAlign.onTrue(() -> elevator.startScoreSequence(getGamepieceMode()));
+        // scoreSequence.onTrue(() -> {
+        //     drivebase.setState(Drivebase.State.ALIGN_TO_APRILTAG);
+        //     elevator.startScoreSequence(gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL);
+        // });
+        // scoreSequenceNoAlign.onTrue(() -> elevator.startScoreSequence(getGamepieceMode()));
     }
 
     public final void updateClaw() {
