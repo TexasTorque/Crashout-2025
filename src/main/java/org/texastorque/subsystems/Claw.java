@@ -99,9 +99,11 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
 	@Override
     public final void clean(final TorqueMode mode) {
-        algaeState = AlgaeState.OFF;
-        coralState = CoralState.OFF;
-        desiredState = State.STOW;
+        if (mode.isTeleop()) {
+            algaeState = AlgaeState.OFF;
+            coralState = CoralState.OFF;
+            desiredState = State.STOW;
+        }
     }
 
     public final boolean isAtState() {

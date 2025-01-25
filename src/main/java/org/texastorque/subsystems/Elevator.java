@@ -97,7 +97,9 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     @Override
     public final void clean(final TorqueMode mode) {
-        desiredState = State.STOW;
+        if (mode.isTeleop()) {
+            desiredState = State.STOW;
+        }
     }
 
     public final boolean isAtState() {
