@@ -1,5 +1,8 @@
 package org.texastorque.auto;
 
+import org.texastorque.auto.ReefSequence.EndAction;
+import org.texastorque.auto.ReefSequence.Location;
+import org.texastorque.auto.sequences.BaseAuto;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.torquelib.auto.*;
 
@@ -14,12 +17,25 @@ public final class AutoManager extends TorqueAutoManager {
 
     @Override
     protected void loadSequences() {
-        
+        addBaseAuto("CTR -> L3 -> PROCESSOR",
+                new ReefSequence(Location.CENTER, Location.FAR, EndAction.L3_L, EndAction.ALGAE_EXTRACTION_LOW),
+                new ReefSequence(Location.FAR, Location.PROCESSOR, EndAction.PROCESSOR)
+        );
     }
 
     @Override
     public void loadPaths() {
-        
+        pathLoader.preloadPath("CST_CL");
+        pathLoader.preloadPath("CST_FR");
+        pathLoader.preloadPath("CTR_FF");
+        pathLoader.preloadPath("FL_CST");
+        pathLoader.preloadPath("FR_CST");
+        pathLoader.preloadPath("LFT_FL");
+        pathLoader.preloadPath("RGT_FL");
+    }
+
+    private void addBaseAuto(final String name, final ReefSequence ...sequences) {
+        addSequence(name, new BaseAuto(sequences));
     }
 
     public static RobotConfig getRobotConfig() {
@@ -27,28 +43,25 @@ public final class AutoManager extends TorqueAutoManager {
             return RobotConfig.fromGUISettings();
         } catch (Exception e) {
             return new RobotConfig(
-                74,
-                6,
-                new ModuleConfig(
-                    0.0508,
-                    4.6,
-                    1, 
-                    new DCMotor(
-                        12,
-                        3.75,
-                        150,
-                        1.8,
-                        35663,
-                        1
-                    ), 
-                    35,
-                    1
-                ),
-                new Translation2d[]{
-                    Drivebase.LOC_FL, Drivebase.LOC_FR,
-                    Drivebase.LOC_BL, Drivebase.LOC_BR
-                }
-            );
+                    74,
+                    6,
+                    new ModuleConfig(
+                            0.0508,
+                            4.6,
+                            1,
+                            new DCMotor(
+                                    12,
+                                    3.75,
+                                    150,
+                                    1.8,
+                                    35663,
+                                    1),
+                            35,
+                            1),
+                    new Translation2d[] {
+                            Drivebase.LOC_FL, Drivebase.LOC_FR,
+                            Drivebase.LOC_BL, Drivebase.LOC_BR
+                    });
         }
     }
 
