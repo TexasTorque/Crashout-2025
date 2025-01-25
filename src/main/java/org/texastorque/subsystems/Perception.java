@@ -87,9 +87,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		LimelightHelpers.PoseEstimate visionEstimateRight = getVisionEstimate(LIMELIGHT_RIGHT);
 		
 		final Pose2d odometryPose = poseEstimator.update(getHeading(), drivebase.getModulePositions());
+		final Pose2d visionPose = getFusedVisionPose(visionEstimateLeft, visionEstimateRight);
 
-		if (visionEstimateLeft != null && visionEstimateRight != null) {
-			final Pose2d visionPose = getFusedVisionPose(visionEstimateLeft.pose, visionEstimateRight.pose);
+		if (visionPose != null) {
 			if (seesTag()) {
 				poseEstimator.addVisionMeasurement(visionPose, visionEstimateLeft.timestampSeconds);
 			}
@@ -127,18 +127,30 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
 	}
 	
-	private Pose2d getFusedVisionPose(final Pose2d left, final Pose2d right) {
+	private Pose2d getFusedVisionPose(final PoseEstimate left, final PoseEstimate right) {
 		final Pose2d pastPose = getPose();
 
+		if (left == null && right != null) {
+			return right.pose;
+		}
+
+		if (right == null && left != null) {
+			return left.pose;
+		}
+
+		if (right == null && left == null){
+			return null;
+		}
+
 		// If the the two poses are more than a half-meter away from each other, disregard both
-		if (left.getTranslation().getDistance(right.getTranslation()) > .5) {
+		if (left.pose.getTranslation().getDistance(right.pose.getTranslation()) > .5) {
 			return pastPose;
 		}
 
 		// If not, return average pose
 		final Pose2d fusedPose = new Pose2d(
-			(left.getX() + right.getX()) / 2,
-			(left.getY() + right.getY()) / 2,
+			(left.pose.getX() + right.pose.getX()) / 2,
+			(left.pose.getY() + right.pose.getY()) / 2,
 			getHeading()
 		);
 		return fusedPose;
