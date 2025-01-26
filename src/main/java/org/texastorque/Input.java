@@ -1,17 +1,11 @@
 package org.texastorque;
 
-import java.lang.annotation.ElementType;
-
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
-import org.texastorque.subsystems.Claw.AlgaeState;
-import org.texastorque.subsystems.Claw.CoralState;
-import org.texastorque.subsystems.Claw.Gamepiece;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
-import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
@@ -20,42 +14,36 @@ import org.texastorque.torquelib.util.TorqueMath;
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueBoolSupplier resetGyro, debug, slowMode, L1Mode, L2Mode, L3Mode, L4Mode,
-            scoreSequence, scoreSequenceNoAlign, gamepieceMode, leftRelation, rightRelation, intake, outtake, net, processor, algaeHigh,
-            algaeLow, algaeGroundIntake;
+    private final TorqueBoolSupplier resetGyro, debug, L1Mode, L2Mode, L3Mode, L4Mode, leftRelation,
+            rightRelation, intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, net, processor,
+            algaeHigh, algaeLow, algaeGroundIntake, coralStation;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
         operator = new TorqueController(1, CONTROLLER_DEADBAND);
 
-        // Driver
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
         debug = new TorqueBoolSupplier(driver::isLeftCenterButtonDown);
-        slowMode = new TorqueBoolSupplier(driver::isRightBumperPressed);
 
-        // Elevator and Claw
         L1Mode = new TorqueBoolSupplier(operator::isAButtonDown);
         L2Mode = new TorqueBoolSupplier(operator::isXButtonDown);
         L3Mode = new TorqueBoolSupplier(operator::isBButtonDown);
         L4Mode = new TorqueBoolSupplier(operator::isYButtonDown);
         net = new TorqueBoolSupplier(operator::isDPADUpDown);
         processor = new TorqueBoolSupplier(driver::isAButtonDown);
+        coralStation = new TorqueBoolSupplier(driver::isYButtonDown);
 
-        algaeHigh = new TorqueBoolSupplier(operator::isXButtonDown);
-        algaeLow = new TorqueBoolSupplier(operator::isYButtonDown);
-        gamepieceMode = new TorqueToggleSupplier(operator::isRightCenterButtonPressed); // Make sure this works (true is algae, false is coral)
+        algaeHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
+        algaeLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
         algaeGroundIntake = new TorqueBoolSupplier(driver::isBButtonDown);
-
-        // In progress: Auto scoring
-        scoreSequence = new TorqueBoolSupplier(operator::isRightBumperDown);
-        scoreSequenceNoAlign = new TorqueBoolSupplier(operator::isLeftBumperDown);
 
         leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
         rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
 
-        // Rollers 
-        intake = new TorqueBoolSupplier(driver::isLeftTriggerDown);
-        outtake = new TorqueBoolSupplier(driver::isRightTriggerDown);
+        intakeCoral = new TorqueBoolSupplier(driver::isLeftTriggerDown);
+        intakeAlgae = new TorqueBoolSupplier(driver::isRightTriggerDown);
+        outtakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
+        outtakeAlgae = new TorqueBoolSupplier(driver::isRightBumperDown);
     }
 
     @Override
@@ -67,7 +55,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
     public final void updateDrivebase() {
         resetGyro.onTrue(() -> perception.resetHeading());
-        slowMode.onTrue(drivebase::toggleSlowMode);
 
         leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
         rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
@@ -92,12 +79,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         algaeHigh.onTrue(() -> elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH));
         algaeLow.onTrue(() -> elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW));
         algaeGroundIntake.onTrue(() -> elevator.setState(Elevator.State.ALGAE_GROUND_INTAKE));
-
-        // scoreSequence.onTrue(() -> {
-        //     drivebase.setState(Drivebase.State.ALIGN_TO_APRILTAG);
-        //     elevator.startScoreSequence(gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL);
-        // });
-        // scoreSequenceNoAlign.onTrue(() -> elevator.startScoreSequence(getGamepieceMode()));
+        coralStation.onTrue(() -> {
+            elevator.setState(Elevator.State.CORAL_HP);
+            claw.setState(Claw.State.CORAL_HP);
+            claw.setCoralState(Claw.CoralState.INTAKE);
+        });
     }
 
     public final void updateClaw() {
@@ -108,26 +94,15 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         processor.onTrue(() -> claw.setState(Claw.State.PROCESSOR));
         algaeHigh.onTrue(() -> claw.setState(Claw.State.ALGAE_EXTRACTION));
         algaeLow.onTrue(() -> claw.setState(Claw.State.ALGAE_EXTRACTION));
-        algaeGroundIntake.onTrue(() -> claw.setState(Claw.State.ALGAE_GROUND_INTAKE));
-
-        intake.onTrue(() -> {
-            if (getGamepieceMode() == Gamepiece.ALGAE) {
-                claw.setAlgaeState(AlgaeState.INTAKE);
-            } else if (getGamepieceMode() == Gamepiece.CORAL) {
-                claw.setCoralState(CoralState.INTAKE);
-            }
+        algaeGroundIntake.onTrue(() -> {
+            claw.setState(Claw.State.ALGAE_GROUND_INTAKE);
+            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
-        outtake.onTrue(() -> {
-            if (getGamepieceMode() == Gamepiece.ALGAE) {
-                claw.setAlgaeState(AlgaeState.SHOOT);
-            } else if (getGamepieceMode() == Gamepiece.CORAL) {
-                claw.setCoralState(CoralState.SHOOT);
-            }
-        });
-    }
 
-    public Gamepiece getGamepieceMode() {
-        return gamepieceMode.get() ? Gamepiece.ALGAE : Gamepiece.CORAL;
+        intakeCoral.onTrue(() -> claw.setCoralState(Claw.CoralState.INTAKE));
+        intakeAlgae.onTrue(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE));
+        outtakeCoral.onTrue(() -> claw.setCoralState(Claw.CoralState.SHOOT));
+        outtakeAlgae.onTrue(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT));
     }
 
     public boolean isDebugMode() {

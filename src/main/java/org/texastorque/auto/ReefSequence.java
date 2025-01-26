@@ -3,7 +3,6 @@ package org.texastorque.auto;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
-import org.texastorque.subsystems.Claw.Gamepiece;
 
 public class ReefSequence {
     public static enum Location {
