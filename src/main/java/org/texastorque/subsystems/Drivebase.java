@@ -46,10 +46,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             MAX_VELOCITY = TorqueSwerveModuleNEO.maxVelocity,
             MAX_ANGULAR_VELOCITY = 4 * Math.PI;
 
-    public static double activeMaxVelocity = MAX_VELOCITY;
-    public static double activeMaxAngularVelocity = MAX_ANGULAR_VELOCITY;
-    public static boolean isSlowMode = false;
-
     public static final Translation2d LOC_FL = new Translation2d(WIDTH / 2, WIDTH / 2),
             LOC_FR = new Translation2d(WIDTH / 2, -WIDTH / 2),
             LOC_BL = new Translation2d(-WIDTH / 2, WIDTH / 2),
@@ -164,12 +160,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (mode.isTeleop()) {
             desiredState = desiredState.parent;
         }
-    }
-
-    public void toggleSlowMode() {
-        isSlowMode = !isSlowMode;
-        activeMaxVelocity = isSlowMode ? MAX_VELOCITY / 10 : MAX_VELOCITY;
-        activeMaxAngularVelocity = isSlowMode ? MAX_ANGULAR_VELOCITY / 10 : MAX_ANGULAR_VELOCITY;
     }
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {

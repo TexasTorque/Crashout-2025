@@ -60,11 +60,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
 
         final double xVelocity = TorqueMath.scaledLinearDeadband(driver.getLeftYAxis(), CONTROLLER_DEADBAND)
-                * Drivebase.activeMaxVelocity;
+                * Drivebase.MAX_VELOCITY;
         final double yVelocity = TorqueMath.scaledLinearDeadband(driver.getLeftXAxis(), CONTROLLER_DEADBAND)
-                * Drivebase.activeMaxVelocity;
+                * Drivebase.MAX_VELOCITY;
         final double rotationVelocity = TorqueMath.scaledLinearDeadband(driver.getRightXAxis(), CONTROLLER_DEADBAND)
-                * Drivebase.activeMaxAngularVelocity;
+                * Drivebase.MAX_ANGULAR_VELOCITY;
 
         drivebase.setInputSpeeds(new TorqueSwerveSpeeds(xVelocity, yVelocity, rotationVelocity));
     }
