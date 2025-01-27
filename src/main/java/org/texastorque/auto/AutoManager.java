@@ -36,6 +36,7 @@ public final class AutoManager extends TorqueAutoManager {
         pathLoader.preloadPath("CTR_FF");
         pathLoader.preloadPath("FF_PSR");
         pathLoader.preloadPath("LFT_CL");
+        pathLoader.preloadPath("CSL_CL");
     }
 
     private void addBaseAuto(final String name, final ReefSequence ...sequences) {
