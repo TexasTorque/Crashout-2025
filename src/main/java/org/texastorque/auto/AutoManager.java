@@ -21,7 +21,7 @@ public final class AutoManager extends TorqueAutoManager {
                 new ReefSequence(Location.CENTER, Location.FAR, EndAction.L3_L, EndAction.ALGAE_EXTRACTION_LOW),
                 new ReefSequence(Location.FAR, Location.PROCESSOR, EndAction.PROCESSOR)
         );
-        addBaseAuto("LFT -> FF L3L -> CSL -> FF L3R",
+        addBaseAuto("LFT -> CL L3L -> CSL -> CL L3R",
                 new ReefSequence(Location.LEFT, Location.CLOSE_LEFT, EndAction.L3_L, EndAction.ALGAE_EXTRACTION_LOW),
                 new ReefSequence(Location.CLOSE_LEFT, Location.CORAL_STATION_LEFT, EndAction.CORAL_PICKUP),
                 new ReefSequence(Location.CORAL_STATION_LEFT, Location.CLOSE_LEFT, EndAction.ALGAE_EXTRACTION_LOW, EndAction.L3_R)
