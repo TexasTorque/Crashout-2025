@@ -17,11 +17,11 @@ public final class AutoManager extends TorqueAutoManager {
 
     @Override
     protected void loadSequences() {
-        addBaseAuto("CTR -> L3 -> PROCESSOR",
+        addBaseAuto("CTR -> FF L3L -> PROCESSOR",
                 new ReefSequence(Location.CENTER, Location.FAR, EndAction.L3_L, EndAction.ALGAE_EXTRACTION_LOW),
                 new ReefSequence(Location.FAR, Location.PROCESSOR, EndAction.PROCESSOR)
         );
-        addBaseAuto("LFT -> L3 -> CSL -> L3",
+        addBaseAuto("LFT -> FF L3L -> CSL -> FF L3R",
                 new ReefSequence(Location.LEFT, Location.CLOSE_LEFT, EndAction.L3_L, EndAction.ALGAE_EXTRACTION_LOW),
                 new ReefSequence(Location.CLOSE_LEFT, Location.CORAL_STATION_LEFT, EndAction.CORAL_PICKUP),
                 new ReefSequence(Location.CORAL_STATION_LEFT, Location.CLOSE_LEFT, EndAction.ALGAE_EXTRACTION_LOW, EndAction.L3_R)
@@ -30,13 +30,12 @@ public final class AutoManager extends TorqueAutoManager {
 
     @Override
     public void loadPaths() {
-        pathLoader.preloadPath("CST_CL");
-        pathLoader.preloadPath("CST_FR");
+        pathLoader.preloadPath("RGT_CL");
+        pathLoader.preloadPath("CL_CSL");
+        pathLoader.preloadPath("CR_CSR");
         pathLoader.preloadPath("CTR_FF");
-        pathLoader.preloadPath("FL_CST");
-        pathLoader.preloadPath("FR_CST");
-        pathLoader.preloadPath("LFT_FL");
-        pathLoader.preloadPath("RGT_FL");
+        pathLoader.preloadPath("FF_PSR");
+        pathLoader.preloadPath("LFT_CL");
     }
 
     private void addBaseAuto(final String name, final ReefSequence ...sequences) {
