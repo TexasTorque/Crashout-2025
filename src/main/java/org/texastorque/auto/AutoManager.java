@@ -61,7 +61,8 @@ public final class AutoManager extends TorqueAutoManager {
                     new Translation2d[] {
                             Drivebase.LOC_FL, Drivebase.LOC_FR,
                             Drivebase.LOC_BL, Drivebase.LOC_BR
-                    });
+                    }
+            );
         }
     }
 
