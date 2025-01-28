@@ -11,11 +11,7 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
-
-import org.texastorque.torquelib.swerve.TorqueSwerveModule2022;
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
-import org.texastorque.torquelib.swerve.TorqueSwerveModuleNEO;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -43,8 +39,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     private static volatile Drivebase instance;
 
-    public static final double WIDTH = .552323,
-            MAX_VELOCITY = TorqueSwerveModuleNEO.maxVelocity,
+    public static final double WIDTH = .5842,
+            MAX_VELOCITY = TorqueSwerveModuleKraken.maxVelocity,
             MAX_ANGULAR_VELOCITY = 4 * Math.PI;
 
     public static final Translation2d LOC_FL = new Translation2d(WIDTH / 2, WIDTH / 2),
