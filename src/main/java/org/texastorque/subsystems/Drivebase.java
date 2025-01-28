@@ -13,6 +13,7 @@ import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 
 import org.texastorque.torquelib.swerve.TorqueSwerveModule2022;
+import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleNEO;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -51,7 +52,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             LOC_BL = new Translation2d(-WIDTH / 2, WIDTH / 2),
             LOC_BR = new Translation2d(-WIDTH / 2, -WIDTH / 2);
 
-    private final TorqueSwerveModule2022 fl, fr, bl, br;
+    private final TorqueSwerveModuleKraken fl, fr, bl, br;
 
     public TorqueSwerveSpeeds inputSpeeds;
     public final SwerveDriveKinematics kinematics;
@@ -65,10 +66,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     private Drivebase() {
         super(State.FIELD_RELATIVE);
 
-        fl = new TorqueSwerveModule2022("Front Left", Ports.FL_MOD);
-        fr = new TorqueSwerveModule2022("Front Right", Ports.FR_MOD);
-        bl = new TorqueSwerveModule2022("Back Left", Ports.BL_MOD);
-        br = new TorqueSwerveModule2022("Back Right", Ports.BR_MOD);
+        fl = new TorqueSwerveModuleKraken("Front Left", Ports.FL_MOD);
+        fr = new TorqueSwerveModuleKraken("Front Right", Ports.FR_MOD);
+        bl = new TorqueSwerveModuleKraken("Back Left", Ports.BL_MOD);
+        br = new TorqueSwerveModuleKraken("Back Right", Ports.BR_MOD);
 
         inputSpeeds = new TorqueSwerveSpeeds(0, 0, 0);
         kinematics = new SwerveDriveKinematics(LOC_FL, LOC_FR, LOC_BL, LOC_BR);
