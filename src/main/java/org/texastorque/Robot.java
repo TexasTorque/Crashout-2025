@@ -10,7 +10,7 @@ public class Robot extends TorqueRobotBase implements Subsystems {
 
 		addSubsystem(drivebase);
 		addSubsystem(perception);
-		addSubsystem(elevator);
-		addSubsystem(claw);
+		// addSubsystem(elevator);
+		// addSubsystem(claw);
 	}
 }
