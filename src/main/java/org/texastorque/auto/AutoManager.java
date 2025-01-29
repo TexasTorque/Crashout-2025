@@ -1,8 +1,7 @@
 package org.texastorque.auto;
 
-import org.texastorque.auto.ReefSequence.EndAction;
-import org.texastorque.auto.ReefSequence.Location;
-import org.texastorque.auto.sequences.BaseAuto;
+import org.texastorque.Subsystems;
+import org.texastorque.auto.sequences.CenterAuto;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.torquelib.auto.*;
 
@@ -12,35 +11,20 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 
-public final class AutoManager extends TorqueAutoManager {
+public final class AutoManager extends TorqueAutoManager implements Subsystems {
     private static volatile AutoManager instance;
 
     @Override
     protected void loadSequences() {
-        addBaseAuto("CTR -> FF L3L -> PROCESSOR",
-                new ReefSequence(Location.CENTER, Location.FAR, EndAction.L3_L, EndAction.ALGAE_EXTRACTION_LOW),
-                new ReefSequence(Location.FAR, Location.PROCESSOR, EndAction.PROCESSOR)
-        );
-        addBaseAuto("LFT -> CL L3L -> CSL -> CL L3R",
-                new ReefSequence(Location.LEFT, Location.CLOSE_LEFT, EndAction.L3_L, EndAction.ALGAE_EXTRACTION_LOW),
-                new ReefSequence(Location.CLOSE_LEFT, Location.CORAL_STATION_LEFT, EndAction.CORAL_PICKUP),
-                new ReefSequence(Location.CORAL_STATION_LEFT, Location.CLOSE_LEFT, EndAction.ALGAE_EXTRACTION_LOW, EndAction.L3_R)
-        );
+        addSequence("CTR -> FF EXT -> FF L3 L -> PSR -> FR EXT -> PSR", new CenterAuto());
     }
 
     @Override
     public void loadPaths() {
-        pathLoader.preloadPath("RGT_CL");
-        pathLoader.preloadPath("CL_CSL");
-        pathLoader.preloadPath("CR_CSR");
         pathLoader.preloadPath("CTR_FF");
         pathLoader.preloadPath("FF_PSR");
-        pathLoader.preloadPath("LFT_CL");
-        pathLoader.preloadPath("CSL_CL");
-    }
-
-    private void addBaseAuto(final String name, final ReefSequence ...sequences) {
-        addSequence(name, new BaseAuto(sequences));
+        pathLoader.preloadPath("PSR_FR");
+        pathLoader.preloadPath("FR_PSR");
     }
 
     public static RobotConfig getRobotConfig() {
