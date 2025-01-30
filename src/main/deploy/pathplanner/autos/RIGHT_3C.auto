@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RGT_CR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CR_CSR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CSR_CR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CR_CSR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CSR_CR"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
