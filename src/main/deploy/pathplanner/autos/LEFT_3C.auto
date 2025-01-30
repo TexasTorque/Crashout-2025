@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LFT_CL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CL_CSL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CSL_CL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CL_CSL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CSL_CL"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
