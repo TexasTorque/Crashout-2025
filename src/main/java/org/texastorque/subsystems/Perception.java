@@ -130,17 +130,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private Pose2d getFusedVisionPose(final PoseEstimate left, final PoseEstimate right) {
 		final Pose2d pastPose = getPose();
 
-		if (left == null && right != null) {
-			return right.pose;
-		}
-
-		if (right == null && left != null) {
-			return left.pose;
-		}
-
-		if (right == null && left == null){
-			return null;
-		}
+		// Pose filtering
+		if (left == null && right != null) return right.pose;
+		if (right == null && left != null) return left.pose;
+		if (right == null && left == null) return null;
 
 		// If the the two poses are more than a half-meter away from each other, disregard both
 		if (left.pose.getTranslation().getDistance(right.pose.getTranslation()) > .5) {
@@ -168,7 +161,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	public Pose2d getPose() {
-	  return finalPose;
+		return finalPose;
 	}
 
 	public RawFiducial getAlignDetection() {

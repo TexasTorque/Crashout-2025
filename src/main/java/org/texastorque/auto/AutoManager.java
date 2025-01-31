@@ -25,10 +25,16 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public void loadPaths() {
+        pathLoader.preloadPath("CL_CSL");
+        pathLoader.preloadPath("CR_CSR");
+        pathLoader.preloadPath("CSL_CL");
+        pathLoader.preloadPath("CSR_CR");
         pathLoader.preloadPath("CTR_FF");
         pathLoader.preloadPath("FF_PSR");
-        pathLoader.preloadPath("PSR_FR");
         pathLoader.preloadPath("FR_PSR");
+        pathLoader.preloadPath("PSR_FR");
+        pathLoader.preloadPath("LFT_CL");
+        pathLoader.preloadPath("RGT_CR");
     }
 
     public static RobotConfig getRobotConfig() {

@@ -10,6 +10,7 @@ import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.marker.Marker;
 
 public class CenterAuto extends TorqueSequence implements Subsystems {
+    
     public CenterAuto() {
         // Drive center to far
         addBlock(new TorqueFollowPath("CTR_FF", drivebase).withMarkers(
