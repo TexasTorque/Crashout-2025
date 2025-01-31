@@ -2,6 +2,8 @@ package org.texastorque.auto;
 
 import org.texastorque.Subsystems;
 import org.texastorque.auto.sequences.CenterAuto;
+import org.texastorque.auto.sequences.LeftAuto;
+import org.texastorque.auto.sequences.RightAuto;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.torquelib.auto.*;
 
@@ -16,7 +18,9 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     protected void loadSequences() {
+        addSequence("LFT -> CL EXT -> CL L3 L -> CSL -> CL L3 R -> CSL -> CL L2 L", new LeftAuto());
         addSequence("CTR -> FF EXT -> FF L3 L -> PSR -> FR EXT -> PSR", new CenterAuto());
+        addSequence("RGT -> CR EXT -> CR L3 L -> CSR -> CR L3 R -> CSR -> CR L2 L", new RightAuto());
     }
 
     @Override
