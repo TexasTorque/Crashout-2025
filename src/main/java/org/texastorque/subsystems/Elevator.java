@@ -2,6 +2,7 @@ package org.texastorque.subsystems;
 
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
+import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
@@ -11,7 +12,6 @@ import org.texastorque.torquelib.util.TorqueMath;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implements Subsystems {
 
@@ -53,10 +53,10 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     @Override
     public final void update(final TorqueMode mode) {
-        SmartDashboard.putNumber("Elevator Encoder", getElevatorPosition());
+        Debug.log("Elevator Position", getElevatorPosition());
 
-        elevatorLeft.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
-        elevatorRight.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
+        // elevatorLeft.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
+        // elevatorRight.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
     }
 
     @Override

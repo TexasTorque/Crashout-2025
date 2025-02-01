@@ -2,6 +2,7 @@ package org.texastorque.subsystems;
 
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
+import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
@@ -21,6 +22,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private AlgaeState algaeState = AlgaeState.OFF;
     private CoralState coralState = CoralState.OFF;
 
+    // Angle that we intake from HP is 0 degrees
     public static enum State implements TorqueState {
         STOW(90), 
         L1_SCORE(120), 
@@ -72,11 +74,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         }
     }
 
-    public enum Gamepiece {
-        CORAL,
-        ALGAE;
-    }
-
     private Claw() {
         super(State.STOW);
         claw = new TorqueNEO(Ports.CLAW);
@@ -92,9 +89,11 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     @Override
     public final void update(final TorqueMode mode) {
-        claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
-        algaeRollers.setVolts(algaeState.getVolts());
-        coralRollers.setVolts(coralState.getVolts());
+        Debug.log("Claw Position", getClawAngle());
+
+        // claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
+        // algaeRollers.setVolts(algaeState.getVolts());
+        // coralRollers.setVolts(coralState.getVolts());
     }
 
 	@Override
