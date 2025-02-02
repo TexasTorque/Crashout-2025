@@ -1,0 +1,24 @@
+{
+  "name": "2025 Bravo",
+  "rotations": [{ "axis": "x", "degrees": 90 }],
+  "position": [0, 0, 0.05],
+  "cameras": [],
+  "components": [
+    {
+      "zeroedRotations": [{ "axis": "x", "degrees": 90}],
+      "zeroedPosition": [0.1825, 0.09, 0.1525]
+    },
+    {
+      "zeroedRotations": [{ "axis": "x", "degrees": 90}],
+      "zeroedPosition": [0.155, 0.115, 0.4254]
+    },
+    {
+      "zeroedRotations": [{ "axis": "x", "degrees": 90}],
+      "zeroedPosition": [0.12, 0.12, 0.6]
+    },
+    {
+      "zeroedRotations": [{ "axis": "x", "degrees": 90}],
+      "zeroedPosition": [-0.109, 0.006, -0.578]
+    }
+  ]
+}
