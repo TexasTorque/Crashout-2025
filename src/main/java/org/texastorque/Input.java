@@ -6,24 +6,24 @@ import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
+import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
-
 
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueBoolSupplier resetGyro, debug, L1Mode, L2Mode, L3Mode, L4Mode, leftRelation,
             rightRelation, intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, net, processor,
-            algaeHigh, algaeLow, algaeGroundIntake, coralStation;
+            algaeHigh, algaeLow, algaeGroundIntake, coralStation, debugElevatorUp, debugElevatorDown;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
         operator = new TorqueController(1, CONTROLLER_DEADBAND);
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
-        debug = new TorqueBoolSupplier(driver::isLeftCenterButtonDown);
+        debug = new TorqueToggleSupplier(operator::isLeftCenterButtonDown);
 
         L1Mode = new TorqueBoolSupplier(operator::isAButtonDown);
         L2Mode = new TorqueBoolSupplier(operator::isXButtonDown);
@@ -44,6 +44,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeAlgae = new TorqueBoolSupplier(driver::isRightTriggerDown);
         outtakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isRightBumperDown);
+
+        debugElevatorUp = new TorqueBoolSupplier(operator::isLeftBumperDown);
+        debugElevatorDown = new TorqueBoolSupplier(operator::isLeftTriggerDown);
     }
 
     @Override
@@ -51,6 +54,14 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateDrivebase();
         updateElevator();
         updateClaw();
+
+        debug.onTrue(() -> {
+            elevator.setState(Elevator.State.DEBUG);
+            claw.setState(Claw.State.DEBUG);
+        });
+
+        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(2));
+        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-2));
     }
 
     public final void updateDrivebase() {

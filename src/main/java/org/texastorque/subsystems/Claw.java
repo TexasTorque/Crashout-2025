@@ -21,6 +21,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private final CANcoder clawEncoder;
     private AlgaeState algaeState = AlgaeState.OFF;
     private CoralState coralState = CoralState.OFF;
+    private double debugVolts;
 
     // Angle that we intake from HP is 0 degrees
     public static enum State implements TorqueState {
@@ -32,7 +33,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         ALGAE_EXTRACTION(120),
         PROCESSOR(170),
         CORAL_HP(120),
-        ALGAE_GROUND_INTAKE(100);
+        ALGAE_GROUND_INTAKE(100),
+        DEBUG(0);
 
         private final double angle;
 
@@ -82,6 +84,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE);
         coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL);
+        debugVolts = 0;
     }
 
     @Override
@@ -92,8 +95,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Claw Position", getClawAngle());
 
         // claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
-        // algaeRollers.setVolts(algaeState.getVolts());
-        // coralRollers.setVolts(coralState.getVolts());
+        algaeRollers.setVolts(algaeState.getVolts());
+        coralRollers.setVolts(coralState.getVolts());
+
+        if (desiredState == State.DEBUG) {
+            claw.setVolts(debugVolts);
+        }
     }
 
 	@Override
@@ -105,8 +112,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         }
     }
 
+    public void setDebugVolts(final double volts) {
+        this.debugVolts = volts;
+    }
+
     public final boolean isAtState() {
-        return TorqueMath.toleranced(getClawAngle(), desiredState.getAngle());
+        return TorqueMath.toleranced(getClawAngle(), desiredState.getAngle(), 1);
     }
 
     public final double getClawAngle() {

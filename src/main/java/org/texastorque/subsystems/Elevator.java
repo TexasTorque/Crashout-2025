@@ -1,5 +1,6 @@
 package org.texastorque.subsystems;
 
+import org.texastorque.Input;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
@@ -12,6 +13,7 @@ import org.texastorque.torquelib.util.TorqueMath;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implements Subsystems {
 
@@ -19,6 +21,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final TorqueNEO elevatorLeft, elevatorRight;
     public final PIDController elevatorPID;
     public final CANcoder elevatorEncoder;
+    private double debugVolts;
 
     public static enum State implements TorqueState {
         SCORE_L1(2000),
@@ -31,7 +34,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         ALGAE_REMOVAL_HIGH(5000),
         PROCESSOR(0),
         ALGAE_GROUND_INTAKE(0),
-        CORAL_HP(1000);
+        CORAL_HP(1000),
+        DEBUG(0);
 
         public final double position;
 
@@ -46,6 +50,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         elevatorRight = new TorqueNEO(Ports.ELEVATOR_RIGHT);
         elevatorPID = new PIDController(0.005, 0, 0);
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
+        debugVolts = 0;
     }
 
     @Override
@@ -57,6 +62,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
         // elevatorLeft.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
         // elevatorRight.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
+
+        if (desiredState == State.DEBUG) {
+            elevatorLeft.setVolts(debugVolts);
+            elevatorRight.setVolts(debugVolts);
+        }
     }
 
     @Override
@@ -64,6 +74,10 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         if (mode.isTeleop()) {
             desiredState = State.STOW;
         }
+    }
+
+    public void setDebugVolts(final double volts) {
+        this.debugVolts = volts;
     }
 
     public final boolean isAtState() {
