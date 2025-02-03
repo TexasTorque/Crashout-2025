@@ -16,7 +16,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueBoolSupplier resetGyro, debug, L1Mode, L2Mode, L3Mode, L4Mode, leftRelation,
             rightRelation, intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, net, processor,
-            algaeHigh, algaeLow, algaeGroundIntake, coralStation, debugElevatorUp, debugElevatorDown;
+            algaeHigh, algaeLow, algaeGroundIntake, coralStation, debugElevatorUp, debugElevatorDown,
+            debugClawUp, debugClawDown;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -47,6 +48,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         debugElevatorUp = new TorqueBoolSupplier(operator::isLeftBumperDown);
         debugElevatorDown = new TorqueBoolSupplier(operator::isLeftTriggerDown);
+
+        debugClawUp = new TorqueBoolSupplier(operator::isDPADRightDown);
+        debugClawDown = new TorqueBoolSupplier(operator::isDPADLeftDown);
     }
 
     @Override
@@ -60,16 +64,20 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setState(Claw.State.DEBUG);
         });
 
-        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(2));
-        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-2));
+        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(1));
+        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-1));
+        debugClawUp.onTrue(() -> claw.setDebugVolts(2));
+        debugClawDown.onTrue(() -> claw.setDebugVolts(-2));
     }
 
     public final void updateDrivebase() {
         resetGyro.onTrue(() -> perception.resetHeading());
 
-        leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
-        rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
-
+        if (!debug.get()) {
+            leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
+            rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
+        }
+        
         final double xVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftYAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_VELOCITY;
         final double yVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftXAxis(), CONTROLLER_DEADBAND)

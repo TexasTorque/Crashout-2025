@@ -156,10 +156,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
         // Simulation poses
-
-        Logger.recordOutput("RobotPose", new Pose2d());
-        Logger.recordOutput("ZeroedComponentPoses", new Pose3d[]{ new Pose3d(), new Pose3d(), new Pose3d(), new Pose3d() });
-        Logger.recordOutput("FinalComponentPoses", new Pose3d[] {
+        Logger.recordOutput("Robot Pose", perception.getPose());
+        Logger.recordOutput("ComponentPoses", new Pose3d[] {
             new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 4, new Rotation3d()),
             new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 3, new Rotation3d()),
             new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d()),
