@@ -59,6 +59,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Elevator Position", getElevatorPosition());
+        Debug.log("Elevator State", desiredState.toString());
 
         // elevatorLeft.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
         // elevatorRight.setVolts(elevatorPID.calculate(getElevatorPosition(), desiredState.position));
@@ -71,6 +72,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     @Override
     public final void clean(final TorqueMode mode) {
+        debugVolts = 0;
         if (mode.isTeleop()) {
             desiredState = State.STOW;
         }

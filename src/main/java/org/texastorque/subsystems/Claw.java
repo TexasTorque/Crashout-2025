@@ -10,6 +10,7 @@ import org.texastorque.torquelib.motors.TorqueNEO;
 import org.texastorque.torquelib.util.TorqueMath;
 
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 
@@ -49,7 +50,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum AlgaeState implements TorqueState {
-        INTAKE(-4), SHOOT(4), OFF(0);
+        INTAKE(-8), SHOOT(8), OFF(0);
 
         private final double volts;
 
@@ -78,7 +79,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     private Claw() {
         super(State.STOW);
-        claw = new TorqueNEO(Ports.CLAW);
+        claw = new TorqueNEO(Ports.CLAW).idleMode(IdleMode.kCoast);
         clawEncoder = new CANcoder(Ports.CLAW_ENCODER);
         clawPID = new PIDController(1, 0, 0);
 
@@ -93,6 +94,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Claw Position", getClawAngle());
+        Debug.log("Claw State", desiredState.toString());
+
 
         // claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
         algaeRollers.setVolts(algaeState.getVolts());
@@ -105,6 +108,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
 	@Override
     public final void clean(final TorqueMode mode) {
+        debugVolts = 0;
         if (mode.isTeleop()) {
             algaeState = AlgaeState.OFF;
             coralState = CoralState.OFF;

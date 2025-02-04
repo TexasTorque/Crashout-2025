@@ -4,6 +4,7 @@ import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
+import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueToggleSupplier;
@@ -63,9 +64,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             elevator.setState(Elevator.State.DEBUG);
             claw.setState(Claw.State.DEBUG);
         });
+        Debug.log("Debug Mode", debug.get());
 
-        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(1));
-        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-1));
+        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(6));
+        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-6));
         debugClawUp.onTrue(() -> claw.setDebugVolts(2));
         debugClawDown.onTrue(() -> claw.setDebugVolts(-2));
     }

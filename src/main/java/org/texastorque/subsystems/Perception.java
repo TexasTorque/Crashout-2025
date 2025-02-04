@@ -67,8 +67,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.field("Field", field);
 	}
 
-	final String LIMELIGHT_TOP = "limelight-top";
-	final String LIMELIGHT_BOTTOM = "limelight-bottom";
+	final String LIMELIGHT_TOP = "limelight-high";
+	final String LIMELIGHT_BOTTOM = "limelight-low";
 
 	@Override
 	public void initialize(TorqueMode mode) {}
