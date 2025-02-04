@@ -79,11 +79,15 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     private Claw() {
         super(State.STOW);
-        claw = new TorqueNEO(Ports.CLAW).idleMode(IdleMode.kCoast);
+        claw = new TorqueNEO(Ports.CLAW)
+            .idleMode(IdleMode.kCoast)
+            .apply();
         clawEncoder = new CANcoder(Ports.CLAW_ENCODER);
         clawPID = new PIDController(1, 0, 0);
 
-        algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE);
+        algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
+            .inverted(true)
+            .apply();
         coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL);
         debugVolts = 0;
     }
@@ -95,7 +99,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public final void update(final TorqueMode mode) {
         Debug.log("Claw Position", getClawAngle());
         Debug.log("Claw State", desiredState.toString());
-
 
         // claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
         algaeRollers.setVolts(algaeState.getVolts());

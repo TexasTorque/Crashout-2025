@@ -56,8 +56,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private final Field2d field = new Field2d();
 
 	public Perception() {
-		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_TOP, -0.150752, -0.105425, 0.77653, 90, 45, 180);
-		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_BOTTOM, 0.298645, 0.127, 0.164267, 0, 25, 0);
+		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.105425, 0.77653, 90, 45, 180);
+		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_LOW, 0.298645, 0.127, 0.164267, 0, 25, 0);
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
 
@@ -67,8 +67,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.field("Field", field);
 	}
 
-	final String LIMELIGHT_TOP = "limelight-high";
-	final String LIMELIGHT_BOTTOM = "limelight-low";
+	final String LIMELIGHT_HIGH = "limelight-high";
+	final String LIMELIGHT_LOW = "limelight-low";
 
 	@Override
 	public void initialize(TorqueMode mode) {}
@@ -78,17 +78,17 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		gyro_simulated += drivebase.inputSpeeds.omegaRadiansPerSecond / 180 * Math.PI;
 		gyro_simulated %= 2 * Math.PI;
 
-		LimelightHelpers.SetRobotOrientation(LIMELIGHT_TOP, getHeading().getDegrees(), 0, 0, 0, 0, 0);
-		LimelightHelpers.SetRobotOrientation(LIMELIGHT_BOTTOM, getHeading().getDegrees(), 0, 0, 0, 0, 0);
-		LimelightHelpers.PoseEstimate visionEstimateTop = getVisionEstimate(LIMELIGHT_TOP);
-		LimelightHelpers.PoseEstimate visionEstimateBottom = getVisionEstimate(LIMELIGHT_BOTTOM);
+		LimelightHelpers.SetRobotOrientation(LIMELIGHT_HIGH, getHeading().getDegrees(), 0, 0, 0, 0, 0);
+		LimelightHelpers.SetRobotOrientation(LIMELIGHT_LOW, getHeading().getDegrees(), 0, 0, 0, 0, 0);
+		LimelightHelpers.PoseEstimate visionEstimatehigh = getVisionEstimate(LIMELIGHT_HIGH);
+		LimelightHelpers.PoseEstimate visionEstimatelow = getVisionEstimate(LIMELIGHT_LOW);
 		
 		final Pose2d odometryPose = poseEstimator.update(getHeading(), drivebase.getModulePositions());
-		final Pose2d visionPose = getFusedVisionPose(visionEstimateTop, visionEstimateBottom);
+		final Pose2d visionPose = getFusedVisionPose(visionEstimatehigh, visionEstimatelow);
 
 		if (visionPose != null) {
 			if (seesTag()) {
-				poseEstimator.addVisionMeasurement(visionPose, visionEstimateTop.timestampSeconds);
+				poseEstimator.addVisionMeasurement(visionPose, visionEstimatehigh.timestampSeconds);
 			}
 
 			finalPose = new Pose2d(
@@ -123,30 +123,30 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
 	}
 	
-	private Pose2d getFusedVisionPose(final PoseEstimate top, final PoseEstimate bottom) {
+	private Pose2d getFusedVisionPose(final PoseEstimate high, final PoseEstimate low) {
 		final Pose2d pastPose = getPose();
 
 		// Pose filtering
-		if (top == null && bottom != null) return bottom.pose;
-		if (bottom == null && top != null) return top.pose;
-		if (bottom == null && top == null) return null;
+		if (high == null && low != null) return low.pose;
+		if (low == null && high != null) return high.pose;
+		if (low == null && high == null) return null;
 
 		// If the the two poses are more than a half-meter away from each other, disregard both
-		if (top.pose.getTranslation().getDistance(bottom.pose.getTranslation()) > .5) {
+		if (high.pose.getTranslation().getDistance(low.pose.getTranslation()) > .5) {
 			return pastPose;
 		}
 
 		// If not, return average pose
 		final Pose2d fusedPose = new Pose2d(
-			(top.pose.getX() + bottom.pose.getX()) / 2,
-			(top.pose.getY() + bottom.pose.getY()) / 2,
+			(high.pose.getX() + low.pose.getX()) / 2,
+			(high.pose.getY() + low.pose.getY()) / 2,
 			getHeading()
 		);
 		return fusedPose;
 	}
 
 	private boolean seesTag() {
-		return LimelightHelpers.getTargetCount(LIMELIGHT_TOP) > 0 || LimelightHelpers.getTargetCount(LIMELIGHT_BOTTOM) > 0;
+		return LimelightHelpers.getTargetCount(LIMELIGHT_HIGH) > 0 || LimelightHelpers.getTargetCount(LIMELIGHT_LOW) > 0;
 	}
 
 	public Rotation2d getHeading() {
@@ -162,7 +162,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public RawFiducial getAlignDetection() {
 		// Get best apriltag detection (closest to center of frame)
-		final PoseEstimate estimate = getVisionEstimate(LIMELIGHT_TOP); // Whichever limelight is facing towards where we score
+		final PoseEstimate estimate = getVisionEstimate(LIMELIGHT_LOW);
 		if (estimate.rawFiducials.length == 0) return null;
 		
 		final List<RawFiducial> detections = Arrays.asList(estimate.rawFiducials);
