@@ -4,6 +4,7 @@ import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
+import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
@@ -18,7 +19,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final TorqueBoolSupplier resetGyro, debug, L1Mode, L2Mode, L3Mode, L4Mode, leftRelation,
             rightRelation, intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, net, processor,
             algaeHigh, algaeLow, algaeGroundIntake, coralStation, debugElevatorUp, debugElevatorDown,
-            debugClawUp, debugClawDown;
+            debugClawUp, debugClawDown, climbUp, climbDown;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -47,6 +48,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         outtakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isRightBumperDown);
 
+        climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
+        climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND);
+
         debugElevatorUp = new TorqueBoolSupplier(operator::isLeftBumperDown);
         debugElevatorDown = new TorqueBoolSupplier(operator::isLeftTriggerDown);
 
@@ -59,6 +63,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateDrivebase();
         updateElevator();
         updateClaw();
+        updateClimb();
 
         debug.onTrue(() -> {
             elevator.setState(Elevator.State.DEBUG);
@@ -66,8 +71,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         Debug.log("Debug Mode", debug.get());
 
-        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(6));
-        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-6));
+        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(4));
+        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-4));
         debugClawUp.onTrue(() -> claw.setDebugVolts(2));
         debugClawDown.onTrue(() -> claw.setDebugVolts(-2));
     }
@@ -80,11 +85,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
         }
         
-        final double xVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftYAxis(), CONTROLLER_DEADBAND)
+        final double xVelocity = TorqueMath.scaledLinearDeadband(driver.getLeftYAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_VELOCITY;
-        final double yVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftXAxis(), CONTROLLER_DEADBAND)
+        final double yVelocity = TorqueMath.scaledLinearDeadband(driver.getLeftXAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_VELOCITY;
-        final double rotationVelocity = TorqueMath.scaledLinearDeadband(-driver.getRightXAxis(), CONTROLLER_DEADBAND)
+        final double rotationVelocity = TorqueMath.scaledLinearDeadband(driver.getRightXAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_ANGULAR_VELOCITY;
 
         drivebase.setInputSpeeds(new TorqueSwerveSpeeds(xVelocity, yVelocity, rotationVelocity));
@@ -124,6 +129,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeAlgae.onTrue(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE));
         outtakeCoral.onTrue(() -> claw.setCoralState(Claw.CoralState.SHOOT));
         outtakeAlgae.onTrue(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT));
+    }
+
+    public final void updateClimb() {
+        climbUp.onTrue(() -> climb.setState(Climb.State.UP));
+        climbDown.onTrue(() -> climb.setState(Climb.State.DOWN));
     }
 
     public boolean isDebugMode() {

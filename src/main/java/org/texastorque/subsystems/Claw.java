@@ -50,7 +50,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum AlgaeState implements TorqueState {
-        INTAKE(-8), SHOOT(8), OFF(0);
+        INTAKE(-12), SHOOT(12), OFF(0);
 
         private final double volts;
 
@@ -83,8 +83,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         clawEncoder = new CANcoder(Ports.CLAW_ENCODER);
         clawPID = new PIDController(1, 0, 0);
 
-        algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE);
-        coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL);
+        algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE).currentLimit(14).apply();
+        coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL).currentLimit(3).apply();
         debugVolts = 0;
     }
 
@@ -95,7 +95,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public final void update(final TorqueMode mode) {
         Debug.log("Claw Position", getClawAngle());
         Debug.log("Claw State", desiredState.toString());
-
+        Debug.log("Coral State", coralState.toString());
+        Debug.log("Algae State", algaeState.toString());
 
         // claw.setVolts(clawPID.calculate(getClawAngle(), desiredState.getAngle()));
         algaeRollers.setVolts(algaeState.getVolts());

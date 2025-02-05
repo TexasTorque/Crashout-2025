@@ -17,4 +17,7 @@ public final class Ports {
 
     public static final int ROLLERS_CORAL = 17;
     public static final int ROLLERS_ALGAE = 16;
+
+    public static final int CLIMB_LEFT = 20;
+    public static final int CLIMB_RIGHT = 21;
 }
