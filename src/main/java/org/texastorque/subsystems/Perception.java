@@ -30,8 +30,10 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
@@ -74,13 +76,15 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		Debug.field("Field", field);
 
-		final Translation2d center = new Translation2d(4.5, 4.0259);
-        final Translation2d right = new Translation2d(4.5, 4.0259 - 3);
-        final Translation2d farRight = new Translation2d(4.5 + 2.5980644, 4.0259 - 1.5);
-        final Translation2d farLeft = new Translation2d(4.5 + 2.5980644, 4.0259 + 1.5);
-        final Translation2d left = new Translation2d(4.5, 4.0259 + 3);
-        final Translation2d closeRight = new Translation2d(4.5 - 2.5980644, 4.0259 - 1.5);
-        final Translation2d closeLeft = new Translation2d(4.5 - 2.5980644, 4.0259 + 1.5);
+		final boolean isRedAlliance = (DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() == Alliance.Red : false);
+		final double allianceOffset = isRedAlliance ? 8.56957565 : 0;
+		final Translation2d center = new Translation2d(4.5 + allianceOffset, 4.0259);
+        final Translation2d right = new Translation2d(4.5 + allianceOffset, 4.0259 - 3);
+        final Translation2d farRight = new Translation2d(4.5 + allianceOffset + 2.5980644, 4.0259 - 1.5);
+        final Translation2d farLeft = new Translation2d(4.5 + 2.5980644 + allianceOffset, 4.0259 + 1.5);
+        final Translation2d left = new Translation2d(4.5 + allianceOffset, 4.0259 + 3);
+        final Translation2d closeRight = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 - 1.5);
+        final Translation2d closeLeft = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 + 1.5);
 
         zones = new ArrayList<>();
 
@@ -132,11 +136,17 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		// Simulation poses
         Logger.recordOutput("Robot Pose", perception.getPose());
-        Logger.recordOutput("ComponentPoses", new Pose3d[] {
+        Logger.recordOutput("Animated Component Poses", new Pose3d[] {
             new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 4, new Rotation3d()),
             new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 3, new Rotation3d()),
             new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d()),
             new Pose3d(.109, 0, .578 + Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d(0, Math.sin(Timer.getTimestamp()) - 1, 0))
+        });
+        Logger.recordOutput("Real Component Poses", new Pose3d[] {
+            new Pose3d(0, 0, elevator.getElevatorPosition() / 4, new Rotation3d()),
+            new Pose3d(0, 0, elevator.getElevatorPosition() / 3, new Rotation3d()),
+            new Pose3d(0, 0, elevator.getElevatorPosition(), new Rotation3d()),
+            new Pose3d(.109, 0, .578 + elevator.getElevatorPosition(), new Rotation3d(0, claw.getClawAngle(), 0))
         });
 
         for (TorqueFieldZone zone : zones) {
