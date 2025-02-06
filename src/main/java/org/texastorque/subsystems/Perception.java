@@ -1,9 +1,11 @@
 package org.texastorque.subsystems;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
 import org.texastorque.AlignPose2d;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.AprilTagList;
@@ -14,6 +16,7 @@ import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueStatelessSubsystem;
+import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.control.TorqueRollingMedian;
 import org.texastorque.torquelib.sensors.TorqueNavXGyro;
 
@@ -21,10 +24,14 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
@@ -54,6 +61,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private Pose2d finalPose;
 
 	private final Field2d field = new Field2d();
+	private final ArrayList<TorqueFieldZone> zones;
 
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.105425, 0.77653, 90, 45, 180);
@@ -65,6 +73,23 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		filteredY = new TorqueRollingMedian(5);
 
 		Debug.field("Field", field);
+
+		final Translation2d center = new Translation2d(4.5, 4.0259);
+        final Translation2d right = new Translation2d(4.5, 4.0259 - 3);
+        final Translation2d farRight = new Translation2d(4.5 + 2.5980644, 4.0259 - 1.5);
+        final Translation2d farLeft = new Translation2d(4.5 + 2.5980644, 4.0259 + 1.5);
+        final Translation2d left = new Translation2d(4.5, 4.0259 + 3);
+        final Translation2d closeRight = new Translation2d(4.5 - 2.5980644, 4.0259 - 1.5);
+        final Translation2d closeLeft = new Translation2d(4.5 - 2.5980644, 4.0259 + 1.5);
+
+        zones = new ArrayList<>();
+
+        zones.add(new TorqueFieldZone(18, center, closeLeft, closeRight));
+        zones.add(new TorqueFieldZone(17, center, closeRight, right));
+        zones.add(new TorqueFieldZone(22, center, right, farRight));
+        zones.add(new TorqueFieldZone(21, center, farRight, farLeft));
+        zones.add(new TorqueFieldZone(20, center, farLeft, left));
+        zones.add(new TorqueFieldZone(19, center, left, closeLeft));
 	}
 
 	final String LIMELIGHT_HIGH = "limelight-high";
@@ -104,6 +129,19 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		Debug.log("Current Pose", finalPose.toString());
 		Debug.log("Sees Tag", seesTag());
+
+		// Simulation poses
+        Logger.recordOutput("Robot Pose", perception.getPose());
+        Logger.recordOutput("ComponentPoses", new Pose3d[] {
+            new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 4, new Rotation3d()),
+            new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 3, new Rotation3d()),
+            new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d()),
+            new Pose3d(.109, 0, .578 + Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d(0, Math.sin(Timer.getTimestamp()) - 1, 0))
+        });
+
+        for (TorqueFieldZone zone : zones) {
+            Logger.recordOutput("Zone ID " + zone.getID() , zone.getPolygon());
+        }
 	}
 
 	@Override
@@ -176,11 +214,18 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return bestDetection;
 	}
 
-	public Optional<Pose2d> getAlignPose(final Relation relation) {
-		final RawFiducial bestDetection = getAlignDetection();
-		if (bestDetection == null) return Optional.empty();
-		
-		final AlignPose2d[] alignPoses = AprilTagList.values()[bestDetection.id - 1].alignPoses;
+	public Optional<Pose2d> getAlignPose(final Pose2d currentPose, final Relation relation) {
+		TorqueFieldZone currentZone = null;
+		for (TorqueFieldZone zone : zones) {
+			if (zone.contains(currentPose)) {
+				currentZone = zone;
+			}
+		}
+		if (currentZone == null) return Optional.empty();
+
+		final int id = currentZone.getID();
+		final AlignPose2d[] alignPoses = AprilTagList.values()[id + 1].alignPoses;
+
 		for (AlignPose2d alignPose : alignPoses) {
 			if (alignPose.getRelation() == relation) {
 				return Optional.of(alignPose.getPose());

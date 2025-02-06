@@ -1,12 +1,12 @@
 package org.texastorque.subsystems;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
-import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDrivebase;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
@@ -15,15 +15,12 @@ import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> implements Subsystems, TorquePathingDrivebase {
@@ -120,7 +117,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
         
         if (wantsState(State.ALIGN_TO_APRILTAG) && relation != null) {
-            final Optional<Pose2d> alignPose = perception.getAlignPose(relation);
+            final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
             if (alignPose.isPresent()) {
                 SmartDashboard.putString("Align Target Pose", alignPose.get().toString());
                 final Pose2d targetPose = alignPose.get();
@@ -154,15 +151,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         SmartDashboard.putNumber("Robot Velocity", inputSpeeds.getVelocityMagnitude());
         Logger.recordOutput("Swerve States", swerveStates);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
-
-        // Simulation poses
-        Logger.recordOutput("Robot Pose", perception.getPose());
-        Logger.recordOutput("ComponentPoses", new Pose3d[] {
-            new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 4, new Rotation3d()),
-            new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 3, new Rotation3d()),
-            new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d()),
-            new Pose3d(.109, 0, .578 + Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d(0, Math.sin(Timer.getTimestamp()) - 1, 0))
-        });
     }
 
     @Override
