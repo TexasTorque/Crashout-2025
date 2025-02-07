@@ -73,7 +73,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		Debug.field("Field", field);
 
-		final boolean isRedAlliance = (DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() == Alliance.Red : false);
+		final boolean isRedAlliance = (DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() == Alliance.Red : false); // ?? This doesn't work...
 		final double allianceOffset = isRedAlliance ? 8.56957565 : 0;
 		final Translation2d center = new Translation2d(4.5 + allianceOffset, 4.0259);
         final Translation2d right = new Translation2d(4.5 + allianceOffset, 4.0259 - 3);
