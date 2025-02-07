@@ -116,7 +116,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
         }
         
-        if (wantsState(State.ALIGN_TO_APRILTAG) && relation != null) {
+        if (wantsState(State.ALIGN_TO_APRILTAG)) {
             final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
             if (alignPose.isPresent()) {
                 SmartDashboard.putString("Align Target Pose", alignPose.get().toString());
