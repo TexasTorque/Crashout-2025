@@ -1,12 +1,11 @@
 package org.texastorque.subsystems;
 
-import java.util.ArrayList;
 import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
+import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDrivebase;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
@@ -84,34 +83,14 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     @Override
     public final void initialize(final TorqueMode mode) {
         setInputSpeeds(new TorqueSwerveSpeeds());
-    
-        SmartDashboard.putData("Swerve",
-            builder -> {
-                builder.setSmartDashboardType("SwerveDrive");
-                builder.addDoubleProperty(
-                    "Front Left Angle", () -> fl.getPosition().angle.getRadians(), null);
-                builder.addDoubleProperty(
-                    "Front Left Velocity", () -> fl.getState().speedMetersPerSecond, null);
-                builder.addDoubleProperty(
-                    "Front Right Angle", () -> fr.getPosition().angle.getRadians(), null);
-                builder.addDoubleProperty(
-                    "Front Right Velocity", () -> fr.getState().speedMetersPerSecond, null);
-                builder.addDoubleProperty(
-                    "Back Left Angle", () -> bl.getPosition().angle.getRadians(), null);
-                builder.addDoubleProperty(
-                    "Back Left Velocity", () -> bl.getState().speedMetersPerSecond, null);
-                builder.addDoubleProperty(
-                    "Back Right Angle", () -> br.getPosition().angle.getRadians(), null);
-                builder.addDoubleProperty(
-                    "Back Right Velocity", () -> br.getState().speedMetersPerSecond, null);
-                builder.addDoubleProperty(
-                    "Robot Angle", () -> perception.getHeading().getRadians(), null);
-            }
-        );
     }
 
     @Override
     public final void update(final TorqueMode mode) {
+        Debug.log("Drivebase State", desiredState.toString());
+        Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
+        Logger.recordOutput("Gyro Angle", perception.getHeading());
+
         if (wantsState(State.FIELD_RELATIVE)) {
             inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
         }
@@ -131,7 +110,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
                 inputSpeeds.omegaRadiansPerSecond = omegaPower;
             }
         }
-        SmartDashboard.putString("Drivebase State", desiredState.toString());
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
 
@@ -140,7 +118,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
                     swerveStates[0].angle,
                     swerveStates[1].angle,
                     swerveStates[2].angle,
-                    swerveStates[3].angle);
+                    swerveStates[3].angle
+            );
         } else {
             fl.setDesiredState(swerveStates[0]);
             fr.setDesiredState(swerveStates[1]);
@@ -148,9 +127,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             br.setDesiredState(swerveStates[3]);
         }
 
-        SmartDashboard.putNumber("Robot Velocity", inputSpeeds.getVelocityMagnitude());
         Logger.recordOutput("Swerve States", swerveStates);
-        Logger.recordOutput("Gyro Angle", perception.getHeading());
     }
 
     @Override

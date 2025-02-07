@@ -1,8 +1,6 @@
 package org.texastorque.subsystems;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -11,7 +9,6 @@ import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.AprilTagList;
 import org.texastorque.LimelightHelpers;
 import org.texastorque.LimelightHelpers.PoseEstimate;
-import org.texastorque.LimelightHelpers.RawFiducial;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
@@ -142,12 +139,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
             new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d()),
             new Pose3d(.109, 0, .578 + Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d(0, Math.sin(Timer.getTimestamp()) - 1, 0))
         });
-        Logger.recordOutput("Real Component Poses", new Pose3d[] {
-            new Pose3d(0, 0, elevator.getElevatorPosition() / 4, new Rotation3d()),
-            new Pose3d(0, 0, elevator.getElevatorPosition() / 3, new Rotation3d()),
-            new Pose3d(0, 0, elevator.getElevatorPosition(), new Rotation3d()),
-            new Pose3d(.109, 0, .578 + elevator.getElevatorPosition(), new Rotation3d(0, claw.getClawAngle(), 0))
-        });
+        Logger.recordOutput("Real Component Poses", getRealComponentPoses());
 
         for (TorqueFieldZone zone : zones) {
             Logger.recordOutput("Zone ID " + zone.getID() , zone.getPolygon());
@@ -156,6 +148,19 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	@Override
 	public void clean(TorqueMode mode) {}
+
+	public Pose3d[] getRealComponentPoses() {
+		final double shoulderPos = elevator.getElevatorPosition();
+		final double clawPos = claw.getClawAngle();
+		final double shoulderMultiplier = shoulderPos / Elevator.State.NET.position;
+		
+		return new Pose3d[] {
+            new Pose3d(0, 0, .6 * shoulderMultiplier, new Rotation3d()),
+            new Pose3d(0, 0, 1.25 * shoulderMultiplier, new Rotation3d()),
+            new Pose3d(0, 0, 1.43 * shoulderMultiplier, new Rotation3d()),
+            new Pose3d(.109, .02, .278 + (1.43 * shoulderMultiplier), new Rotation3d(0, Math.toRadians((clawPos + 220 + 360) % 360), 0))
+        };
+	}
 
 	public void resetHeading() {
 		gyro_simulated = 0;
@@ -206,22 +211,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public Pose2d getPose() {
 		return finalPose;
-	}
-
-	public RawFiducial getAlignDetection() {
-		// Get best apriltag detection (closest to center of frame)
-		final PoseEstimate estimate = getVisionEstimate(LIMELIGHT_LOW);
-		if (estimate.rawFiducials.length == 0) return null;
-		
-		final List<RawFiducial> detections = Arrays.asList(estimate.rawFiducials);
-		RawFiducial bestDetection = detections.get(0);
-
-		for (RawFiducial raw : detections) {
-			if (Math.abs(raw.txnc) < Math.abs(bestDetection.txnc)) {
-				bestDetection = raw;
-			}
-		}
-		return bestDetection;
 	}
 
 	public Optional<Pose2d> getAlignPose(final Pose2d currentPose, final Relation relation) {
