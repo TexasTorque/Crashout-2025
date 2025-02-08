@@ -33,7 +33,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         ALGAE_REMOVAL_LOW(6.7678),
         ALGAE_REMOVAL_HIGH(9.5281),
         PROCESSOR(2.938),
-        CORAL_HP(3.5115),
+        CORAL_HP(3.3),
         BABYBIRD(3.645),
         DEBUG(0); // Doesn't use the position
 
@@ -72,10 +72,10 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator At State", isAtState());
 
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
-        if (Math.abs(volts) > 10) volts = Math.signum(volts) * 10;
+        if (Math.abs(volts) > 4) volts = Math.signum(volts) * 4;
 
         // If we are moving to a low position (<3.7), Claw moves first
-        if (desiredState.position < 3.7) {
+        if (desiredState.position < 3.7 && desiredState != State.STOW) {
             if (claw.isAtState()) {
                 elevatorLeft.setVolts(volts);
                 elevatorRight.setVolts(volts);

@@ -106,15 +106,15 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		LimelightHelpers.SetRobotOrientation(LIMELIGHT_HIGH, getHeading().getDegrees(), 0, 0, 0, 0, 0);
 		LimelightHelpers.SetRobotOrientation(LIMELIGHT_LOW, getHeading().getDegrees(), 0, 0, 0, 0, 0);
-		LimelightHelpers.PoseEstimate visionEstimatehigh = getVisionEstimate(LIMELIGHT_HIGH);
-		LimelightHelpers.PoseEstimate visionEstimatelow = getVisionEstimate(LIMELIGHT_LOW);
+		LimelightHelpers.PoseEstimate visionEstimateHigh = getVisionEstimate(LIMELIGHT_HIGH);
+		LimelightHelpers.PoseEstimate visionEstimateLow = getVisionEstimate(LIMELIGHT_LOW);
 		
 		final Pose2d odometryPose = poseEstimator.update(getHeading(), drivebase.getModulePositions());
-		final Pose2d visionPose = getFusedVisionPose(visionEstimatehigh, visionEstimatelow);
+		final Pose2d visionPose = getFusedVisionPose(visionEstimateHigh, visionEstimateLow);
 
 		if (visionPose != null) {
 			if (seesTag()) {
-				poseEstimator.addVisionMeasurement(visionPose, visionEstimatehigh.timestampSeconds);
+				poseEstimator.addVisionMeasurement(visionPose, visionEstimateHigh.timestampSeconds);
 			}
 
 			finalPose = new Pose2d(

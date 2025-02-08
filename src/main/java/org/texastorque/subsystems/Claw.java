@@ -35,7 +35,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         NET(98.3398),
         ALGAE_EXTRACTION(256.9304),
         PROCESSOR(242.1289),
-        CORAL_HP(320),
+        CORAL_HP(352.7051),
         BABYBIRD(308.8942);
 
         private final double angle;
@@ -81,7 +81,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         super(State.STOW);
 
         shoulder = new TorqueNEO(Ports.SHOULDER)
-            .idleMode(IdleMode.kCoast)
+            .idleMode(IdleMode.kBrake)
             .apply();
 
         shoulderEncoder = new CANcoder(Ports.SHOULDER_ENCODER);
@@ -112,9 +112,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Has Algae", hasAlgae());
         Debug.log("Elevator At State", isAtState());
 
-
         // If we are moving to a high position (>=3.7), Elevator moves first
-        if (elevator.getState().position >= 3.7) {
+        if (elevator.getState().position >= 3.7 || elevator.getState() == Elevator.State.STOW) {
             if (elevator.isAtState()) {
                 shoulder.setVolts(shoulderPID.calculate(getClawAngle(), desiredState.getAngle()));
             }
@@ -126,18 +125,22 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         coralRollers.setVolts(coralState.getVolts());
 
         // If we have coral, set volts to 0 to prevent stalling the motor
-        if (hasCoral() && coralState != CoralState.SHOOT) {
-            coralRollers.setVolts(0);
-        }
+        // if (hasCoral() && coralState != CoralState.SHOOT) {
+        //     coralRollers.setVolts(0);
+        // }
 
         // If we have algae, set volts to 0 to prevent stalling the motor
-        if (hasAlgae() && algaeState != AlgaeState.SHOOT) {
-            algaeRollers.setVolts(0);
-        }
+        // if (hasAlgae() && algaeState != AlgaeState.SHOOT) {
+        //     algaeRollers.setVolts(0);
+        // }
     }
 
 	@Override
-    public final void clean(final TorqueMode mode) {}
+    public final void clean(final TorqueMode mode) {
+        if (desiredState == State.CORAL_HP) {
+            desiredState = State.STOW;
+        }
+    }
 
     public final double getClawAngle() {
         if (RobotBase.isSimulation()) return desiredState.angle;
