@@ -139,6 +139,12 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
             new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d()),
             new Pose3d(.109, 0, .578 + Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d(0, Math.sin(Timer.getTimestamp()) - 1, 0))
         });
+        Logger.recordOutput("Zeroed Component Poses", new Pose3d[] {
+			new Pose3d(),
+            new Pose3d(),
+            new Pose3d(),
+            new Pose3d()
+        });
         Logger.recordOutput("Real Component Poses", getRealComponentPoses());
 
         for (TorqueFieldZone zone : zones) {
@@ -150,15 +156,15 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public void clean(TorqueMode mode) {}
 
 	public Pose3d[] getRealComponentPoses() {
-		final double shoulderPos = elevator.getElevatorPosition();
-		final double clawPos = claw.getClawAngle();
-		final double shoulderMultiplier = shoulderPos / Elevator.State.NET.position;
+		final double elevatorPos = elevator.getElevatorPosition();
+		final double shoulderAngle = claw.getShoulderAngle();
+		final double elevatorMultiplier = elevatorPos / Elevator.State.NET.position;
 		
 		return new Pose3d[] {
-            new Pose3d(0, 0, .6 * shoulderMultiplier, new Rotation3d()),
-            new Pose3d(0, 0, 1.25 * shoulderMultiplier, new Rotation3d()),
-            new Pose3d(0, 0, 1.43 * shoulderMultiplier, new Rotation3d()),
-            new Pose3d(.109, .02, .278 + (1.43 * shoulderMultiplier), new Rotation3d(0, Math.toRadians((clawPos + 220 + 360) % 360), 0))
+            new Pose3d(0, 0, .6 * elevatorMultiplier, new Rotation3d()),
+            new Pose3d(0, 0, 1.25 * elevatorMultiplier, new Rotation3d()),
+            new Pose3d(0, 0, 1.74 * elevatorMultiplier, new Rotation3d()),
+            new Pose3d(.109, .02, .278 + (1.74 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 180 + 360) % 360), 0))
         };
 	}
 

@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 
 public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implements Subsystems {
 
@@ -22,19 +23,21 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final PIDController elevatorPID;
     private final CANcoder elevatorEncoder;
     private double debugVolts;
+    private State pastState;
+    private double pastStateTime;
 
     public static enum State implements TorqueState {
+        ZERO(0),
         STOW(3.4895),
         SCORE_L1(4.5374),
         SCORE_L2(1.4817),
         SCORE_L3(4.2421),
         SCORE_L4(10.043),
-        NET(10.7412),
+        NET(13),
         ALGAE_REMOVAL_LOW(6.7678),
         ALGAE_REMOVAL_HIGH(9.5281),
         PROCESSOR(2.938),
         CORAL_HP(3.3),
-        BABYBIRD(3.645),
         DEBUG(0); // Doesn't use the position
 
         public final double position;
@@ -45,7 +48,9 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     private Elevator() {
-        super(State.STOW);
+        super(State.ZERO);
+        pastState = State.ZERO;
+        pastStateTime = Timer.getFPGATimestamp();
 
         elevatorLeft = new TorqueNEO(Ports.ELEVATOR_LEFT)
             .inverted(true)
@@ -74,16 +79,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > 4) volts = Math.signum(volts) * 4;
 
-        // If we are moving to a low position (<3.7), Claw moves first
-        if (desiredState.position < 3.7 && desiredState != State.STOW) {
-            if (claw.isAtState()) {
-                elevatorLeft.setVolts(volts);
-                elevatorRight.setVolts(volts);
-            }
-        } else {
-            elevatorLeft.setVolts(volts);
-            elevatorRight.setVolts(volts);
-        }
+        elevatorLeft.setVolts(volts);
+        elevatorRight.setVolts(volts);
 
         if (desiredState == State.DEBUG) {
             elevatorLeft.setVolts(debugVolts);
@@ -96,8 +93,18 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         debugVolts = 0;
     }
 
+    @Override
+    public void onStateChange(final State lastState) {
+        pastStateTime = Timer.getFPGATimestamp();
+        pastState = lastState;
+    }
+
     public final double getElevatorPosition() {
-        if (RobotBase.isSimulation()) return desiredState.position;
+        final double timeToAnimate = 2;
+        final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
+
+        if (animationMultiplier >= 1) return desiredState.position;
+        if (RobotBase.isSimulation()) return ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
 
         return elevatorEncoder.getPosition().getValueAsDouble();
     }

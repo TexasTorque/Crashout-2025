@@ -18,7 +18,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueBoolSupplier resetGyro, debug, L1Mode, L2Mode, L3Mode, L4Mode, leftRelation,
             rightRelation, intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, net, processor,
-            algaeHigh, algaeLow, coralStation, debugElevatorUp, debugElevatorDown, climbUp, climbDown;
+            algaeHigh, algaeLow, coralStation, debugElevatorUp, debugElevatorDown, climbUp, climbDown,
+            stow;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -34,6 +35,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         net = new TorqueBoolSupplier(operator::isDPADUpDown);
         processor = new TorqueBoolSupplier(driver::isAButtonDown);
         coralStation = new TorqueBoolSupplier(driver::isYButtonDown);
+        stow = new TorqueBoolSupplier(() -> operator.isDPADDownDown() || driver.isDPADDownDown());
 
         algaeHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
         algaeLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
@@ -100,10 +102,13 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             elevator.setState(Elevator.State.CORAL_HP);
             claw.setState(Claw.State.CORAL_HP);
             claw.setCoralState(Claw.CoralState.INTAKE);
+            claw.coralSpike.reset();
         });
+        stow.onTrue(() -> elevator.setState(Elevator.State.STOW));
     }
 
     public final void updateClaw() {
+        L1Mode.onTrue(() -> claw.setState(Claw.State.L1_SCORE));
         L2Mode.onTrue(() -> claw.setState(Claw.State.MID_SCORE));
         L3Mode.onTrue(() -> claw.setState(Claw.State.MID_SCORE));
         L4Mode.onTrue(() -> claw.setState(Claw.State.L4_SCORE));
@@ -111,6 +116,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         processor.onTrue(() -> claw.setState(Claw.State.PROCESSOR));
         algaeHigh.onTrue(() -> claw.setState(Claw.State.ALGAE_EXTRACTION));
         algaeLow.onTrue(() -> claw.setState(Claw.State.ALGAE_EXTRACTION));
+        stow.onTrue(() -> claw.setState(Claw.State.STOW));
 
         intakeCoral.onTrue(() -> claw.setCoralState(Claw.CoralState.INTAKE));
         intakeAlgae.onTrue(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE));
