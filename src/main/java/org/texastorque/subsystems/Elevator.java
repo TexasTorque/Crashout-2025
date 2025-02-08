@@ -30,14 +30,14 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         ZERO(0),
         STOW(3.4895),
         SCORE_L1(4.5374),
-        SCORE_L2(1.4817),
-        SCORE_L3(4.2421),
+        SCORE_L2(2.0),
+        SCORE_L3(5.0),
         SCORE_L4(10.043),
-        NET(13),
+        NET(11),
         ALGAE_REMOVAL_LOW(6.7678),
         ALGAE_REMOVAL_HIGH(9.5281),
         PROCESSOR(2.938),
-        CORAL_HP(3.3),
+        CORAL_HP(3.5),
         DEBUG(0); // Doesn't use the position
 
         public final double position;
@@ -82,6 +82,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         elevatorLeft.setVolts(volts);
         elevatorRight.setVolts(volts);
 
+        if (desiredState == State.ZERO) {
+            elevatorLeft.setVolts(0);
+            elevatorRight.setVolts(0);
+        }
+
         if (desiredState == State.DEBUG) {
             elevatorLeft.setVolts(debugVolts);
             elevatorRight.setVolts(debugVolts);
@@ -100,12 +105,13 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     public final double getElevatorPosition() {
-        final double timeToAnimate = 2;
-        final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
+        if (RobotBase.isSimulation()) {
+            final double timeToAnimate = 2;
+            final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
 
-        if (animationMultiplier >= 1) return desiredState.position;
-        if (RobotBase.isSimulation()) return ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
-
+            if (animationMultiplier >= 1) return desiredState.position;
+            return ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+        }
         return elevatorEncoder.getPosition().getValueAsDouble();
     }
 

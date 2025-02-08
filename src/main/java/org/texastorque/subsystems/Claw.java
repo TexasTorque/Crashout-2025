@@ -25,7 +25,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private final CANcoder shoulderEncoder;
     private AlgaeState algaeState = AlgaeState.OFF;
     private CoralState coralState = CoralState.OFF;
-    public final TorqueCurrentSpike coralSpike, algaeSpike;
+    public final TorqueCurrentSpike coralSpike;
     private State pastState;
     private double pastStateTime;
 
@@ -35,10 +35,10 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         L1_SCORE(240),
         MID_SCORE(160),
         L4_SCORE(180),
-        NET(210),
+        NET(140),
         ALGAE_EXTRACTION(290),
         PROCESSOR(300),
-        CORAL_HP(30);
+        CORAL_HP(38);
 
         private final double angle;
 
@@ -66,7 +66,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum CoralState implements TorqueState {
-        INTAKE(-4), SHOOT(4), OFF(0);
+        INTAKE(-4), SHOOT(3), OFF(0);
 
         private final double volts;
 
@@ -93,16 +93,14 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
             .inverted(true)
-            .currentLimit(14)
             .apply();
 
         coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL)
             .inverted(true)
-            .currentLimit(8)
+            .idleMode(IdleMode.kBrake)
             .apply();
 
-        coralSpike = new TorqueCurrentSpike(10);
-        algaeSpike = new TorqueCurrentSpike(10); // Needs testing
+        coralSpike = new TorqueCurrentSpike(12);
     }
 
     @Override
@@ -113,10 +111,16 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Shoulder Position", getShoulderAngle());
         Debug.log("Claw State", desiredState.toString());
         Debug.log("Has Coral", hasCoral());
-        Debug.log("Has Algae", hasAlgae());
-        Debug.log("Elevator At State", isAtState());
+        Debug.log("Shoulder At State", isAtState());
+        Debug.log("Coral Current", coralRollers.getOutputCurrent());
+        Debug.log("Coral State", coralState.toString());
+        Debug.log("Algae State", algaeState.toString());
 
-        shoulder.setVolts(shoulderPID.calculate(getShoulderAngle(), desiredState.angle));
+        // shoulder.setVolts(shoulderPID.calculate(getShoulderAngle(), desiredState.angle));
+
+        if (desiredState == State.ZERO) {
+            shoulder.setVolts(0);
+        }
 
         algaeRollers.setVolts(algaeState.getVolts());
         coralRollers.setVolts(coralState.getVolts());
@@ -125,15 +129,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         if (hasCoral() && coralState != CoralState.SHOOT) {
             coralRollers.setVolts(0);
         }
-
-        // If we have algae, set volts to 0 to prevent stalling the motor
-        if (hasAlgae() && algaeState != AlgaeState.SHOOT) {
-            algaeRollers.setVolts(0);
-        }
     }
 
 	@Override
-    public final void clean(final TorqueMode mode) {}
+    public final void clean(final TorqueMode mode) {
+        algaeState = AlgaeState.OFF;
+    }
 
     @Override
     public void onStateChange(final State lastState) {
@@ -142,25 +143,22 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public final double getShoulderAngle() {
-        final double timeToAnimate = 1;
-        final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
+        if (RobotBase.isSimulation()) {
+            final double timeToAnimate = 1;
+            final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
 
-        if (animationMultiplier > 1) return desiredState.angle;
-        if (RobotBase.isSimulation()) return ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
-        
+            if (animationMultiplier > 1) return desiredState.angle;
+            return ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
+        }
         return shoulderEncoder.getAbsolutePosition().getValueAsDouble() * 360;
     }
 
     public final boolean isAtState() {
-        return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 5);
+        return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 8);
     }
 
     public boolean hasCoral() {
         return coralSpike.calculate(coralRollers.getOutputCurrent());
-    }
-
-    public boolean hasAlgae() {
-        return algaeSpike.calculate(algaeRollers.getOutputCurrent());
     }
 
     public void setAlgaeState(AlgaeState algaeState) {

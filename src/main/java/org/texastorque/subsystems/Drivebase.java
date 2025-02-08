@@ -6,13 +6,19 @@ import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
+import org.texastorque.torquelib.auto.TorqueCommand;
+import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDrivebase;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
+
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -27,7 +33,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public static enum State implements TorqueState {
         FIELD_RELATIVE(null),
         ROBOT_RELATIVE(null),
-        ALIGN_TO_APRILTAG(FIELD_RELATIVE),
+        ALIGN(FIELD_RELATIVE),
         PATHING(null);
 
         public final State parent;
@@ -55,9 +61,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     private SwerveModuleState[] swerveStates;
     private Relation relation;
 
-    private final PIDController apriltagAlignRotationPID;
-    private final PIDController apriltagAlignXPID;
-    private final PIDController apriltagAlignYPID;
+    private boolean isAligning;
+    private TorqueCommand alignCommand;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -73,42 +78,73 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         swerveStates = new SwerveModuleState[4];
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
-
-        apriltagAlignXPID = new PIDController(1, 0, 0);
-        apriltagAlignYPID = new PIDController(1, 0, 0);
-        apriltagAlignRotationPID = new PIDController(.082, 0, 0);
-        apriltagAlignRotationPID.enableContinuousInput(0, 360);
     }
 
     @Override
     public final void initialize(final TorqueMode mode) {
         setInputSpeeds(new TorqueSwerveSpeeds());
+
+        SmartDashboard.putData("Swerve",
+            builder -> {
+                builder.setSmartDashboardType("SwerveDrive");
+                builder.addDoubleProperty(
+                    "Front Left Angle", () -> fl.getPosition().angle.getRadians(), null);
+                builder.addDoubleProperty(
+                    "Front Left Velocity", () -> fl.getState().speedMetersPerSecond, null);
+                builder.addDoubleProperty(
+                    "Front Right Angle", () -> fr.getPosition().angle.getRadians(), null);
+                builder.addDoubleProperty(
+                    "Front Right Velocity", () -> fr.getState().speedMetersPerSecond, null);
+                builder.addDoubleProperty(
+                    "Back Left Angle", () -> bl.getPosition().angle.getRadians(), null);
+                builder.addDoubleProperty(
+                    "Back Left Velocity", () -> bl.getState().speedMetersPerSecond, null);
+                builder.addDoubleProperty(
+                    "Back Right Angle", () -> br.getPosition().angle.getRadians(), null);
+                builder.addDoubleProperty(
+                    "Back Right Velocity", () -> br.getState().speedMetersPerSecond, null);
+                builder.addDoubleProperty(
+                    "Robot Angle", () -> perception.getHeading().getRadians(), null);
+            }
+        );
     }
 
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Drivebase State", desiredState.toString());
         Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
+        Debug.log("Relation", relation == null ? "None" : relation.toString());
+        Debug.log("Is Aligning", isAligning);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
         if (wantsState(State.FIELD_RELATIVE)) {
             inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
         }
-        
-        if (wantsState(State.ALIGN_TO_APRILTAG)) {
-            final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
-            if (alignPose.isPresent()) {
-                SmartDashboard.putString("Align Target Pose", alignPose.get().toString());
-                final Pose2d targetPose = alignPose.get();
 
-                final double xPower = apriltagAlignXPID.calculate(perception.getPose().getX(), targetPose.getX());
-                final double yPower = apriltagAlignYPID.calculate(perception.getPose().getY(), targetPose.getY());
-                final double omegaPower = apriltagAlignRotationPID.calculate(perception.getHeading().getDegrees(), targetPose.getRotation().getDegrees());
+        if (wantsState(State.ALIGN)) {
+            if (!isAligning || alignCommand == null) {
+                final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+                Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
+                if (alignPose.isPresent()) {
+                    final Pose2d targetPose = alignPose.get();
+                    final PathPlannerPath generatedPath = new PathPlannerPath(
+                        PathPlannerPath.waypointsFromPoses(perception.getPose(), targetPose),
+                        new PathConstraints(4.6, 3, 2 * Math.PI, 4 * Math.PI),
+                        null,
+                        new GoalEndState(0, targetPose.getRotation())
+                    );
+                    generatedPath.preventFlipping = true;
 
-                inputSpeeds.vxMetersPerSecond = yPower;
-                inputSpeeds.vyMetersPerSecond = -xPower;
-                inputSpeeds.omegaRadiansPerSecond = omegaPower;
+                    alignCommand = new TorqueFollowPath(() -> generatedPath, drivebase).command();
+                }
             }
+            isAligning = true;
+
+            if (alignCommand != null) {
+                alignCommand.run();
+            }
+        } else {
+            isAligning = false;
         }
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
@@ -135,6 +171,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (mode.isTeleop()) {
             desiredState = desiredState.parent;
         }
+    }
+
+    public boolean isAligning() {
+        return isAligning;
     }
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {

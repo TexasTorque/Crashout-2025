@@ -17,9 +17,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueBoolSupplier resetGyro, debug, L1Mode, L2Mode, L3Mode, L4Mode, leftRelation,
-            rightRelation, intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, net, processor,
-            algaeHigh, algaeLow, coralStation, debugElevatorUp, debugElevatorDown, climbUp, climbDown,
-            stow;
+            rightRelation, centerRelation, intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, net,
+            processor, algaeHigh, algaeLow, coralStation, debugElevatorUp, debugElevatorDown, climbUp,
+            climbDown, stow, align;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -40,8 +40,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         algaeHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
         algaeLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
 
-        leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
-        rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
+        leftRelation = new TorqueBoolSupplier(driver::isDPADLeftDown);
+        rightRelation = new TorqueBoolSupplier(driver::isDPADRightDown);
+        centerRelation = new TorqueBoolSupplier(driver::isDPADUpDown);
 
         intakeCoral = new TorqueBoolSupplier(driver::isLeftTriggerDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isRightTriggerDown);
@@ -53,6 +54,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         debugElevatorUp = new TorqueBoolSupplier(operator::isLeftBumperDown);
         debugElevatorDown = new TorqueBoolSupplier(operator::isLeftTriggerDown);
+
+        align = new TorqueBoolSupplier(driver::isXButtonDown);
     }
 
     @Override
@@ -73,17 +76,17 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
     public final void updateDrivebase() {
         resetGyro.onTrue(() -> perception.resetHeading());
+        align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
 
-        if (!debug.get()) {
-            leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
-            rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
-        }
+        leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
+        rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
+        centerRelation.onTrue(() -> drivebase.setRelation(Relation.CENTER));
         
-        final double xVelocity = TorqueMath.scaledLinearDeadband(driver.getLeftYAxis(), CONTROLLER_DEADBAND)
+        final double xVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftYAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_VELOCITY;
-        final double yVelocity = TorqueMath.scaledLinearDeadband(driver.getLeftXAxis(), CONTROLLER_DEADBAND)
+        final double yVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftXAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_VELOCITY;
-        final double rotationVelocity = TorqueMath.scaledLinearDeadband(driver.getRightXAxis(), CONTROLLER_DEADBAND)
+        final double rotationVelocity = TorqueMath.scaledLinearDeadband(-driver.getRightXAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_ANGULAR_VELOCITY;
 
         drivebase.setInputSpeeds(new TorqueSwerveSpeeds(xVelocity, yVelocity, rotationVelocity));
