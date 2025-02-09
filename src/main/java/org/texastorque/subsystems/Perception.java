@@ -60,7 +60,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	// Used to filter some noise directly out of the pose measurements.
 	private final TorqueRollingMedian filteredX, filteredY;
-	private Pose2d finalPose;
+	private Pose2d finalPose = new Pose2d();
 
 	private final Field2d field = new Field2d();
 	private final ArrayList<TorqueFieldZone> zones;
@@ -178,7 +178,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
         setPose(new Pose2d(0, 0, getHeading()));
     }
 
-	public void setPose(Pose2d pose) {
+	public void setPose(final Pose2d pose) {
         poseEstimator.resetPosition(getHeading(), drivebase.getModulePositions(), pose);
     }
 
@@ -189,6 +189,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public RawFiducial getAlignDetection() {
 		// Get best apriltag detection (closest to center of frame)
 		final PoseEstimate estimate = getVisionEstimate(LIMELIGHT_HIGH);
+		if (estimate == null) return lastDetection;
 		if (estimate.rawFiducials.length == 0) return lastDetection;
 		
 		final List<RawFiducial> detections = Arrays.asList(estimate.rawFiducials);
