@@ -10,7 +10,6 @@ import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
-import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.subsystems.Drivebase;
 
 public class CenterAuto extends TorqueSequence implements Subsystems {
@@ -28,7 +27,6 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.CENTER)));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
-        addBlock(new TorqueRun(() -> drivebase.setInputSpeeds(new TorqueSwerveSpeeds())));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Algae extraction
@@ -37,18 +35,18 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(.5)); // Wait until we intake algae
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
+        // Start moving subsystems while aligning
+        addBlock(new TorqueRun(() -> elevator.setState(Elevator.State.SCORE_L3)));
+        addBlock(new TorqueRun(() -> claw.setState(Claw.State.MID_SCORE)));
+
         // Alignment
         addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.LEFT)));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
-        addBlock(new TorqueRun(() -> drivebase.setInputSpeeds(new TorqueSwerveSpeeds())));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Coral placement
-        addBlock(new TorqueRun(() -> elevator.setState(Elevator.State.SCORE_L3)));
-        addBlock(new TorqueRun(() -> claw.setState(Claw.State.MID_SCORE)));
         addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
-
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
@@ -79,7 +77,6 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.CENTER)));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
-        addBlock(new TorqueRun(() -> drivebase.setInputSpeeds(new TorqueSwerveSpeeds())));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Algae extraction
