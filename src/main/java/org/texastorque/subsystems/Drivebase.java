@@ -130,8 +130,12 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
                 final double xPower = xController.calculate(perception.getPose().getX(), targetPose.getX());
                 final double yPower = yController.calculate(perception.getPose().getY(), targetPose.getY());
                 final double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees());
-                
-                inputSpeeds.vxMetersPerSecond = xPower;
+
+                Debug.log("x power", xPower);
+                Debug.log("y power", yPower);
+                Debug.log("omega power", omegaPower);
+
+                inputSpeeds.vxMetersPerSecond = -xPower;
                 inputSpeeds.vyMetersPerSecond = yPower;
                 inputSpeeds.omegaRadiansPerSecond = omegaPower;
             }
@@ -168,7 +172,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
 
         if (alignPose.isEmpty()) return false;
-        return alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation()) < .1;
+        final double distance = alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation());
+        Debug.log("Distance from Target", distance);
+
+        return distance < .1;
     }
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {
