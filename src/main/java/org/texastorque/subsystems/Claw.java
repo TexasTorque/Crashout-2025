@@ -92,7 +92,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         shoulderPID = new PIDController(.25, 0, 0);
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
-            .inverted(true)
             .apply();
 
         coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL)

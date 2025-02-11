@@ -21,7 +21,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final TorqueBoolSupplier resetGyro, debug, intakeCoral, align, slow,
             stow, L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
-            climbUp, climbDown, debugElevatorUp, debugElevatorDown;
+            climbUp, climbDown, debugElevatorUp, debugElevatorDown,
+            outtakeCoral, outtakeAlgae;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -50,13 +51,16 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
         rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
-        centerRelation = new TorqueBoolSupplier(operator::isDPADDownDown);
+        centerRelation = new TorqueBoolSupplier(operator::isDPADUpDown);
 
         climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
         climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND);
-        
+
         debugElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
         debugElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
+
+        outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
+        outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
     }
 
     @Override
@@ -123,10 +127,12 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         algaeExtractionHigh.onTrue(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
             claw.setState(Claw.State.ALGAE_EXTRACTION);
+            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
         algaeExtractionLow.onTrue(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
             claw.setState(Claw.State.ALGAE_EXTRACTION);
+            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
         intakeCoral.onTrue(() -> {
             elevator.setState(Elevator.State.CORAL_HP);
@@ -137,6 +143,13 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         stow.onTrue(() -> {
             elevator.setState(Elevator.State.STOW);
             claw.setState(Claw.State.STOW);
+        });
+
+        outtakeCoral.onTrue(() -> {
+            claw.setCoralState(Claw.CoralState.SHOOT);
+        });
+        outtakeAlgae.onTrue(() -> {
+            claw.setAlgaeState(Claw.AlgaeState.SHOOT);
         });
     }
 
