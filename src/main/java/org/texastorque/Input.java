@@ -8,6 +8,7 @@ import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
+import org.texastorque.torquelib.control.TorqueClickSupplier;
 import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
@@ -16,10 +17,11 @@ import org.texastorque.torquelib.util.TorqueMath;
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueBoolSupplier resetGyro, debug, L1Mode, L2Mode, L3Mode, L4Mode, leftRelation,
-            rightRelation, centerRelation, intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, net,
-            processor, algaeHigh, algaeLow, coralStation, debugElevatorUp, debugElevatorDown, climbUp,
-            climbDown, stow, align;
+    private final TorqueClickSupplier slowInitial;
+    private final TorqueBoolSupplier resetGyro, debug, intakeCoral, align, slow,
+            stow, L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
+            algaeExtractionHigh, algaeExtractionLow, net, processor,
+            climbUp, climbDown;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -28,50 +30,42 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
         debug = new TorqueToggleSupplier(operator::isLeftCenterButtonDown);
 
-        L1Mode = new TorqueBoolSupplier(operator::isAButtonDown);
-        L2Mode = new TorqueBoolSupplier(operator::isXButtonDown);
-        L3Mode = new TorqueBoolSupplier(operator::isBButtonDown);
-        L4Mode = new TorqueBoolSupplier(operator::isYButtonDown);
-        net = new TorqueBoolSupplier(operator::isDPADUpDown);
-        processor = new TorqueBoolSupplier(driver::isAButtonDown);
-        coralStation = new TorqueBoolSupplier(driver::isYButtonDown);
-        stow = new TorqueBoolSupplier(() -> operator.isDPADDownDown() || driver.isDPADDownDown());
+        intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
+        
+        align = new TorqueBoolSupplier(driver::isRightTriggerDown);
+        slow = new TorqueBoolSupplier(() -> driver.isLeftTriggerDown() || operator.isDPADDownDown());
+        slowInitial = new TorqueClickSupplier(driver::isDPADLeftDown);
+        stow = new TorqueBoolSupplier(driver::isDPADLeftDown);
 
-        algaeHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
-        algaeLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
+        L1 = new TorqueBoolSupplier(operator::isAButtonDown);
+        L2 = new TorqueBoolSupplier(operator::isXButtonDown);
+        L3 = new TorqueBoolSupplier(operator::isBButtonDown);
+        L4 = new TorqueBoolSupplier(operator::isYButtonDown);
 
-        leftRelation = new TorqueBoolSupplier(driver::isDPADLeftDown);
-        rightRelation = new TorqueBoolSupplier(driver::isDPADRightDown);
-        centerRelation = new TorqueBoolSupplier(driver::isDPADUpDown);
+        algaeExtractionHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
+        algaeExtractionLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
 
-        intakeCoral = new TorqueBoolSupplier(driver::isLeftTriggerDown);
-        intakeAlgae = new TorqueBoolSupplier(driver::isRightTriggerDown);
-        outtakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
-        outtakeAlgae = new TorqueBoolSupplier(driver::isRightBumperDown);
+        net = new TorqueBoolSupplier(operator::isLeftBumperDown);
+        processor = new TorqueBoolSupplier(operator::isLeftTriggerDown);
+
+        leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
+        rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
+        centerRelation = new TorqueBoolSupplier(operator::isDPADDownDown);
 
         climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
         climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND);
-
-        debugElevatorUp = new TorqueBoolSupplier(operator::isLeftBumperDown);
-        debugElevatorDown = new TorqueBoolSupplier(operator::isLeftTriggerDown);
-
-        align = new TorqueBoolSupplier(driver::isXButtonDown);
     }
 
     @Override
     public final void update() {
         updateDrivebase();
-        updateElevator();
-        updateClaw();
+        updateSuperstructure();
         updateClimb();
 
         Debug.log("Debug Mode", debug.get());
         debug.onTrue(() -> {
             elevator.setState(Elevator.State.DEBUG);
         });
-
-        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(4));
-        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-4));
     }
 
     public final void updateDrivebase() {
@@ -81,6 +75,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
         rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
         centerRelation.onTrue(() -> drivebase.setRelation(Relation.CENTER));
+
+        slowInitial.onTrue(() -> drivebase.startSlowMode());
+        slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
         
         final double xVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftYAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_VELOCITY;
@@ -92,39 +89,49 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         drivebase.setInputSpeeds(new TorqueSwerveSpeeds(xVelocity, yVelocity, rotationVelocity));
     }
 
-    public final void updateElevator() {
-        L1Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L1));
-        L2Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L2));
-        L3Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L3));
-        L4Mode.onTrue(() -> elevator.setState(Elevator.State.SCORE_L4));
-        net.onTrue(() -> elevator.setState(Elevator.State.NET));
-        processor.onTrue(() -> elevator.setState(Elevator.State.PROCESSOR));
-        algaeHigh.onTrue(() -> elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH));
-        algaeLow.onTrue(() -> elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW));
-        coralStation.onTrue(() -> {
+    public final void updateSuperstructure() {
+        L1.onTrue(() -> {
+            elevator.setState(Elevator.State.SCORE_L1);
+            claw.setState(Claw.State.L1_SCORE);
+        });
+        L2.onTrue(() -> {
+            elevator.setState(Elevator.State.SCORE_L2);
+            claw.setState(Claw.State.MID_SCORE);
+        });
+        L3.onTrue(() -> {
+            elevator.setState(Elevator.State.SCORE_L3);
+            claw.setState(Claw.State.MID_SCORE);
+        });
+        L4.onTrue(() -> {
+            elevator.setState(Elevator.State.SCORE_L4);
+            claw.setState(Claw.State.L4_SCORE);
+        });
+        net.onTrue(() -> {
+            elevator.setState(Elevator.State.NET);
+            claw.setState(Claw.State.NET);
+        });
+        processor.onTrue(() -> {
+            elevator.setState(Elevator.State.PROCESSOR);
+            claw.setState(Claw.State.PROCESSOR);
+        });
+        algaeExtractionHigh.onTrue(() -> {
+            elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
+            claw.setState(Claw.State.ALGAE_EXTRACTION);
+        });
+        algaeExtractionLow.onTrue(() -> {
+            elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
+            claw.setState(Claw.State.ALGAE_EXTRACTION);
+        });
+        intakeCoral.onTrue(() -> {
             elevator.setState(Elevator.State.CORAL_HP);
             claw.setState(Claw.State.CORAL_HP);
             claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
         });
-        stow.onTrue(() -> elevator.setState(Elevator.State.STOW));
-    }
-
-    public final void updateClaw() {
-        L1Mode.onTrue(() -> claw.setState(Claw.State.L1_SCORE));
-        L2Mode.onTrue(() -> claw.setState(Claw.State.MID_SCORE));
-        L3Mode.onTrue(() -> claw.setState(Claw.State.MID_SCORE));
-        L4Mode.onTrue(() -> claw.setState(Claw.State.L4_SCORE));
-        net.onTrue(() -> claw.setState(Claw.State.NET));
-        processor.onTrue(() -> claw.setState(Claw.State.PROCESSOR));
-        algaeHigh.onTrue(() -> claw.setState(Claw.State.ALGAE_EXTRACTION));
-        algaeLow.onTrue(() -> claw.setState(Claw.State.ALGAE_EXTRACTION));
-        stow.onTrue(() -> claw.setState(Claw.State.STOW));
-
-        intakeCoral.onTrue(() -> claw.setCoralState(Claw.CoralState.INTAKE));
-        intakeAlgae.onTrue(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE));
-        outtakeCoral.onTrue(() -> claw.setCoralState(Claw.CoralState.SHOOT));
-        outtakeAlgae.onTrue(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT));
+        stow.onTrue(() -> {
+            elevator.setState(Elevator.State.STOW);
+            claw.setState(Claw.State.STOW);
+        });
     }
 
     public final void updateClimb() {

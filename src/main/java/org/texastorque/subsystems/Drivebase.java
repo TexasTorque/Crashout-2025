@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> implements Subsystems, TorquePathingDrivebase {
@@ -32,6 +33,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         FIELD_RELATIVE(null),
         ROBOT_RELATIVE(null),
         ALIGN(null),
+        SLOW(FIELD_RELATIVE),
         PATHING(null);
 
         public final State parent;
@@ -59,6 +61,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     private SwerveModuleState[] swerveStates;
     private Relation relation;
     private PIDController xController, yController, omegaController;
+    private double slowStartTimestamp;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -142,6 +145,12 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
 
+        if (wantsState(State.SLOW)) {
+            for (SwerveModuleState state : swerveStates) {
+                state.speedMetersPerSecond = getSlowMaxSpeed();
+            }
+        }
+
         if (inputSpeeds.hasZeroVelocity()) {
             manuallySetModuleAngles(
                     swerveStates[0].angle,
@@ -163,7 +172,27 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public void clean(TorqueMode mode) {
         if (mode.isTeleop()) {
             desiredState = desiredState.parent;
+
+            if (desiredState == State.ALIGN) {
+                desiredState = State.FIELD_RELATIVE;
+            }
         }
+    }
+
+    public void startSlowMode() {
+        setState(Drivebase.State.SLOW);
+        slowStartTimestamp = Timer.getFPGATimestamp();
+    }
+
+    public double getSlowMaxSpeed() {
+        final double MIN_VELOCITY = MAX_VELOCITY / 2;
+        final double TIME_TO_MIN = 1.5;
+        final double timeDelta = slowStartTimestamp - Timer.getFPGATimestamp();
+
+        if (timeDelta <= 0) return MAX_VELOCITY;
+        if (timeDelta > TIME_TO_MIN) return MIN_VELOCITY;
+
+        return (-23/15 * timeDelta) + 4.6;
     }
 
     public boolean isAligned() {
