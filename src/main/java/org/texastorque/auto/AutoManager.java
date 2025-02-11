@@ -4,6 +4,7 @@ import org.texastorque.Subsystems;
 import org.texastorque.auto.sequences.CenterAuto;
 import org.texastorque.auto.sequences.LeftAuto;
 import org.texastorque.auto.sequences.RightAuto;
+import org.texastorque.auto.sequences.TestAuto;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.torquelib.auto.*;
 
@@ -21,10 +22,12 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
         addSequence("LFT -> CL EXT -> CL L3 L -> CSL -> CL L3 R -> CSL -> CL L2 L", new LeftAuto());
         addSequence("CTR -> FF EXT -> FF L3 L -> PSR -> FR EXT -> PSR", new CenterAuto());
         addSequence("RGT -> CR EXT -> CR L3 L -> CSR -> CR L3 R -> CSR -> CR L2 L", new RightAuto());
+        addSequence("Test", new TestAuto());
     }
 
     @Override
     public void loadPaths() {
+        pathLoader.preloadPath("test");
         pathLoader.preloadPath("CL_CSL");
         pathLoader.preloadPath("CR_CSR");
         pathLoader.preloadPath("CSL_CL");
@@ -35,6 +38,10 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
         pathLoader.preloadPath("PSR_FR");
         pathLoader.preloadPath("LFT_CL");
         pathLoader.preloadPath("RGT_CR");
+    }
+
+    public TorquePathLoader getPathLoader() {
+        return pathLoader;
     }
 
     public static RobotConfig getRobotConfig() {

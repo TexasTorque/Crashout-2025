@@ -1,10 +1,12 @@
 package org.texastorque.subsystems;
 
 import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
+import org.texastorque.auto.AutoManager;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.auto.TorqueCommand;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
@@ -14,6 +16,9 @@ import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -26,6 +31,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> implements Subsystems, TorquePathingDrivebase {
@@ -78,6 +85,24 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         swerveStates = new SwerveModuleState[4];
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
+        
+        AutoBuilder.configure(
+            () -> perception.getPose(),
+            (pose) -> perception.setPose(pose),
+            this::getActualChassisSpeeds,
+            (speeds, ff) -> setInputSpeeds(TorqueSwerveSpeeds.fromChassisSpeeds(speeds)),
+            new PPHolonomicDriveController(
+                    new PIDConstants(5.0, 0.0, 0.0),
+                    new PIDConstants(5.0, 0.0, 0.0)
+            ),
+            AutoManager.getRobotConfig(),
+            () -> {
+                Optional<Alliance> alliance = DriverStation.getAlliance();
+                if (alliance.isPresent())
+                    return alliance.get() == DriverStation.Alliance.Red;
+                return false;
+            }
+        );
     }
 
     @Override
