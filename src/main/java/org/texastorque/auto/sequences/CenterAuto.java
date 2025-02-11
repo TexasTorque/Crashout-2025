@@ -36,6 +36,7 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
         // Alignment
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
+        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Coral placement
         addBlock(new TorqueRun(() -> elevator.setState(Elevator.State.SCORE_L3)));
@@ -71,6 +72,7 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
         // Alignment
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
+        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Algae extraction
         addBlock(new TorqueWaitUntil(() -> elevator.isAtState()));
