@@ -147,7 +147,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         if (wantsState(State.SLOW)) {
             for (SwerveModuleState state : swerveStates) {
-                state.speedMetersPerSecond = getSlowMaxSpeed();
+                state.speedMetersPerSecond = state.speedMetersPerSecond > getSlowMaxSpeed() ? getSlowMaxSpeed() : state.speedMetersPerSecond;
             }
         }
 
