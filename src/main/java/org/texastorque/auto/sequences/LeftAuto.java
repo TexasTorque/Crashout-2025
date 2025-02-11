@@ -8,37 +8,27 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
     
     public LeftAuto() {
         // Drive left to close left
-        addBlock(new TorqueFollowPath("LFT_CL", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("LFT_CL", drivebase));
 
         // Algae extraction & coral placement
 
         // Drive close left to coral station left
-        addBlock(new TorqueFollowPath("CL_CSL", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("CL_CSL", drivebase));
 
         // Pickup coral from coral station
 
         // Drive coral station left to close left
-        addBlock(new TorqueFollowPath("CSL_CL", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("CSL_CL", drivebase));
 
         // Coral placement
 
         // Drive close left to coral station left
-        addBlock(new TorqueFollowPath("CL_CSL", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("CL_CSL", drivebase));
 
         // Pickup coral from coral station
 
         // Drive coral station left to close left
-        addBlock(new TorqueFollowPath("CSL_CL", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("CSL_CL", drivebase));
 
         // Coral placement
     }

@@ -1,33 +1,28 @@
+/**
+ * Copyright 2023 Texas Torque.
+ *
+ * This file is part of Bravo/Charlie/Takeoff-2024, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <jus@justusl.com>.
+ */
 package org.texastorque.auto;
+
+import java.util.Optional;
 
 import org.texastorque.Subsystems;
 import org.texastorque.auto.sequences.CenterAuto;
 import org.texastorque.auto.sequences.LeftAuto;
 import org.texastorque.auto.sequences.RightAuto;
 import org.texastorque.auto.sequences.TestAuto;
-import org.texastorque.subsystems.Drivebase;
-import org.texastorque.torquelib.auto.*;
+import org.texastorque.torquelib.auto.TorqueAutoManager;
 
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
-
+/** Manage the auto loader and selections */
 public final class AutoManager extends TorqueAutoManager implements Subsystems {
     private static volatile AutoManager instance;
 
     @Override
-    protected void loadSequences() {
-        addSequence("LFT -> CL EXT -> CL L3 L -> CSL -> CL L3 R -> CSL -> CL L2 L", new LeftAuto());
-        addSequence("CTR -> FF EXT -> FF L3 L -> PSR -> FR EXT -> PSR", new CenterAuto());
-        addSequence("RGT -> CR EXT -> CR L3 L -> CSR -> CR L3 R -> CSR -> CR L2 L", new RightAuto());
-        addSequence("Test", new TestAuto());
-    }
-
-    @Override
-    public void loadPaths() {
-        pathLoader.preloadPath("test");
+    public final void loadPaths() {
         pathLoader.preloadPath("CL_CSL");
         pathLoader.preloadPath("CR_CSR");
         pathLoader.preloadPath("CSL_CL");
@@ -35,48 +30,30 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
         pathLoader.preloadPath("CTR_FF");
         pathLoader.preloadPath("FF_PSR");
         pathLoader.preloadPath("FR_PSR");
-        pathLoader.preloadPath("PSR_FR");
         pathLoader.preloadPath("LFT_CL");
+        pathLoader.preloadPath("PSR_FR");
         pathLoader.preloadPath("RGT_CR");
+        pathLoader.preloadPath("NA_NA");
+        pathLoader.preloadPath("test");
     }
 
-    public TorquePathLoader getPathLoader() {
-        return pathLoader;
-    }
-
-    public static RobotConfig getRobotConfig() {
-        try {
-            return RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            return new RobotConfig(
-                    74,
-                    6,
-                    new ModuleConfig(
-                            0.0508,
-                            4.6,
-                            1,
-                            new DCMotor(
-                                    12,
-                                    3.75,
-                                    150,
-                                    1.8,
-                                    35663,
-                                    1),
-                            35,
-                            1),
-                    new Translation2d[] {
-                            Drivebase.LOC_FL, Drivebase.LOC_FR,
-                            Drivebase.LOC_BL, Drivebase.LOC_BR
-                    }
-            );
+    public final PathPlannerPath getPath(final String pathName) {
+        final Optional<PathPlannerPath> pathOpt = pathLoader.getPathSafe(pathName);
+        if (pathOpt.isPresent()) {
+            return pathOpt.get();
         }
+        System.out.println("Failed to load path " + pathName);
+        return pathLoader.getPathUnsafe("NA_NA");
     }
 
-    /**
-     * Get the AutoManager instance
-     *
-     * @return AutoManager
-     */
+    @Override
+    public final void loadSequences() {
+        addSequence("LFT -> CL EXT -> CL L3 L -> CSL -> CL L3 R -> CSL -> CL L2 L", new LeftAuto());
+        addSequence("CTR -> FF EXT -> FF L3 L -> PSR -> FR EXT -> PSR", new CenterAuto());
+        addSequence("RGT -> CR EXT -> CR L3 L -> CSR -> CR L3 R -> CSR -> CR L2 L", new RightAuto());
+        addSequence("Test", new TestAuto());
+    }
+
     public static final synchronized AutoManager getInstance() {
         return instance == null ? instance = new AutoManager() : instance;
     }

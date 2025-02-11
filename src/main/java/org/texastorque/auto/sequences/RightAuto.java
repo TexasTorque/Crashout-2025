@@ -8,37 +8,27 @@ public class RightAuto extends TorqueSequence implements Subsystems {
     
     public RightAuto() {
         // Drive right to close right
-        addBlock(new TorqueFollowPath("RGT_CR", drivebase).withMarkers(
-            
-        ));
+        addBlock(new TorqueFollowPath("RGT_CR", drivebase));
 
         // Algae extraction & coral placement
 
         // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("CR_CSR", drivebase));
 
         // Pickup coral from coral station
 
         // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("CSR_CR", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("CSR_CR", drivebase));
 
         // Coral placement
 
         // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("CR_CSR", drivebase));
 
         // Pickup coral from coral station
 
         // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("CSR_CR", drivebase).withMarkers(
-
-        ));
+        addBlock(new TorqueFollowPath("CSR_CR", drivebase));
 
         // Coral placement
     }

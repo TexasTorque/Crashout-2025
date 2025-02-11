@@ -6,24 +6,17 @@ import org.littletonrobotics.junction.Logger;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
-import org.texastorque.auto.AutoManager;
 import org.texastorque.torquelib.Debug;
-import org.texastorque.torquelib.auto.TorqueCommand;
-import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDrivebase;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
 
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -31,8 +24,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> implements Subsystems, TorquePathingDrivebase {
@@ -40,7 +31,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public static enum State implements TorqueState {
         FIELD_RELATIVE(null),
         ROBOT_RELATIVE(null),
-        ALIGN(FIELD_RELATIVE),
+        ALIGN(null),
         PATHING(null);
 
         public final State parent;
@@ -67,9 +58,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
     private Relation relation;
-
-    private boolean isAligning;
-    private TorqueCommand alignCommand;
+    private PIDController xController, yController, omegaController;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -86,23 +75,9 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
         
-        AutoBuilder.configure(
-            () -> perception.getPose(),
-            (pose) -> perception.setPose(pose),
-            this::getActualChassisSpeeds,
-            (speeds, ff) -> setInputSpeeds(TorqueSwerveSpeeds.fromChassisSpeeds(speeds)),
-            new PPHolonomicDriveController(
-                    new PIDConstants(5.0, 0.0, 0.0),
-                    new PIDConstants(5.0, 0.0, 0.0)
-            ),
-            AutoManager.getRobotConfig(),
-            () -> {
-                Optional<Alliance> alliance = DriverStation.getAlliance();
-                if (alliance.isPresent())
-                    return alliance.get() == DriverStation.Alliance.Red;
-                return false;
-            }
-        );
+        xController = new PIDController(1, 0, 0);
+        yController = new PIDController(1, 0, 0);
+        omegaController = new PIDController(1, 0, 0);
     }
 
     @Override
@@ -139,7 +114,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Drivebase State", desiredState.toString());
         Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
         Debug.log("Relation", relation == null ? "None" : relation.toString());
-        Debug.log("Is Aligning", isAligning);
+        Debug.log("Is Aligned", isAligned());
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
         if (wantsState(State.FIELD_RELATIVE)) {
@@ -147,30 +122,21 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
 
         if (wantsState(State.ALIGN)) {
-            if (!isAligning || alignCommand == null) {
-                final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
-                Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
-                if (alignPose.isPresent()) {
-                    final Pose2d targetPose = alignPose.get();
-                    final PathPlannerPath generatedPath = new PathPlannerPath(
-                        PathPlannerPath.waypointsFromPoses(perception.getPose(), targetPose),
-                        new PathConstraints(4.6, 3, 2 * Math.PI, 4 * Math.PI),
-                        null,
-                        new GoalEndState(0, targetPose.getRotation())
-                    );
-                    generatedPath.preventFlipping = true;
+            final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+            Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
+            if (alignPose.isPresent()) {
+                final Pose2d targetPose = alignPose.get();
 
-                    alignCommand = new TorqueFollowPath(() -> generatedPath, drivebase).command();
-                }
+                final double xPower = xController.calculate(perception.getPose().getX(), targetPose.getX());
+                final double yPower = yController.calculate(perception.getPose().getY(), targetPose.getY());
+                final double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees());
+                
+                inputSpeeds.vxMetersPerSecond = xPower;
+                inputSpeeds.vyMetersPerSecond = yPower;
+                inputSpeeds.omegaRadiansPerSecond = omegaPower;
             }
-            isAligning = true;
-
-            if (alignCommand != null) {
-                alignCommand.run();
-            }
-        } else {
-            isAligning = false;
         }
+        
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
 
@@ -198,8 +164,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
     }
 
-    public boolean isAligning() {
-        return isAligning;
+    public boolean isAligned() {
+        final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+
+        if (alignPose.isEmpty()) return false;
+        return alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation()) < .1;
     }
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {

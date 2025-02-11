@@ -72,7 +72,8 @@ public enum AprilTagList {
 			Placement.REEF
 	),
 	ID_21(21, new Pose3d(5.321546, 4.02659, 0.308202, new Rotation3d(0, 0, 0)),
-			Placement.REEF
+			Placement.REEF,
+			new AlignPose2d(Relation.CENTER, new Pose2d(5.8, 4, Rotation2d.fromDegrees(180)))
 	),
 	ID_22(22, new Pose3d(4.905194, 3.306318, 0.308202, new Rotation3d(0, 0, 300)),
 			Placement.REEF
