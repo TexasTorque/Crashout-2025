@@ -21,7 +21,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final TorqueBoolSupplier resetGyro, debug, intakeCoral, align, slow,
             stow, L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
-            climbUp, climbDown;
+            climbUp, climbDown, debugElevatorUp, debugElevatorDown;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -33,9 +33,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         
         align = new TorqueBoolSupplier(driver::isRightTriggerDown);
-        slow = new TorqueBoolSupplier(() -> driver.isLeftTriggerDown() || operator.isDPADDownDown());
-        slowInitial = new TorqueClickSupplier(driver::isDPADLeftDown);
-        stow = new TorqueBoolSupplier(driver::isDPADLeftDown);
+        stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
+        slowInitial = new TorqueClickSupplier(driver::isLeftTriggerDown);
+        slow = new TorqueBoolSupplier(driver::isLeftTriggerDown);
 
         L1 = new TorqueBoolSupplier(operator::isAButtonDown);
         L2 = new TorqueBoolSupplier(operator::isXButtonDown);
@@ -54,6 +54,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
         climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND);
+        
+        debugElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
+        debugElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
     }
 
     @Override
@@ -66,6 +69,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         debug.onTrue(() -> {
             elevator.setState(Elevator.State.DEBUG);
         });
+
+        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(4));
+        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-4));
     }
 
     public final void updateDrivebase() {

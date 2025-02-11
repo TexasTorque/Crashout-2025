@@ -145,9 +145,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
 
+        Debug.log("Slow Max Speed", getSlowMaxSpeed());
+        Debug.log("Slow Start Timestamp", slowStartTimestamp);
         if (wantsState(State.SLOW)) {
             for (SwerveModuleState state : swerveStates) {
-                state.speedMetersPerSecond = state.speedMetersPerSecond > getSlowMaxSpeed() ? getSlowMaxSpeed() : state.speedMetersPerSecond;
+                state.speedMetersPerSecond = state.speedMetersPerSecond > getSlowMaxSpeed() ? Math.signum(state.speedMetersPerSecond) * getSlowMaxSpeed() : state.speedMetersPerSecond;
             }
         }
 
@@ -180,19 +182,19 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public void startSlowMode() {
-        setState(Drivebase.State.SLOW);
+        setState(State.SLOW);
         slowStartTimestamp = Timer.getFPGATimestamp();
     }
 
     public double getSlowMaxSpeed() {
         final double MIN_VELOCITY = MAX_VELOCITY / 2;
         final double TIME_TO_MIN = 1.5;
-        final double timeDelta = slowStartTimestamp - Timer.getFPGATimestamp();
+        final double timeDelta = Timer.getFPGATimestamp() - slowStartTimestamp;
 
         if (timeDelta <= 0) return MAX_VELOCITY;
         if (timeDelta > TIME_TO_MIN) return MIN_VELOCITY;
 
-        return (-23/15 * timeDelta) + 4.6;
+        return ((-5.0001 / 3) * timeDelta) + 5;
     }
 
     public boolean isAligned() {
