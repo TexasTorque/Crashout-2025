@@ -145,11 +145,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
 
-        Debug.log("Slow Max Speed", getSlowMaxSpeed());
         Debug.log("Slow Start Timestamp", slowStartTimestamp);
         if (wantsState(State.SLOW)) {
             for (SwerveModuleState state : swerveStates) {
-                state.speedMetersPerSecond = state.speedMetersPerSecond > getSlowMaxSpeed() ? Math.signum(state.speedMetersPerSecond) * getSlowMaxSpeed() : state.speedMetersPerSecond;
+                state.speedMetersPerSecond *= getSlowMultiplier();
             }
         }
 
@@ -186,26 +185,26 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         slowStartTimestamp = Timer.getFPGATimestamp();
     }
 
-    public double getSlowMaxSpeed() {
-        final double MIN_VELOCITY = MAX_VELOCITY / 2;
+    public double getSlowMultiplier() {
+        final double MIN_MULT = .5;
         final double TIME_TO_MIN = 1.5;
         final double timeDelta = Timer.getFPGATimestamp() - slowStartTimestamp;
 
-        if (timeDelta <= 0) return MAX_VELOCITY;
-        if (timeDelta > TIME_TO_MIN) return MIN_VELOCITY;
-
-        return ((-5.0001 / 3) * timeDelta) + 5;
+        if (timeDelta <= 0) return 1;
+        if (timeDelta > TIME_TO_MIN) return MIN_MULT;
+        return 1.0 - (timeDelta / 3.0);
     }
 
     public boolean isAligned() {
         final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+        final double TOLERANCE = .05;
 
         if (alignPose.isEmpty()) return false;
         final double distance = alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation());
         Debug.log("Distance from Target", distance);
 
-        if (distance < .05) setInputSpeeds(new TorqueSwerveSpeeds());
-        return distance < .05;
+        if (distance < TOLERANCE) setInputSpeeds(new TorqueSwerveSpeeds());
+        return distance < TOLERANCE;
     }
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {

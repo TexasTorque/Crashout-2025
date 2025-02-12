@@ -28,6 +28,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public static enum State implements TorqueState {
         ZERO(0),
+        LOW_STOW(1),
         STOW(3.4895),
         SCORE_L1(4.5374),
         SCORE_L2(2.0),

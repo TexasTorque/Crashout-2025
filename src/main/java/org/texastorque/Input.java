@@ -18,11 +18,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueClickSupplier slowInitial;
-    private final TorqueBoolSupplier resetGyro, debug, intakeCoral, align, slow,
+    private final TorqueBoolSupplier resetGyro, debug, align, slow, lowStow,
             stow, L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, debugElevatorUp, debugElevatorDown,
-            outtakeCoral, outtakeAlgae;
+            intakeCoral, outtakeCoral, outtakeAlgae;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -34,7 +34,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         
         align = new TorqueBoolSupplier(driver::isRightTriggerDown);
+
+        lowStow = new TorqueBoolSupplier(driver::isDPADLeftDown);
         stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
+
         slowInitial = new TorqueClickSupplier(driver::isLeftTriggerDown);
         slow = new TorqueBoolSupplier(driver::isLeftTriggerDown);
 
@@ -139,6 +142,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setState(Claw.State.CORAL_HP);
             claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
+        });
+        lowStow.onTrue(() -> {
+            elevator.setState(Elevator.State.LOW_STOW);
+            claw.setState(Claw.State.STOW);
         });
         stow.onTrue(() -> {
             elevator.setState(Elevator.State.STOW);
