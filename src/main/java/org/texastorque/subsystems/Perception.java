@@ -68,7 +68,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.105425, 0.77653, -90, 45, 180);
-		// LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_LOW, 0.298645, 0.127, 0.164267, 0, 25, 0);
+		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_LOW, 0.0916686, 0.127, 0.164267, 0, 25, 0);
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
 
@@ -208,14 +208,14 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		final Pose2d pastPose = getPose();
 
 		// Pose filtering
-		if (high == null && low != null) return low.pose;
-		if (low == null && high != null) return high.pose;
-		if (low == null && high == null) return null;
+		if (high.tagCount == 0 && low.tagCount > 0) return low.pose;
+		if (low.tagCount == 0 && high.tagCount > 0) return high.pose;
+		if (low.tagCount == 0 && high.tagCount == 0) return null;
 
-		// If the the two poses are more than a half-meter away from each other, disregard both
-		if (high.pose.getTranslation().getDistance(low.pose.getTranslation()) > .5) {
-			return pastPose;
-		}
+		// // If the the two poses are more than a half-meter away from each other, disregard both
+		// if (high.pose.getTranslation().getDistance(low.pose.getTranslation()) > .5) {
+		// 	return pastPose;
+		// }
 
 		// If not, return average pose
 		final Pose2d fusedPose = new Pose2d(
@@ -227,7 +227,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	private boolean seesTag() {
-		return LimelightHelpers.getTargetCount(LIMELIGHT_HIGH) > 0 || LimelightHelpers.getTargetCount(LIMELIGHT_LOW) > 0;
+		return getVisionEstimate(LIMELIGHT_LOW).tagCount > 0 || getVisionEstimate(LIMELIGHT_HIGH).tagCount > 0;
 	}
 
 	public Rotation2d getHeading() {

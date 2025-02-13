@@ -8,7 +8,8 @@ public class AlignPose2d {
         LEFT,
         CENTER,
         RIGHT,
-        FAR_RIGHT;
+        FAR_RIGHT,
+        NONE;
     }
 
     public enum Placement {

@@ -32,7 +32,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public static enum State implements TorqueState {
         FIELD_RELATIVE(null),
         ROBOT_RELATIVE(null),
-        ALIGN(null),
+        ALIGN(FIELD_RELATIVE),
         SLOW(FIELD_RELATIVE),
         PATHING(null);
 
@@ -59,7 +59,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public TorqueSwerveSpeeds inputSpeeds;
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
-    private Relation relation;
+    private Relation relation = Relation.NONE;
     private PIDController xController, yController, omegaController;
     private double slowStartTimestamp;
 
@@ -78,9 +78,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
         
-        xController = new PIDController(1, 0, 0);
-        yController = new PIDController(1, 0, 0);
-        omegaController = new PIDController(1, 0, 0);
+        xController = new PIDController(2.5, 0, 0);
+        yController = new PIDController(2.5, 0, 0);
+        omegaController = new PIDController(.1, 0, 0);
+        omegaController.enableContinuousInput(0, 360);
     }
 
     @Override
@@ -116,7 +117,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public final void update(final TorqueMode mode) {
         Debug.log("Drivebase State", desiredState.toString());
         Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
-        Debug.log("Relation", relation == null ? "None" : relation.toString());
+        Debug.log("Relation", relation.toString());
         Debug.log("Is Aligned", isAligned());
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
@@ -139,6 +140,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
                 inputSpeeds.omegaRadiansPerSecond = omegaPower;
 
                 inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
+
+                if (isAligned()) {
+                    setRelation(Relation.NONE);
+                }
             }
         }
         
@@ -173,10 +178,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public void clean(TorqueMode mode) {
         if (mode.isTeleop()) {
             desiredState = desiredState.parent;
-
-            if (desiredState == State.ALIGN) {
-                desiredState = State.FIELD_RELATIVE;
-            }
         }
     }
 
@@ -187,24 +188,30 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     public double getSlowMultiplier() {
         final double MIN_MULT = .5;
-        final double TIME_TO_MIN = 1.5;
+        final double TIME_TO_MIN = .5;
         final double timeDelta = Timer.getFPGATimestamp() - slowStartTimestamp;
 
         if (timeDelta <= 0) return 1;
         if (timeDelta > TIME_TO_MIN) return MIN_MULT;
-        return 1.0 - (timeDelta / 3.0);
+        return 1.0 - timeDelta;
     }
 
     public boolean isAligned() {
         final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
-        final double TOLERANCE = .05;
+        final double TRANSLATION_TOLERANCE = .05;
+        final double ROTATION_TOLERANCE = 2;
 
         if (alignPose.isEmpty()) return false;
         final double distance = alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation());
-        Debug.log("Distance from Target", distance);
+        final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
+        final double rotation = (alignPose.get().getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
+        final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
 
-        if (distance < TOLERANCE) setInputSpeeds(new TorqueSwerveSpeeds());
-        return distance < TOLERANCE;
+        if (translationAligned && rotationAligned) {
+            setInputSpeeds(new TorqueSwerveSpeeds());
+            return true;
+        }
+        return false;
     }
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {

@@ -149,7 +149,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             if (animationMultiplier > 1) return desiredState.angle;
             return ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
         }
-        return shoulderEncoder.getAbsolutePosition().getValueAsDouble() * 360;
+        return (shoulderEncoder.getAbsolutePosition().getValueAsDouble() + .5) * 360;
     }
 
     public final boolean isAtState() {

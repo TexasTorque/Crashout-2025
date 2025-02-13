@@ -31,7 +31,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         LOW_STOW(1),
         STOW(3.4895),
         SCORE_L1(4.5374),
-        SCORE_L2(2.0),
+        SCORE_L2(1.8),
         SCORE_L3(5.0),
         SCORE_L4(10.043),
         NET(10.043),
