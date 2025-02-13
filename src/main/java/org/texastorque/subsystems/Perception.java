@@ -77,24 +77,45 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		Debug.field("Field", field);
 
-		final boolean isRedAlliance = (DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() == Alliance.Red : false); // ?? This doesn't work...
-		final double allianceOffset = isRedAlliance ? 8.56957565 : 0;
-		final Translation2d center = new Translation2d(4.5 + allianceOffset, 4.0259);
-        final Translation2d right = new Translation2d(4.5 + allianceOffset, 4.0259 - 3);
-        final Translation2d farRight = new Translation2d(4.5 + allianceOffset + 2.5980644, 4.0259 - 1.5);
-        final Translation2d farLeft = new Translation2d(4.5 + 2.5980644 + allianceOffset, 4.0259 + 1.5);
-        final Translation2d left = new Translation2d(4.5 + allianceOffset, 4.0259 + 3);
-        final Translation2d closeRight = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 - 1.5);
-        final Translation2d closeLeft = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 + 1.5);
+		final double allianceOffset = 8.56957565;
+		final Translation2d centerBlue = new Translation2d(4.5, 4.0259);
+        final Translation2d rightBlue = new Translation2d(4.5, 4.0259 - 3);
+        final Translation2d farRightBlue = new Translation2d(4.5 + 2.5980644, 4.0259 - 1.5);
+        final Translation2d farLeftBlue = new Translation2d(4.5 + 2.5980644, 4.0259 + 1.5);
+        final Translation2d leftBlue = new Translation2d(4.5, 4.0259 + 3);
+        final Translation2d closeRightBlue = new Translation2d(4.5 - 2.5980644, 4.0259 - 1.5);
+        final Translation2d closeLeftBlue = new Translation2d(4.5 - 2.5980644, 4.0259 + 1.5);
+
+		final Translation2d centerRed = new Translation2d(4.5 + allianceOffset, 4.0259);
+        final Translation2d rightRed = new Translation2d(4.5 + allianceOffset, 4.0259 - 3);
+        final Translation2d farRightRed = new Translation2d(4.5 + allianceOffset + 2.5980644, 4.0259 - 1.5);
+        final Translation2d farLeftRed = new Translation2d(4.5 + 2.5980644 + allianceOffset, 4.0259 + 1.5);
+        final Translation2d leftRed = new Translation2d(4.5 + allianceOffset, 4.0259 + 3);
+        final Translation2d closeRightRed = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 - 1.5);
+        final Translation2d closeLeftRed = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 + 1.5);
+
+		final Translation2d csLeftBackLeftBlue = new Translation2d(0, 1.194053);
+		final Translation2d csLeftBackRightBlue = new Translation2d(1.644160, 0);
+		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 2.429942);
+		final Translation2d csLeftFrontRightBlue = new Translation2d(3.345927, 0);
 
         zones = new ArrayList<>();
 
-        zones.add(new TorqueFieldZone(18, center, closeLeft, closeRight));
-        zones.add(new TorqueFieldZone(17, center, closeRight, right));
-        zones.add(new TorqueFieldZone(22, center, right, farRight));
-        zones.add(new TorqueFieldZone(21, center, farRight, farLeft));
-        zones.add(new TorqueFieldZone(20, center, farLeft, left));
-        zones.add(new TorqueFieldZone(19, center, left, closeLeft));
+        zones.add(new TorqueFieldZone(18, centerBlue, closeLeftBlue, closeRightBlue, centerBlue));
+        zones.add(new TorqueFieldZone(17, centerBlue, closeRightBlue, rightBlue, centerBlue));
+        zones.add(new TorqueFieldZone(22, centerBlue, rightBlue, farRightBlue, centerBlue));
+        zones.add(new TorqueFieldZone(21, centerBlue, farRightBlue, farLeftBlue, centerBlue));
+        zones.add(new TorqueFieldZone(20, centerBlue, farLeftBlue, leftBlue, centerBlue));
+        zones.add(new TorqueFieldZone(19, centerBlue, leftBlue, closeLeftBlue, centerBlue));
+
+        zones.add(new TorqueFieldZone(7, centerRed, closeLeftRed, closeRightRed, centerRed));
+        zones.add(new TorqueFieldZone(6, centerRed, closeRightRed, rightRed, centerRed));
+        zones.add(new TorqueFieldZone(11, centerRed, rightRed, farRightRed, centerRed));
+        zones.add(new TorqueFieldZone(10, centerRed, farRightRed, farLeftRed, centerRed));
+        zones.add(new TorqueFieldZone(9, centerRed, farLeftRed, leftRed, centerRed));
+        zones.add(new TorqueFieldZone(8, centerRed, leftRed, closeLeftRed, centerRed));
+
+		zones.add(new TorqueFieldZone(12, csLeftBackLeftBlue, csLeftBackRightBlue, csLeftFrontRightBlue, csLeftFrontLeftBlue, csLeftBackLeftBlue));
 	}
 
 	final String LIMELIGHT_HIGH = "limelight-high";
