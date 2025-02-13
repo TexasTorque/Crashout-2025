@@ -2,7 +2,22 @@
   "name": "2025 Bravo",
   "rotations": [{ "axis": "x", "degrees": 90 }],
   "position": [0, 0, 0.05],
-  "cameras": [],
+  "cameras": [
+    {
+      "name": "limelight-high",
+      "fov": 82,
+      "resolution": [1280, 960],
+      "position": [-0.185858074, 0.0900557254, 0.781397243],
+      "rotations": [{ "axis": "z", "degrees": 180}, { "axis": "y", "degrees": 55}]
+    },
+    {
+      "name": "limelight-low",
+      "fov": 82,
+      "resolution": [1280, 960],
+      "position": [0.081837, -0.124453, 0.172148],
+      "rotations": [{ "axis": "y", "degrees": -25}]
+    }
+  ],
   "components": [
     {
       "zeroedRotations": [{ "axis": "x", "degrees": 90}],
