@@ -121,10 +121,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Is Aligned", isAligned());
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
-        if (wantsState(State.FIELD_RELATIVE)) {
-            inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
-        }
-
         if (wantsState(State.ALIGN)) {
             final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
             Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
@@ -138,19 +134,16 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
                 inputSpeeds.vxMetersPerSecond = xPower;
                 inputSpeeds.vyMetersPerSecond = yPower;
                 inputSpeeds.omegaRadiansPerSecond = omegaPower;
-
-                inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
-
-                if (isAligned()) {
-                    setRelation(Relation.NONE);
-                }
             }
+        }
+
+        if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN) || wantsState(State.SLOW)) {
+            inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
         }
         
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
 
-        Debug.log("Slow Start Timestamp", slowStartTimestamp);
         if (wantsState(State.SLOW)) {
             for (SwerveModuleState state : swerveStates) {
                 state.speedMetersPerSecond *= getSlowMultiplier();
@@ -193,7 +186,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         if (timeDelta <= 0) return 1;
         if (timeDelta > TIME_TO_MIN) return MIN_MULT;
-        return 1.0 - timeDelta;
+        return -1.5 * timeDelta + 1;
     }
 
     public boolean isAligned() {
@@ -208,7 +201,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
 
         if (translationAligned && rotationAligned) {
-            setInputSpeeds(new TorqueSwerveSpeeds());
             return true;
         }
         return false;

@@ -12,7 +12,8 @@ import org.texastorque.torquelib.util.TorqueMath;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -20,11 +21,14 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     private static volatile Elevator instance;
     private final TorqueNEO elevatorLeft, elevatorRight;
-    private final PIDController elevatorPID;
+    private final ProfiledPIDController elevatorPID;
     private final CANcoder elevatorEncoder;
     private double debugVolts;
     private State pastState;
     private double pastStateTime;
+
+    private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(.5, .5);
+    private final double ELEVATOR_FF = .05;
 
     public static enum State implements TorqueState {
         ZERO(0),
@@ -63,7 +67,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             .idleMode(IdleMode.kBrake)
             .apply();
         
-        elevatorPID = new PIDController(25, 0, 0);
+        elevatorPID = new ProfiledPIDController(25, 0, 0, constraints);
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
         debugVolts = 0;
     }
@@ -80,17 +84,17 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > 4) volts = Math.signum(volts) * 4;
 
-        elevatorLeft.setVolts(volts);
-        elevatorRight.setVolts(volts);
+        elevatorLeft.setVolts(volts + ELEVATOR_FF);
+        elevatorRight.setVolts(volts + ELEVATOR_FF);
 
         if (desiredState == State.ZERO) {
-            elevatorLeft.setVolts(0);
-            elevatorRight.setVolts(0);
+            elevatorLeft.setVolts(ELEVATOR_FF);
+            elevatorRight.setVolts(ELEVATOR_FF);
         }
 
         if (desiredState == State.DEBUG) {
-            elevatorLeft.setVolts(debugVolts);
-            elevatorRight.setVolts(debugVolts);
+            elevatorLeft.setVolts(debugVolts + ELEVATOR_FF);
+            elevatorRight.setVolts(debugVolts + ELEVATOR_FF);
         }
     }
 

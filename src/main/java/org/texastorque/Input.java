@@ -83,7 +83,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
     public final void updateDrivebase() {
         resetGyro.onTrue(() -> perception.resetHeading());
-        align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
 
         leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
         rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
@@ -91,6 +90,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         slowInitial.onTrue(() -> drivebase.startSlowMode());
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
+
+        align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
         
         final double xVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftYAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_VELOCITY;

@@ -114,17 +114,27 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		LimelightHelpers.PoseEstimate visionEstimateLow = getVisionEstimate(LIMELIGHT_LOW);
 		
 		final Pose2d odometryPose = poseEstimator.update(getHeading(), drivebase.getModulePositions());
-		final Pose2d visionPose = getFusedVisionPose(visionEstimateHigh, visionEstimateLow);
 
-		if (visionPose != null) {
-			if (seesTag()) {
-				poseEstimator.addVisionMeasurement(visionPose, visionEstimateHigh.timestampSeconds);
+		if (seesTag() && visionEstimateHigh != null && visionEstimateLow != null) {
+			if (visionEstimateHigh.tagCount > 0) {
+				if (drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateHigh.rawFiducials, 12, 13, 2, 1)) {
+					// disregard
+				} else {
+					poseEstimator.addVisionMeasurement(visionEstimateHigh.pose, visionEstimateHigh.timestampSeconds);
+				}
+			}
+			if (visionEstimateLow.tagCount > 0) {
+				if (drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateHigh.rawFiducials, 12, 13, 2, 1)) {
+					// disregard
+				} else {
+					poseEstimator.addVisionMeasurement(visionEstimateLow.pose, visionEstimateLow.timestampSeconds);
+				}
 			}
 
 			finalPose = new Pose2d(
-					filteredX.calculate(poseEstimator.getEstimatedPosition().getX()),
-					filteredY.calculate(poseEstimator.getEstimatedPosition().getY()),
-					getHeading()
+				filteredX.calculate(poseEstimator.getEstimatedPosition().getX()),
+				filteredY.calculate(poseEstimator.getEstimatedPosition().getY()),
+				getHeading()
 			);
 		} else {
 			finalPose = odometryPose;
@@ -172,6 +182,24 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
         };
 	}
 
+	public boolean containsID(final RawFiducial[] rawFiducials, final int id) {
+		for (RawFiducial fiducial : rawFiducials) {
+			if (fiducial.id == id) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean containsAnyID(final RawFiducial[] rawFiducials, final int ...ids) {
+		for (int id : ids) {
+			if (containsID(rawFiducials, id)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void resetHeading() {
 		gyro_simulated = 0;
         gyro.setOffsetCW(Rotation2d.fromRadians(0));
@@ -203,31 +231,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		lastDetection = bestDetection;
 		return bestDetection;
 	}
-	
-	private Pose2d getFusedVisionPose(final PoseEstimate high, final PoseEstimate low) {
-		final Pose2d pastPose = getPose();
-
-		// Pose filtering
-		if (high.tagCount == 0 && low.tagCount > 0) return low.pose;
-		if (low.tagCount == 0 && high.tagCount > 0) return high.pose;
-		if (low.tagCount == 0 && high.tagCount == 0) return null;
-
-		// // If the the two poses are more than a half-meter away from each other, disregard both
-		// if (high.pose.getTranslation().getDistance(low.pose.getTranslation()) > .5) {
-		// 	return pastPose;
-		// }
-
-		// If not, return average pose
-		final Pose2d fusedPose = new Pose2d(
-			(high.pose.getX() + low.pose.getX()) / 2,
-			(high.pose.getY() + low.pose.getY()) / 2,
-			getHeading()
-		);
-		return fusedPose;
-	}
 
 	private boolean seesTag() {
-		return getVisionEstimate(LIMELIGHT_LOW).tagCount > 0 || getVisionEstimate(LIMELIGHT_HIGH).tagCount > 0;
+		return LimelightHelpers.getTargetCount(LIMELIGHT_HIGH) > 0 || LimelightHelpers.getTargetCount(LIMELIGHT_LOW) > 0;
 	}
 
 	public Rotation2d getHeading() {
