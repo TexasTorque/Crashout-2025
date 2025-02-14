@@ -24,7 +24,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final ProfiledPIDController elevatorPID;
     private final CANcoder elevatorEncoder;
     private double debugVolts;
-    private State pastState;
+    public State pastState;
     private double pastStateTime;
 
     private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(10, 10);
@@ -88,8 +88,18 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
-        elevatorLeft.setVolts(volts + ELEVATOR_FF);
-        elevatorRight.setVolts(volts + ELEVATOR_FF);
+        // If we are moving down
+        if (desiredState.position < pastState.position) {
+            // Wait until claw moves first
+            if (claw.isAtState()) {
+                elevatorLeft.setVolts(volts + ELEVATOR_FF);
+                elevatorRight.setVolts(volts + ELEVATOR_FF);
+            }
+        } else {
+            // Otherwise, move elevator first
+            elevatorLeft.setVolts(volts + ELEVATOR_FF);
+            elevatorRight.setVolts(volts + ELEVATOR_FF);
+        }
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(ELEVATOR_FF);
@@ -118,8 +128,18 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             final double timeToAnimate = 2;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
 
-            if (animationMultiplier >= 1) return desiredState.position;
-            return ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+            if (desiredState.position < pastState.position) {
+                if (claw.isAtState()) {
+                    if (animationMultiplier >= 1) return desiredState.position;
+                    return ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+                }
+            } else {
+                if (animationMultiplier >= 1) return desiredState.position;
+                return ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+            }
+
+            pastStateTime = Timer.getFPGATimestamp();
+            return pastState.position;
         }
         return elevatorEncoder.getPosition().getValueAsDouble();
     }

@@ -6,6 +6,7 @@ import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
+import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Drivebase;
@@ -26,7 +27,7 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         // Alignment
         addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.CENTER)));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Algae extraction
@@ -42,7 +43,7 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         // Alignment
         addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.LEFT)));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
         
         // Coral placement

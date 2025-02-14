@@ -12,8 +12,6 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
-
-
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -121,7 +119,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Drivebase State", desiredState.toString());
         Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
         Debug.log("Relation", relation.toString());
-        Debug.log("Is Aligned", isAligned());
+        Debug.log("Is Aligned", isAligned(mode));
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
         if (wantsState(State.ALIGN)) {
@@ -161,10 +159,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         if (inputSpeeds.hasZeroVelocity()) {
             manuallySetModuleAngles(
-                    swerveStates[0].angle,
-                    swerveStates[1].angle,
-                    swerveStates[2].angle,
-                    swerveStates[3].angle
+                swerveStates[0].angle,
+                swerveStates[1].angle,
+                swerveStates[2].angle,
+                swerveStates[3].angle
             );
         } else {
             fl.setDesiredState(swerveStates[0]);
@@ -183,22 +181,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
     }
 
-    public void startSlowMode() {
-        setState(State.SLOW);
-        slowStartTimestamp = Timer.getFPGATimestamp();
-    }
-
-    public double getSlowMultiplier() {
-        final double MIN_MULT = .5;
-        final double TIME_TO_MIN = .5;
-        final double timeDelta = Timer.getFPGATimestamp() - slowStartTimestamp;
-
-        if (timeDelta <= 0) return 1;
-        if (timeDelta > TIME_TO_MIN) return MIN_MULT;
-        return -1.5 * timeDelta + 1;
-    }
-
-    public boolean isAligned() {
+    public boolean isAligned(final TorqueMode mode) {
         final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
         final double TRANSLATION_TOLERANCE = .05;
         final double ROTATION_TOLERANCE = 2;
@@ -210,17 +193,22 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
 
         if (translationAligned && rotationAligned) {
+            if (mode == TorqueMode.AUTO) {
+                setInputSpeeds(new TorqueSwerveSpeeds());
+            }
             return true;
         }
         return false;
     }
 
-    public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {
-        this.inputSpeeds = inputSpeeds;
-    }
+    public double getSlowMultiplier() {
+        final double MIN_MULT = .5;
+        final double TIME_TO_MIN = .5;
+        final double timeDelta = Timer.getFPGATimestamp() - slowStartTimestamp;
 
-    public void setRelation(final Relation relation) {
-      this.relation = relation;
+        if (timeDelta <= 0) return 1;
+        if (timeDelta > TIME_TO_MIN) return MIN_MULT;
+        return -1.5 * timeDelta + 1;
     }
 
     private void manuallySetModuleAngles(final Rotation2d flAngle, final Rotation2d frAngle, final Rotation2d blAngle, final Rotation2d brAngle) {
@@ -235,6 +223,19 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             fl.getPosition(), fr.getPosition(),
             bl.getPosition(), br.getPosition()
         };
+    }
+
+    public void startSlowMode() {
+        setState(State.SLOW);
+        slowStartTimestamp = Timer.getFPGATimestamp();
+    }
+
+    public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {
+        this.inputSpeeds = inputSpeeds;
+    }
+
+    public void setRelation(final Relation relation) {
+      this.relation = relation;
     }
 
     public double getRadius() {

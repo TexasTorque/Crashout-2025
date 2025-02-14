@@ -196,7 +196,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Pose3d[] getRealComponentPoses() {
 		final double elevatorPos = elevator.getElevatorPosition();
 		final double shoulderAngle = claw.getShoulderAngle();
-		final double elevatorMultiplier = elevatorPos / Elevator.State.NET.position;
+		final double elevatorMultiplier = elevatorPos / 12.5;
 		
 		return new Pose3d[] {
             new Pose3d(0, 0, .6 * elevatorMultiplier, new Rotation3d()),

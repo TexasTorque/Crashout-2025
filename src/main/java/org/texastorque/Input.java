@@ -79,8 +79,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             elevator.setState(Elevator.State.DEBUG);
         });
 
-        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(4));
-        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(-4));
+        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(-4));
+        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(4));
     }
 
     public final void updateDrivebase() {

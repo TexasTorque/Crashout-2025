@@ -120,7 +120,16 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         final double ff = 1 * Math.cos(Math.toRadians(getShoulderAngle())); // Will need tuning
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
-        shoulder.setVolts(volts + ff);
+        // If we are moving up
+        if (elevator.getState().position > elevator.pastState.position) {
+            // Wait for elevator to move first
+            if (elevator.isAtState()) {
+                shoulder.setVolts(volts + ff);
+            }
+        } else {
+            // Otherwise, move claw first
+            shoulder.setVolts(volts + ff);
+        }
 
         if (desiredState == State.ZERO) {
             shoulder.setVolts(0);
@@ -129,9 +138,9 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         algaeRollers.setVolts(algaeState.getVolts());
         coralRollers.setVolts(coralState.getVolts());
 
-        // If we have coral, set volts to 0 to prevent stalling the motor
+        // If we have coral, set volts to .5 to keep the coral inside
         if (hasCoral() && coralState != CoralState.SHOOT) {
-            coralRollers.setVolts(0);
+            coralRollers.setVolts(.5);
         }
     }
 
@@ -151,8 +160,18 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             final double timeToAnimate = 1;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
 
-            if (animationMultiplier > 1) return desiredState.angle;
-            return ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
+            if (elevator.getState().position > elevator.pastState.position) {
+                if (elevator.isAtState()) {
+                    if (animationMultiplier > 1) return desiredState.angle;
+                    return ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
+                }
+            } else {
+                if (animationMultiplier > 1) return desiredState.angle;
+                return ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
+            }
+
+            pastStateTime = Timer.getFPGATimestamp();
+            return pastState.angle;
         }
         return (shoulderEncoder.getAbsolutePosition().getValueAsDouble() + .5) * 360;
     }
