@@ -60,6 +60,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     private Relation relation = Relation.NONE;
     private PIDController xController, yController, omegaController;
     private double slowStartTimestamp;
+    private Pose2d alignPoseOverride;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -122,29 +123,19 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Is Aligned", isAligned(mode));
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
-        if (wantsState(State.ALIGN)) {
+        if (alignPoseOverride != null) {
+            runAlignment(alignPoseOverride, mode);
+        } else if (wantsState(State.ALIGN)) {
             final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
             Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
             if (alignPose.isPresent()) {
                 final Pose2d targetPose = alignPose.get();
-                final double MAX_ALIGN_VELOCITY = 1.5;
-                final double MAX_ALIGN_OMEGA_VELOCITY = 2 * Math.PI;
-
-                double xPower = xController.calculate(perception.getPose().getX(), targetPose.getX());
-                double yPower = yController.calculate(perception.getPose().getY(), targetPose.getY());
-                double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees());
-
-                if (Math.abs(xPower) > MAX_ALIGN_VELOCITY) xPower = Math.signum(xPower) * MAX_ALIGN_VELOCITY;
-                if (Math.abs(yPower) > MAX_ALIGN_VELOCITY) yPower = Math.signum(yPower) * MAX_ALIGN_VELOCITY;
-                if (Math.abs(omegaPower) > MAX_ALIGN_OMEGA_VELOCITY) omegaPower = Math.signum(omegaPower) * MAX_ALIGN_OMEGA_VELOCITY;
-
-                inputSpeeds.vxMetersPerSecond = xPower;
-                inputSpeeds.vyMetersPerSecond = yPower;
-                inputSpeeds.omegaRadiansPerSecond = omegaPower;
+                
+                runAlignment(targetPose, mode);
             }
         }
 
-        if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN) || wantsState(State.SLOW)) {
+        if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN) || wantsState(State.SLOW) || alignPoseOverride != null) {
             inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
         }
         
@@ -181,11 +172,29 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
     }
 
+    public void runAlignment(final Pose2d pose, final TorqueMode mode) {
+        final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .5;
+        final double MAX_ALIGN_OMEGA_VELOCITY = mode.isTeleop() ? 2 * Math.PI : Math.PI / 2;
+
+        double xPower = xController.calculate(perception.getPose().getX(), pose.getX());
+        double yPower = yController.calculate(perception.getPose().getY(), pose.getY());
+        double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), pose.getRotation().getDegrees());
+
+        if (Math.abs(xPower) > MAX_ALIGN_VELOCITY) xPower = Math.signum(xPower) * MAX_ALIGN_VELOCITY;
+        if (Math.abs(yPower) > MAX_ALIGN_VELOCITY) yPower = Math.signum(yPower) * MAX_ALIGN_VELOCITY;
+        if (Math.abs(omegaPower) > MAX_ALIGN_OMEGA_VELOCITY) omegaPower = Math.signum(omegaPower) * MAX_ALIGN_OMEGA_VELOCITY;
+
+        inputSpeeds.vxMetersPerSecond = xPower;
+        inputSpeeds.vyMetersPerSecond = yPower;
+        inputSpeeds.omegaRadiansPerSecond = omegaPower;
+    }
+
     public boolean isAligned(final TorqueMode mode) {
-        final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+        Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
         final double TRANSLATION_TOLERANCE = .05;
         final double ROTATION_TOLERANCE = 2;
 
+        if (alignPose.isEmpty()) alignPose = alignPoseOverride == null ? Optional.empty() : Optional.of(alignPoseOverride);
         if (alignPose.isEmpty()) return false;
         final double distance = alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation());
         final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
@@ -230,6 +239,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         slowStartTimestamp = Timer.getFPGATimestamp();
     }
 
+    public void setAlignPoseOverride(Pose2d alignPoseOverride) {
+        this.alignPoseOverride = alignPoseOverride;
+    }
+
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {
         this.inputSpeeds = inputSpeeds;
     }
@@ -244,7 +257,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     @Override
     public double getMaxPathingVelocity() {
-        return MAX_VELOCITY;
+        return .25;
     }
 
     @Override

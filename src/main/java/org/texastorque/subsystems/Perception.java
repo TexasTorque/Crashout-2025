@@ -137,18 +137,18 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		if (seesTag() && visionEstimateHigh != null && visionEstimateLow != null) {
 			if (visionEstimateHigh.tagCount > 0) {
-				if ((drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateHigh.rawFiducials, 12, 13, 2, 1))
+				if ((drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateHigh.rawFiducials, 16, 13, 12, 3, 2, 1))
 					|| (drivebase.getState() == Drivebase.State.PATHING && visionEstimateHigh.avgTagDist > 1)
-					|| visionEstimateLow.avgTagDist > 2) {
+					|| visionEstimateLow.avgTagDist > 1.5) {
 						// disregard
 				} else {
 					poseEstimator.addVisionMeasurement(visionEstimateHigh.pose, visionEstimateHigh.timestampSeconds);
 				}
 			}
 			if (visionEstimateLow.tagCount > 0) {
-				if ((drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateLow.rawFiducials, 12, 13, 2, 1))
+				if ((drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateLow.rawFiducials, 16, 13, 12, 3, 2, 1))
 					|| (drivebase.getState() == Drivebase.State.PATHING && visionEstimateLow.avgTagDist > 1)
-					|| visionEstimateLow.avgTagDist > 2) {
+					|| visionEstimateLow.avgTagDist > 1.5) {
 						// disregard
 				} else {
 					poseEstimator.addVisionMeasurement(visionEstimateLow.pose, visionEstimateLow.timestampSeconds);

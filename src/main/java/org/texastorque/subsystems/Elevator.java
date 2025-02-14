@@ -36,14 +36,14 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         LOW_STOW(1),
         STOW(3.4895),
         SCORE_L1(4.5374),
-        SCORE_L2(1.8),
-        SCORE_L3(5.0),
-        SCORE_L4(10.2),
+        SCORE_L2(1.2),
+        SCORE_L3(4.1),
+        SCORE_L4(10.0),
         NET(10.2),
         ALGAE_REMOVAL_LOW(6.7678),
         ALGAE_REMOVAL_HIGH(9.5281),
-        PROCESSOR(2.938),
-        CORAL_HP(3.5),
+        PROCESSOR(3.5),
+        CORAL_HP(2.7),
         DEBUG(0); // Doesn't use the position
 
         public double position;
