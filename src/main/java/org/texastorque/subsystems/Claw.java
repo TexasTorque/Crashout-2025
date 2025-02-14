@@ -115,7 +115,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Coral State", coralState.toString());
         Debug.log("Algae State", algaeState.toString());
 
-        shoulder.setVolts(shoulderPID.calculate(getShoulderAngle(), desiredState.angle));
+        final double SHOULDER_MAX_VOLTS = 6;
+        double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.angle);
+        final double ff = 1.1 * Math.cos(getShoulderAngle());
+        if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
+
+        shoulder.setVolts(volts + ff);
 
         if (desiredState == State.ZERO) {
             shoulder.setVolts(0);

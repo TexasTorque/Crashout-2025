@@ -78,15 +78,18 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
         
-        xController = new PIDController(2.5, 0, 0);
-        yController = new PIDController(2.5, 0, 0);
-        omegaController = new PIDController(.1, 0, 0);
+        xController = new PIDController(2.6, 0, 0);
+        yController = new PIDController(2.6, 0, 0);
+        omegaController = new PIDController(.15, 0, 0);
         omegaController.enableContinuousInput(0, 360);
     }
 
     @Override
     public final void initialize(final TorqueMode mode) {
         setInputSpeeds(new TorqueSwerveSpeeds());
+        if (mode.isTeleop()) {
+            setState(State.FIELD_RELATIVE);
+        }
 
         SmartDashboard.putData("Swerve",
             builder -> {
@@ -126,10 +129,16 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
             if (alignPose.isPresent()) {
                 final Pose2d targetPose = alignPose.get();
+                final double MAX_ALIGN_VELOCITY = 1.5;
+                final double MAX_ALIGN_OMEGA_VELOCITY = 2 * Math.PI;
 
-                final double xPower = xController.calculate(perception.getPose().getX(), targetPose.getX());
-                final double yPower = yController.calculate(perception.getPose().getY(), targetPose.getY());
-                final double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees());
+                double xPower = xController.calculate(perception.getPose().getX(), targetPose.getX());
+                double yPower = yController.calculate(perception.getPose().getY(), targetPose.getY());
+                double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), targetPose.getRotation().getDegrees());
+
+                if (Math.abs(xPower) > MAX_ALIGN_VELOCITY) xPower = Math.signum(xPower) * MAX_ALIGN_VELOCITY;
+                if (Math.abs(yPower) > MAX_ALIGN_VELOCITY) yPower = Math.signum(yPower) * MAX_ALIGN_VELOCITY;
+                if (Math.abs(omegaPower) > MAX_ALIGN_OMEGA_VELOCITY) omegaPower = Math.signum(omegaPower) * MAX_ALIGN_OMEGA_VELOCITY;
 
                 inputSpeeds.vxMetersPerSecond = xPower;
                 inputSpeeds.vyMetersPerSecond = yPower;

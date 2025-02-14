@@ -22,7 +22,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             stow, L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, debugElevatorUp, debugElevatorDown,
-            intakeCoral, outtakeCoral, outtakeAlgae;
+            intakeCoral, outtakeCoral, outtakeAlgae, stopWheels;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -64,6 +64,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
+
+        stopWheels = new TorqueBoolSupplier(driver::isRightBumperDown);
     }
 
     @Override
@@ -152,12 +154,17 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             elevator.setState(Elevator.State.STOW);
             claw.setState(Claw.State.STOW);
         });
-
         outtakeCoral.onTrue(() -> {
             claw.setCoralState(Claw.CoralState.SHOOT);
+            claw.coralSpike.reset();
         });
         outtakeAlgae.onTrue(() -> {
             claw.setAlgaeState(Claw.AlgaeState.SHOOT);
+        });
+        stopWheels.onTrue(() -> {
+            claw.setCoralState(Claw.CoralState.OFF);
+            claw.setAlgaeState(Claw.AlgaeState.OFF);
+            claw.coralSpike.reset();
         });
     }
 

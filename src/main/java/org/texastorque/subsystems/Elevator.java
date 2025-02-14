@@ -27,25 +27,26 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private State pastState;
     private double pastStateTime;
 
-    private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(.5, .5);
-    private final double ELEVATOR_FF = .05;
+    private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(10, 10);
+    private final double ELEVATOR_FF = .35;
 
     public static enum State implements TorqueState {
-        ZERO(0),
+        ZERO(0), // Not actually a setpoint!! Gets set to whatever we
+                          // deployed at so the elevator doesn't try to go to the ZERO position @ startup
         LOW_STOW(1),
         STOW(3.4895),
         SCORE_L1(4.5374),
         SCORE_L2(1.8),
         SCORE_L3(5.0),
-        SCORE_L4(10.043),
-        NET(10.043),
+        SCORE_L4(10.2),
+        NET(10.2),
         ALGAE_REMOVAL_LOW(6.7678),
         ALGAE_REMOVAL_HIGH(9.5281),
         PROCESSOR(2.938),
         CORAL_HP(3.5),
         DEBUG(0); // Doesn't use the position
 
-        public final double position;
+        public double position;
 
         private State(double position) {
             this.position = position;
@@ -70,6 +71,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         elevatorPID = new ProfiledPIDController(25, 0, 0, constraints);
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
         debugVolts = 0;
+
+        State.ZERO.position = getElevatorPosition();
     }
 
     @Override
@@ -81,8 +84,9 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator State", desiredState.toString());
         Debug.log("Elevator At State", isAtState());
 
+        final double ELEVATOR_MAX_VOLTS = 8;
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
-        if (Math.abs(volts) > 4) volts = Math.signum(volts) * 4;
+        if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
         elevatorLeft.setVolts(volts + ELEVATOR_FF);
         elevatorRight.setVolts(volts + ELEVATOR_FF);

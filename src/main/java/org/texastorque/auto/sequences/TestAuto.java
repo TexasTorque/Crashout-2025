@@ -7,6 +7,6 @@ import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 public class TestAuto extends TorqueSequence implements Subsystems {
     
     public TestAuto() {
-        addBlock(new TorqueFollowPath("RGT_CR", drivebase));
+        addBlock(new TorqueFollowPath("test", drivebase));
     }
 }

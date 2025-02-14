@@ -29,11 +29,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
@@ -138,15 +137,19 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		if (seesTag() && visionEstimateHigh != null && visionEstimateLow != null) {
 			if (visionEstimateHigh.tagCount > 0) {
-				if (drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateHigh.rawFiducials, 12, 13, 2, 1)) {
-					// disregard
+				if ((drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateHigh.rawFiducials, 12, 13, 2, 1))
+					|| (drivebase.getState() == Drivebase.State.PATHING && visionEstimateHigh.avgTagDist > 1)
+					|| visionEstimateLow.avgTagDist > 2) {
+						// disregard
 				} else {
 					poseEstimator.addVisionMeasurement(visionEstimateHigh.pose, visionEstimateHigh.timestampSeconds);
 				}
 			}
 			if (visionEstimateLow.tagCount > 0) {
-				if (drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateHigh.rawFiducials, 12, 13, 2, 1)) {
-					// disregard
+				if ((drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateLow.rawFiducials, 12, 13, 2, 1))
+					|| (drivebase.getState() == Drivebase.State.PATHING && visionEstimateLow.avgTagDist > 1)
+					|| visionEstimateLow.avgTagDist > 2) {
+						// disregard
 				} else {
 					poseEstimator.addVisionMeasurement(visionEstimateLow.pose, visionEstimateLow.timestampSeconds);
 				}
@@ -210,6 +213,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			}
 		}
 		return false;
+	}
+
+	public void setCurrentTrajectory(final Trajectory trajectory) {
+		field.getObject("trajectory").setTrajectory(trajectory);
 	}
 
 	public boolean containsAnyID(final RawFiducial[] rawFiducials, final int ...ids) {
@@ -277,14 +284,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			}
 		}
 
-		int id; 
-		if (currentZone != null) {
-			id = currentZone.getID();
-		} else {
-			if (getAlignDetection() == null) return Optional.empty();
-
-			id = getAlignDetection().id;
-		}
+		if (currentZone == null) return Optional.empty();
+		final int id = currentZone.getID();
 
 		final AlignPose2d[] alignPoses = AprilTagList.values()[id - 1].alignPoses;
 		for (AlignPose2d alignPose : alignPoses) {
