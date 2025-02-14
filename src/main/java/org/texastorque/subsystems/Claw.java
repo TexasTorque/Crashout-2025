@@ -117,7 +117,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         final double SHOULDER_MAX_VOLTS = 6;
         double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.angle);
-        final double ff = 1.1 * Math.cos(getShoulderAngle());
+        final double ff = 1 * Math.cos(Math.toRadians(getShoulderAngle())); // Will need tuning
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
         shoulder.setVolts(volts + ff);
