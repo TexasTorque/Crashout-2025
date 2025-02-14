@@ -217,6 +217,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public void setCurrentTrajectory(final Trajectory trajectory) {
 		field.getObject("trajectory").setTrajectory(trajectory);
+		Logger.recordOutput("Auto Trajectory", trajectory);
 	}
 
 	public boolean containsAnyID(final RawFiducial[] rawFiducials, final int ...ids) {
