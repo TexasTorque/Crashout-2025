@@ -257,7 +257,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     @Override
     public double getMaxPathingVelocity() {
-        return .25;
+        return MAX_VELOCITY;
     }
 
     @Override
