@@ -95,8 +95,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		final Translation2d csLeftBackLeftBlue = new Translation2d(0, 1.194053);
 		final Translation2d csLeftBackRightBlue = new Translation2d(1.644160, 0);
-		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 2.429942);
-		final Translation2d csLeftFrontRightBlue = new Translation2d(3.345927, 0);
+		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 3.429942);
+		final Translation2d csLeftFrontRightBlue = new Translation2d(4.345927, 0);
 
         zones = new ArrayList<>();
 

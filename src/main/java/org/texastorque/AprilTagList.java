@@ -45,7 +45,9 @@ public enum AprilTagList {
 	),
 	ID_12(12, new Pose3d(0.851154, 0.65532, 1.4859, new Rotation3d(0, 0, 54)),
 			Placement.CORAL_STATION,
-			new AlignPose2d(Relation.CENTER, new Pose2d(1.38, 1, Rotation2d.fromDegrees(55)))
+			new AlignPose2d(Relation.LEFT, new Pose2d(1.6, .6, Rotation2d.fromDegrees(55))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(1.01, 1.05, Rotation2d.fromDegrees(55))),
+			new AlignPose2d(Relation.RIGHT, new Pose2d(.575, 1.375, Rotation2d.fromDegrees(55)))
 	),
 	ID_13(13, new Pose3d(0.851154, 7.39448, 1.4859, new Rotation3d(0, 0, 306)),
 			Placement.CORAL_STATION
