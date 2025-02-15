@@ -5,11 +5,9 @@ import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Climb;
-import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
-import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
@@ -17,11 +15,11 @@ import org.texastorque.torquelib.util.TorqueMath;
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueClickSupplier slowInitial;
-    private final TorqueBoolSupplier resetGyro, debug, align, slow, lowStow,
-            stow, L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
-            algaeExtractionHigh, algaeExtractionLow, net, processor,
-            climbUp, climbDown, debugElevatorUp, debugElevatorDown,
+    private final TorqueClickSupplier slowInitial, manualElevatorInitial;
+    private final TorqueBoolSupplier resetGyro, align, slow, lowStow,
+            stow, inFrame, L1, L2, L3, L4, leftRelation, rightRelation,
+            centerRelation, algaeExtractionHigh, algaeExtractionLow, net,
+            processor, climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, outtakeCoral, outtakeAlgae, stopWheels;
 
     private Input() {
@@ -29,7 +27,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         operator = new TorqueController(1, CONTROLLER_DEADBAND);
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
-        debug = new TorqueToggleSupplier(operator::isLeftCenterButtonDown);
 
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         
@@ -37,6 +34,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         lowStow = new TorqueBoolSupplier(driver::isDPADLeftDown);
         stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
+        inFrame = new TorqueBoolSupplier(driver::isDPADUpDown);
 
         slowInitial = new TorqueClickSupplier(driver::isLeftTriggerDown);
         slow = new TorqueBoolSupplier(driver::isLeftTriggerDown);
@@ -59,8 +57,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
         climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND);
 
-        debugElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
-        debugElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
+        manualElevatorInitial = new TorqueClickSupplier(() -> operator.getRightXAxis() > CONTROLLER_DEADBAND || operator.getRightYAxis() < -CONTROLLER_DEADBAND);
+        manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
+        manualElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
 
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
@@ -74,13 +73,18 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateSuperstructure();
         updateClimb();
 
-        Debug.log("Debug Mode", debug.get());
-        debug.onTrue(() -> {
-            elevator.setState(Elevator.State.DEBUG);
+        final double DELTA = 0.1;
+        manualElevatorInitial.onTrue(() -> {
+            Elevator.State.MANUAL.position = elevator.getElevatorPosition();
         });
-
-        debugElevatorUp.onTrue(() -> elevator.setDebugVolts(-4));
-        debugElevatorDown.onTrue(() -> elevator.setDebugVolts(4));
+        manualElevatorUp.onTrue(() -> {
+            elevator.setState(Elevator.State.MANUAL);
+            Elevator.State.MANUAL.position = -DELTA + elevator.getElevatorPosition();
+        });
+        manualElevatorDown.onTrue(() -> {
+            elevator.setState(Elevator.State.MANUAL);
+            Elevator.State.MANUAL.position = DELTA + elevator.getElevatorPosition();
+        });
     }
 
     public final void updateDrivebase() {
@@ -166,6 +170,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setAlgaeState(Claw.AlgaeState.OFF);
             claw.coralSpike.reset();
         });
+        inFrame.onTrue(() -> {
+            elevator.setState(Elevator.State.LOW_STOW);
+            claw.setState(Claw.State.IN_FRAME);
+        });
     }
 
     public final void updateClimb() {
@@ -174,7 +182,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     }
 
     public boolean isDebugMode() {
-        return debug.get();
+        return false;
     }
 
     public static final synchronized Input getInstance() {

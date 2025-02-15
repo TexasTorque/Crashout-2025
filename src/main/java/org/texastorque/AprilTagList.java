@@ -26,7 +26,8 @@ public enum AprilTagList {
 			Placement.BARGE
 	),
 	ID_6(6, new Pose3d(13.474446, 3.306318, 0.308202, new Rotation3d(0, 0, 300)),
-			Placement.REEF
+			Placement.REEF,
+			new AlignPose2d(Relation.RIGHT, new Pose2d(13.69, 2.94, Rotation2d.fromDegrees(120)))
 	),
 	ID_7(7, new Pose3d(13.890798, 4.02659, 0.308202, new Rotation3d(0, 0, 0)),
 			Placement.REEF
@@ -88,7 +89,9 @@ public enum AprilTagList {
 	),
 	ID_22(22, new Pose3d(4.905194, 3.306318, 0.308202, new Rotation3d(0, 0, 300)),
 			Placement.REEF,
-			new AlignPose2d(Relation.CENTER, new Pose2d(4.93, 2.82, Rotation2d.fromDegrees(120)))
+			new AlignPose2d(Relation.RIGHT, new Pose2d(5.11, 2.94, Rotation2d.fromDegrees(120))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(4.93, 2.82, Rotation2d.fromDegrees(120))),
+			new AlignPose2d(Relation.LEFT, new Pose2d(4.82, 2.80, Rotation2d.fromDegrees(120)))
 	);
 
 	public final int id;
