@@ -123,7 +123,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Is Aligned", isAligned(mode));
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
-        if (alignPoseOverride != null) {
+        if (alignPoseOverride != null && wantsState(State.ALIGN)) {
             runAlignment(alignPoseOverride, mode);
         } else if (wantsState(State.ALIGN)) {
             final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
@@ -173,7 +173,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public void runAlignment(final Pose2d pose, final TorqueMode mode) {
-        final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .5;
+        final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .25;
         final double MAX_ALIGN_OMEGA_VELOCITY = mode.isTeleop() ? 2 * Math.PI : Math.PI / 2;
 
         double xPower = xController.calculate(perception.getPose().getX(), pose.getX());
@@ -194,7 +194,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         final double TRANSLATION_TOLERANCE = .05;
         final double ROTATION_TOLERANCE = 2;
 
-        if (alignPose.isEmpty()) alignPose = alignPoseOverride == null ? Optional.empty() : Optional.of(alignPoseOverride);
+        if (alignPoseOverride != null) alignPose = Optional.of(alignPoseOverride);
         if (alignPose.isEmpty()) return false;
         final double distance = alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation());
         final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
@@ -202,7 +202,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
 
         if (translationAligned && rotationAligned) {
-            if (mode == TorqueMode.AUTO) {
+            if (mode.isAuto()) {
                 setInputSpeeds(new TorqueSwerveSpeeds());
             }
             return true;
