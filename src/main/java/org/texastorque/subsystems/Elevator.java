@@ -25,8 +25,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final CANcoder elevatorEncoder;
     public State pastState;
     private double pastStateTime;
-
-    private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(10, 10);
     private final double ELEVATOR_FF = .35;
 
     public static enum State implements TorqueState {
@@ -67,7 +65,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             .idleMode(IdleMode.kBrake)
             .apply();
         
-        elevatorPID = new ProfiledPIDController(25, 0, 0, constraints);
+        elevatorPID = new ProfiledPIDController(25, 0, 0,
+                new TrapezoidProfile.Constraints(45, 45));
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
 
         State.ZERO.position = getElevatorPosition();
@@ -83,7 +82,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator At State", isAtState());
         Debug.log("Manual Position", Elevator.State.MANUAL.position);
 
-        final double ELEVATOR_MAX_VOLTS = 8;
+        final double ELEVATOR_MAX_VOLTS = 12;
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
