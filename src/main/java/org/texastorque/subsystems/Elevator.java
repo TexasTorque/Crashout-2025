@@ -23,7 +23,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final TorqueNEO elevatorLeft, elevatorRight;
     private final ProfiledPIDController elevatorPID;
     private final CANcoder elevatorEncoder;
-    private double debugVolts;
     public State pastState;
     private double pastStateTime;
 
@@ -33,6 +32,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public static enum State implements TorqueState {
         ZERO(0), // Not actually a setpoint!! Gets set to whatever we
                           // deployed at so the elevator doesn't try to go to the ZERO position @ startup
+        MANUAL(0), // Also not a setpoint!! Gets set to whatever we manually control it to
         LOW_STOW(1),
         STOW(3.4895),
         SCORE_L1(4.5374),
@@ -43,8 +43,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         ALGAE_REMOVAL_LOW(6.7678),
         ALGAE_REMOVAL_HIGH(9.5281),
         PROCESSOR(3.5),
-        CORAL_HP(2.7),
-        DEBUG(0); // Doesn't use the position
+        CORAL_HP(2.7);
 
         public double position;
 
@@ -70,7 +69,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         
         elevatorPID = new ProfiledPIDController(25, 0, 0, constraints);
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
-        debugVolts = 0;
 
         State.ZERO.position = getElevatorPosition();
     }
@@ -83,6 +81,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator Position", getElevatorPosition());
         Debug.log("Elevator State", desiredState.toString());
         Debug.log("Elevator At State", isAtState());
+        Debug.log("Manual Position", Elevator.State.MANUAL.position);
 
         final double ELEVATOR_MAX_VOLTS = 8;
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
@@ -105,16 +104,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             elevatorLeft.setVolts(ELEVATOR_FF);
             elevatorRight.setVolts(ELEVATOR_FF);
         }
-
-        if (desiredState == State.DEBUG) {
-            elevatorLeft.setVolts(debugVolts + ELEVATOR_FF);
-            elevatorRight.setVolts(debugVolts + ELEVATOR_FF);
-        }
     }
 
     @Override
     public final void clean(final TorqueMode mode) {
-        debugVolts = 0;
+        
     }
 
     @Override
@@ -146,10 +140,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public final boolean isAtState() {
         return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, .25);
-    }
-
-    public void setDebugVolts(final double volts) {
-        this.debugVolts = volts;
     }
 
     public static final synchronized Elevator getInstance() {

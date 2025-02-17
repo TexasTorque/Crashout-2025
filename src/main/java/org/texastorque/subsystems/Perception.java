@@ -31,8 +31,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
@@ -268,6 +270,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Rotation2d getHeading() {
 		if (RobotBase.isSimulation()) {
 			return Rotation2d.fromRadians(gyro_simulated);
+		}
+		if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+			return gyro.getHeadingCCW().rotateBy(Rotation2d.fromDegrees(180));
 		}
 		return gyro.getHeadingCCW();
 	}
