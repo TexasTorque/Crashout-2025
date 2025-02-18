@@ -43,7 +43,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     private static volatile Drivebase instance;
 
-    public static final double WIDTH = .5842,
+    public static final double WIDTH = 0.5619242,
             MAX_VELOCITY = TorqueSwerveModuleKraken.maxVelocity,
             MAX_ANGULAR_VELOCITY = 4 * Math.PI;
 

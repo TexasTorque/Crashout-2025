@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.texastorque.Subsystems;
 import org.texastorque.auto.sequences.CenterAuto;
+import org.texastorque.auto.sequences.CenterShootAuto;
 import org.texastorque.auto.sequences.LeftAuto;
 import org.texastorque.auto.sequences.RightAuto;
 import org.texastorque.auto.sequences.TestAuto;
@@ -49,8 +50,9 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
     @Override
     public final void loadSequences() {
         addSequence("LFT -> CL EXT -> CL L3 L -> CSL -> CL L3 R -> CSL -> CL L2 L", new LeftAuto());
-        addSequence("CTR -> FF EXT -> FF L3 L -> PSR -> FR EXT -> PSR", new CenterAuto());
+        addSequence("CTR -> FF -> PSR", new CenterAuto());
         addSequence("RGT -> CR EXT -> CR L3 L -> CSR -> CR L3 R -> CSR -> CR L2 L", new RightAuto());
+        addSequence("CTR -> FF -> PSR SHOT", new CenterShootAuto());
         addSequence("Test", new TestAuto());
     }
 

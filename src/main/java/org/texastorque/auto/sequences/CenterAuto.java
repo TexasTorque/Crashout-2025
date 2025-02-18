@@ -22,14 +22,14 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
     
     public CenterAuto() {
         // Drive center to far
-        addBlock(new TorqueFollowPath("CTR_FF", drivebase));
+        addBlock(new TorqueFollowPath("CTR_FF", drivebase).withMarkers(
+            new Marker(() -> {
+                elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
+                claw.setState(Claw.State.ALGAE_EXTRACTION);
+            }, .4)
+        ));
 
-        addBlock(new TorqueRun(() -> {
-            elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
-            claw.setState(Claw.State.ALGAE_EXTRACTION);
-        }));
-
-        addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
+        addBlock(new TorqueWaitUntil(() -> elevator.isCloseToState() && claw.isCloseToState()));
 
         // Alignment
         addBlock(new TorqueRun(() -> {
@@ -46,7 +46,7 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
 
         // Move back to avoid claw hitting reef poles
         addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(new Pose2d(6.1, 3.77, Rotation2d.fromDegrees(180)));
+            drivebase.setAlignPoseOverride(new Pose2d(6.15, 4, Rotation2d.fromDegrees(180)));
             drivebase.setState(Drivebase.State.ALIGN);
         }));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
@@ -62,7 +62,7 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
             claw.setState(Claw.State.MID_SCORE);
         }));
 
-        addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
+        addBlock(new TorqueWaitUntil(() -> elevator.isCloseToState() && claw.isCloseToState()));
 
         // Alignment
         addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.LEFT)));
@@ -71,14 +71,13 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Coral placement
-        addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Move back to avoid claw hitting reef poles
         addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(new Pose2d(6.1, 3.77, Rotation2d.fromDegrees(180)));
+            drivebase.setAlignPoseOverride(new Pose2d(6.15, 3.85, Rotation2d.fromDegrees(180)));
             drivebase.setState(Drivebase.State.ALIGN);
         }));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
@@ -88,15 +87,15 @@ public class CenterAuto extends TorqueSequence implements Subsystems {
             drivebase.setAlignPoseOverride(null);
         }));
 
-        addBlock(new TorqueRun(() -> {
-            elevator.setState(Elevator.State.PROCESSOR);
-            claw.setState(Claw.State.PROCESSOR);
-        }));
-
-        addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
-
         // Drive far to processor
-        addBlock(new TorqueFollowPath("FF_PSR", drivebase));
+        addBlock(new TorqueFollowPath("FF_PSR", drivebase).withMarkers(
+            new Marker(() -> {
+                elevator.setState(Elevator.State.PROCESSOR);
+                claw.setState(Claw.State.PROCESSOR);
+            }, .2)
+        ));
+
+        addBlock(new TorqueWaitUntil(() -> elevator.isCloseToState() && claw.isCloseToState()));
 
         // Score algae in processor
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));

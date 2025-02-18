@@ -25,7 +25,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final CANcoder elevatorEncoder;
     public State pastState;
     private double pastStateTime;
-    private final double ELEVATOR_FF = .35;
+    private final double ELEVATOR_FF = .3;
 
     public static enum State implements TorqueState {
         ZERO(0), // Not actually a setpoint!! Gets set to whatever we
@@ -35,7 +35,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         STOW(3.4895),
         SCORE_L1(4.5374),
         SCORE_L2(1.2),
-        SCORE_L3(4.1),
+        SCORE_L3(4.2),
         SCORE_L4(10.0),
         NET(10.2),
         ALGAE_REMOVAL_LOW(6.7678),
@@ -89,7 +89,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         // If we are moving down
         if (desiredState.position < pastState.position) {
             // Wait until claw moves first
-            if (claw.isAtState()) {
+            if (claw.isAtState() || (mode.isAuto() && claw.isCloseToState())) {
                 elevatorLeft.setVolts(volts + ELEVATOR_FF);
                 elevatorRight.setVolts(volts + ELEVATOR_FF);
             }
@@ -139,6 +139,10 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public final boolean isAtState() {
         return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, .25);
+    }
+
+    public final boolean isCloseToState() {
+        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, 1);
     }
 
     public static final synchronized Elevator getInstance() {

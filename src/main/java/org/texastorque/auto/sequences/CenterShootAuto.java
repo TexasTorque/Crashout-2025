@@ -1,11 +1,9 @@
 package org.texastorque.auto.sequences;
 
-import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Subsystems;
+import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Claw;
-import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
-import org.texastorque.subsystems.Elevator.State;
 import org.texastorque.torquelib.auto.TorqueSequence;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
@@ -18,13 +16,15 @@ import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class RightAuto extends TorqueSequence implements Subsystems {
+import org.texastorque.subsystems.Drivebase;
+
+public class CenterShootAuto extends TorqueSequence implements Subsystems {
     
-    public RightAuto() {
-        // Drive right to close right
-        addBlock(new TorqueFollowPath("RGT_CR", drivebase).withMarkers(
+    public CenterShootAuto() {
+        // Drive center to far
+        addBlock(new TorqueFollowPath("CTR_FF", drivebase).withMarkers(
             new Marker(() -> {
-                elevator.setState(State.ALGAE_REMOVAL_LOW);
+                elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
                 claw.setState(Claw.State.ALGAE_EXTRACTION);
             }, .2)
         ));
@@ -44,9 +44,9 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(.5)); // Wait until we intake algae
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
-        // Move back to avoid claw hitting reef poles
+        // // Move back to avoid claw hitting reef poles
         addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(new Pose2d(3.6, 2.6, Rotation2d.fromDegrees(60)));
+            drivebase.setAlignPoseOverride(new Pose2d(6.15, 4, Rotation2d.fromDegrees(180)));
             drivebase.setState(Drivebase.State.ALIGN);
         }));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
@@ -75,9 +75,9 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
-        // Move back to avoid claw hitting reef poles
+        // Move back to avoid claw hitting reef poles & align to processor
         addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(new Pose2d(3.6, 2.6, Rotation2d.fromDegrees(60)));
+            drivebase.setAlignPoseOverride(new Pose2d(6.15, 3.0, Rotation2d.fromDegrees(-85)));
             drivebase.setState(Drivebase.State.ALIGN);
         }));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
@@ -87,24 +87,17 @@ public class RightAuto extends TorqueSequence implements Subsystems {
             drivebase.setAlignPoseOverride(null);
         }));
 
-        // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR", drivebase));
+        // Move to processor state
+        addBlock(new TorqueRun(() -> {
+            elevator.setState(Elevator.State.PROCESSOR);
+            claw.setState(Claw.State.PROCESSOR);
+        }));
 
-        // Pickup coral from coral station
+        addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
-        // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("CSR_CR", drivebase));
-
-        // Coral placement
-
-        // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR", drivebase));
-
-        // Pickup coral from coral station
-
-        // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("CSR_CR", drivebase));
-
-        // Coral placement
+        // SHOOT ALGAE!
+        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));
+        addBlock(new TorqueWaitTime(.5)); // Wait until we shoot algae
+        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
     }
 }

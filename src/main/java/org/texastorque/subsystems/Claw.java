@@ -124,7 +124,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         // If we are moving up
         if (elevator.getState().position > elevator.pastState.position) {
             // Wait for elevator to move first
-            if (elevator.isAtState()) {
+            if (elevator.isAtState() || (mode.isAuto() && elevator.isCloseToState())) {
                 shoulder.setVolts(volts + ff);
             }
         } else {
@@ -147,7 +147,9 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
 	@Override
     public final void clean(final TorqueMode mode) {
-        algaeState = AlgaeState.OFF;
+        if (mode.isTeleop()) {
+            algaeState = AlgaeState.OFF;
+        }
     }
 
     @Override
@@ -179,6 +181,10 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     public final boolean isAtState() {
         return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 8);
+    }
+
+    public final boolean isCloseToState() {
+        return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 20);
     }
 
     public boolean hasCoral() {
