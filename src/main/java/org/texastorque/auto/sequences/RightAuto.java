@@ -29,7 +29,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
             }, .2)
         ));
 
-        addBlock(new TorqueWaitUntil(() -> elevator.isCloseToState() && claw.isCloseToState()));
+        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
         addBlock(new TorqueRun(() -> {
@@ -62,7 +62,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
             claw.setState(Claw.State.MID_SCORE);
         }));
 
-        addBlock(new TorqueWaitUntil(() -> elevator.isCloseToState() && claw.isCloseToState()));
+        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
         addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.LEFT)));

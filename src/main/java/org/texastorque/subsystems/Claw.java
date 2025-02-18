@@ -121,10 +121,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         final double ff = 1 * Math.cos(Math.toRadians(getShoulderAngle())); // Will need tuning
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
-        // If we are moving up
-        if (elevator.getState().position > elevator.pastState.position) {
-            // Wait for elevator to move first
-            if (elevator.isAtState() || (mode.isAuto() && elevator.isCloseToState())) {
+        if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3) {
+            // If we are moving up and high enough, move at the same time as claw
+            shoulder.setVolts(volts + ff);
+        } else if (elevator.getState().position > elevator.pastState.position) {
+            // If we are moving up wait for elevator to move first
+            if (elevator.isAtState() || (mode.isAuto() && elevator.isNearState())) {
                 shoulder.setVolts(volts + ff);
             }
         } else {
@@ -160,17 +162,22 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     public final double getShoulderAngle() {
         if (RobotBase.isSimulation()) {
-            final double timeToAnimate = 1;
+            final double timeToAnimate = Math.abs(desiredState.angle - pastState.angle) / 180;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
+            final double position = ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
 
-            if (elevator.getState().position > elevator.pastState.position) {
+            if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3) {
+                // If we are moving up and high enough, move at the same time as claw
+                if (animationMultiplier > 1) return desiredState.angle;
+                return position;
+            } else if (elevator.getState().position > elevator.pastState.position) {
                 if (elevator.isAtState()) {
                     if (animationMultiplier > 1) return desiredState.angle;
-                    return ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
+                    return position;
                 }
             } else {
                 if (animationMultiplier > 1) return desiredState.angle;
-                return ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
+                return position;
             }
 
             pastStateTime = Timer.getFPGATimestamp();
@@ -183,7 +190,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 8);
     }
 
-    public final boolean isCloseToState() {
+    public final boolean isNearState() {
         return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 20);
     }
 

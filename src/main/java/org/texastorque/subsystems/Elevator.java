@@ -86,10 +86,13 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
-        // If we are moving down
-        if (desiredState.position < pastState.position) {
-            // Wait until claw moves first
-            if (claw.isAtState() || (mode.isAuto() && claw.isCloseToState())) {
+        if (desiredState.position > 5 && getElevatorPosition() > 3) {
+            // If we are moving up and high enough, move at the same time as claw
+            elevatorLeft.setVolts(volts + ELEVATOR_FF);
+            elevatorRight.setVolts(volts + ELEVATOR_FF);
+        } else if (desiredState.position < pastState.position) {
+            // If we are moving down wait until claw moves first
+            if (claw.isAtState() || (mode.isAuto() && claw.isNearState())) {
                 elevatorLeft.setVolts(volts + ELEVATOR_FF);
                 elevatorRight.setVolts(volts + ELEVATOR_FF);
             }
@@ -118,17 +121,22 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public final double getElevatorPosition() {
         if (RobotBase.isSimulation()) {
-            final double timeToAnimate = 2;
+            final double timeToAnimate = Math.abs(desiredState.position - pastState.position) / 4;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
+            final double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
 
-            if (desiredState.position < pastState.position) {
+            if (desiredState.position > 5 && position > 3) {
+                // If we are moving up and high enough, move at the same time as claw
+                if (animationMultiplier >= 1) return desiredState.position;
+                return position;
+            } else if (desiredState.position < pastState.position) {
                 if (claw.isAtState()) {
                     if (animationMultiplier >= 1) return desiredState.position;
-                    return ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+                    return position;
                 }
             } else {
                 if (animationMultiplier >= 1) return desiredState.position;
-                return ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+                return position;
             }
 
             pastStateTime = Timer.getFPGATimestamp();
@@ -141,8 +149,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, .25);
     }
 
-    public final boolean isCloseToState() {
-        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, 1);
+    public final boolean isNearState() {
+        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, 2);
     }
 
     public static final synchronized Elevator getInstance() {

@@ -286,12 +286,12 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         perception.setPose(pose);
     }
 
-    public static synchronized final Drivebase getInstance() {
-        return instance == null ? instance = new Drivebase() : instance;
-    }
-
     @Override
     public void setCurrentTrajectory(Trajectory trajectory) {
         perception.setCurrentTrajectory(trajectory);
+    }
+
+    public static synchronized final Drivebase getInstance() {
+        return instance == null ? instance = new Drivebase() : instance;
     }
 }
