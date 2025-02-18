@@ -88,23 +88,89 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         }));
 
         // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR", drivebase));
+        addBlock(new TorqueFollowPath("CR_CSR", drivebase).withMarkers(
+            new Marker(() -> {
+                drivebase.setRelation(Relation.CENTER);
+                elevator.setState(State.CORAL_HP);
+                claw.setState(Claw.State.CORAL_HP);
+            }, .2),
+            new Marker(() -> {
+                claw.setCoralState(Claw.CoralState.INTAKE);
+            }, .75)
+        ));
+        
+        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
 
         // Pickup coral from coral station
+        addBlock(new TorqueWaitTime(.5));
 
         // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("CSR_CR", drivebase));
+        addBlock(new TorqueFollowPath("CSR_CR", drivebase).withMarkers(
+            new Marker(() -> {
+                elevator.setState(Elevator.State.SCORE_L3);
+                claw.setState(Claw.State.MID_SCORE);
+            }, .2)
+        ));
+
+        // Alignment
+        addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.RIGHT)));
+        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
+        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Coral placement
+        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
+        addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
+        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
+
+        // Move back to avoid claw hitting reef poles
+        addBlock(new TorqueRun(() -> {
+            drivebase.setAlignPoseOverride(new Pose2d(3.6, 2.6, Rotation2d.fromDegrees(60)));
+            drivebase.setState(Drivebase.State.ALIGN);
+        }));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
+        addBlock(new TorqueRun(() -> {
+            drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
+            drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
+            drivebase.setAlignPoseOverride(null);
+        }));
 
         // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR", drivebase));
+        addBlock(new TorqueFollowPath("CR_CSR", drivebase).withMarkers(
+            new Marker(() -> {
+                drivebase.setRelation(Relation.CENTER);
+                elevator.setState(State.CORAL_HP);
+                claw.setState(Claw.State.CORAL_HP);
+            }, .2),
+            new Marker(() -> {
+                claw.setCoralState(Claw.CoralState.INTAKE);
+            }, .75)
+        ));
+        
+        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
 
         // Pickup coral from coral station
+        addBlock(new TorqueWaitTime(.5));
 
         // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("CSR_CR", drivebase));
+        addBlock(new TorqueFollowPath("CSR_CR", drivebase).withMarkers(
+            new Marker(() -> {
+                elevator.setState(Elevator.State.SCORE_L2);
+                claw.setState(Claw.State.MID_SCORE);
+            }, .2)
+        ));
+
+        // Alignment
+        addBlock(new TorqueRun(() -> drivebase.setRelation(Relation.RIGHT)));
+        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
+        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 
         // Coral placement
+        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
+        addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
+        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
     }
 }
