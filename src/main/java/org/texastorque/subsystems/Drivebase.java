@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -287,5 +288,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     public static synchronized final Drivebase getInstance() {
         return instance == null ? instance = new Drivebase() : instance;
+    }
+
+    @Override
+    public void setCurrentTrajectory(Trajectory trajectory) {
+        perception.setCurrentTrajectory(trajectory);
     }
 }
