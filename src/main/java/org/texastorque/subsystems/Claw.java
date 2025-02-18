@@ -171,7 +171,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
                 if (animationMultiplier > 1) return desiredState.angle;
                 return position;
             } else if (elevator.getState().position > elevator.pastState.position) {
-                if (elevator.isAtState()) {
+                if (elevator.isNearState()) {
                     if (animationMultiplier > 1) return desiredState.angle;
                     return position;
                 }

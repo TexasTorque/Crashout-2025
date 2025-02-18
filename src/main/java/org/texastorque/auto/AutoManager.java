@@ -18,9 +18,17 @@ import org.texastorque.torquelib.auto.TorqueAutoManager;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
-/** Manage the auto loader and selections */
 public final class AutoManager extends TorqueAutoManager implements Subsystems {
     private static volatile AutoManager instance;
+
+    @Override
+    public final void loadSequences() {
+        addSequence("LEFT -> 3 CORAL + .5 ALGAE", new LeftAuto());
+        addSequence("CENTER -> 1 CORAL -> 1 ALGAE", new CenterAuto());
+        addSequence("CENTER -> 1 CORAL -> 1 ALGAE SHOT", new CenterShootAuto());
+        addSequence("RIGHT -> 3 CORAL + .5 ALGAE", new RightAuto());
+        addSequence("TEST", new TestAuto());
+    }
 
     @Override
     public final void loadPaths() {
@@ -45,15 +53,6 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
         }
         System.out.println("Failed to load path " + pathName);
         return pathLoader.getPathUnsafe("NA_NA");
-    }
-
-    @Override
-    public final void loadSequences() {
-        addSequence("LFT -> CL EXT -> CL L3 L -> CSL -> CL L3 R -> CSL -> CL L2 L", new LeftAuto());
-        addSequence("CTR -> FF -> PSR", new CenterAuto());
-        addSequence("RGT -> CR EXT -> CR L3 L -> CSR -> CR L3 R -> CSR -> CR L2 L", new RightAuto());
-        addSequence("CTR -> FF -> PSR SHOT", new CenterShootAuto());
-        addSequence("Test", new TestAuto());
     }
 
     public static final synchronized AutoManager getInstance() {

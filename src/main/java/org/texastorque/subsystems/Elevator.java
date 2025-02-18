@@ -130,7 +130,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
                 if (animationMultiplier >= 1) return desiredState.position;
                 return position;
             } else if (desiredState.position < pastState.position) {
-                if (claw.isAtState()) {
+                if (claw.isNearState()) {
                     if (animationMultiplier >= 1) return desiredState.position;
                     return position;
                 }

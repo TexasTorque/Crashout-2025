@@ -9,7 +9,6 @@ import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
-import org.texastorque.torquelib.auto.marker.Marker;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 
@@ -21,13 +20,14 @@ import org.texastorque.subsystems.Drivebase;
 public class CenterShootAuto extends TorqueSequence implements Subsystems {
     
     public CenterShootAuto() {
+        // Elevator & claw setpoints
+        addBlock(new TorqueRun(() -> {
+            elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
+            claw.setState(Claw.State.ALGAE_EXTRACTION);
+        }));
+
         // Drive center to far
-        addBlock(new TorqueFollowPath("CTR_FF", drivebase).withMarkers(
-            new Marker(() -> {
-                elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
-                claw.setState(Claw.State.ALGAE_EXTRACTION);
-            }, .2)
-        ));
+        addBlock(new TorqueFollowPath("CTR_FF", drivebase));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
