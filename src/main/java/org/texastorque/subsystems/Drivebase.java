@@ -188,10 +188,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .25;
         final double MAX_ALIGN_OMEGA_VELOCITY = mode.isTeleop() ? 2 * Math.PI : Math.PI / 2;
 
-        final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
-                    ? DriverStation.getAlliance().get() == Alliance.Red
-                    : false;
-
         double xPower = xController.calculate(perception.getPose().getX(), pose.getX());
         double yPower = yController.calculate(perception.getPose().getY(), pose.getY());
         double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), pose.getRotation().getDegrees());
