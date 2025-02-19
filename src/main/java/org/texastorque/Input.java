@@ -12,6 +12,9 @@ import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
@@ -98,11 +101,15 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
 
         align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
+
+        final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
+                    ? DriverStation.getAlliance().get() == Alliance.Red
+                    : false;
         
         final double xVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftYAxis(), CONTROLLER_DEADBAND)
-                * Drivebase.MAX_VELOCITY;
+                * Drivebase.MAX_VELOCITY * (isRedAlliance ? -1 : 1);
         final double yVelocity = TorqueMath.scaledLinearDeadband(-driver.getLeftXAxis(), CONTROLLER_DEADBAND)
-                * Drivebase.MAX_VELOCITY;
+                * Drivebase.MAX_VELOCITY * (isRedAlliance ? -1 : 1);
         final double rotationVelocity = TorqueMath.scaledLinearDeadband(-driver.getRightXAxis(), CONTROLLER_DEADBAND)
                 * Drivebase.MAX_ANGULAR_VELOCITY;
 

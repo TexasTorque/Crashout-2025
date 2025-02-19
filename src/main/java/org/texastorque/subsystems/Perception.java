@@ -73,8 +73,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
 
-		filteredX = new TorqueRollingMedian(5);
-		filteredY = new TorqueRollingMedian(5);
+		filteredX = new TorqueRollingMedian(15);
+		filteredY = new TorqueRollingMedian(15);
 
 		Debug.field("Field", field);
 
@@ -211,7 +211,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			return Rotation2d.fromRadians(gyro_simulated);
 		}
 		if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-			return gyro.getHeadingCCW().rotateBy(Rotation2d.fromDegrees(180));
+			return gyro.getHeadingCCW();
 		}
 		return gyro.getHeadingCCW();
 	}
@@ -239,7 +239,11 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public void resetHeading() {
 		gyro_simulated = 0;
-		gyro.setOffsetCW(Rotation2d.fromRadians(0));
+
+		final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
+                    ? DriverStation.getAlliance().get() == Alliance.Red
+                    : false;
+		gyro.setOffsetCW(Rotation2d.fromDegrees(isRedAlliance ? 180 : 0));
 		setPose(new Pose2d(0, 0, getHeading()));
 	}
 

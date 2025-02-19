@@ -157,8 +157,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             pastStateTime = Timer.getFPGATimestamp();
             return pastState.position;
         }
-        return (elevatorLeft.getPosition() + elevatorRight.getPosition()) / 2;
-        // return elevatorEncoder.getPosition().getValueAsDouble();
+        // return (elevatorLeft.getPosition() + elevatorRight.getPosition()) / 2;
+        return elevatorEncoder.getPosition().getValueAsDouble();
     }
 
     public final boolean isAtState() {

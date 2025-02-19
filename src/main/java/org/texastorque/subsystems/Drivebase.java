@@ -200,8 +200,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (Math.abs(yPower) > MAX_ALIGN_VELOCITY) yPower = Math.signum(yPower) * MAX_ALIGN_VELOCITY;
         if (Math.abs(omegaPower) > MAX_ALIGN_OMEGA_VELOCITY) omegaPower = Math.signum(omegaPower) * MAX_ALIGN_OMEGA_VELOCITY;
 
-        inputSpeeds.vxMetersPerSecond = xPower * (isRedAlliance ? -1 : 1);
-        inputSpeeds.vyMetersPerSecond = yPower * (isRedAlliance ? -1 : 1);
+        inputSpeeds.vxMetersPerSecond = xPower;
+        inputSpeeds.vyMetersPerSecond = yPower;
         inputSpeeds.omegaRadiansPerSecond = omegaPower;
     }
 
