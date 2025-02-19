@@ -6,6 +6,7 @@ import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
+import org.texastorque.torquelib.control.TorqueClickSupplier;
 import org.texastorque.torquelib.motors.TorqueNEO;
 import org.texastorque.torquelib.util.TorqueMath;
 
@@ -14,6 +15,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -26,6 +28,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public State pastState;
     private double pastStateTime;
     private final double ELEVATOR_FF = .3;
+    private final DigitalInput breakModeInput;
+    private final TorqueClickSupplier breakMode;
 
     public static enum State implements TorqueState {
         ZERO(0), // Not actually a setpoint!! Gets set to whatever we
@@ -69,6 +73,9 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
                 new TrapezoidProfile.Constraints(45, 45));
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
 
+        breakModeInput = new DigitalInput(0);
+        breakMode = new TorqueClickSupplier(breakModeInput::get);
+
         State.ZERO.position = getElevatorPosition();
     }
 
@@ -101,6 +108,14 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             elevatorLeft.setVolts(volts + ELEVATOR_FF);
             elevatorRight.setVolts(volts + ELEVATOR_FF);
         }
+
+        breakMode.onTrueOrFalse(() -> {
+            elevatorLeft.idleMode(IdleMode.kBrake).apply();
+            elevatorRight.idleMode(IdleMode.kBrake).apply();
+        }, () -> {
+            elevatorLeft.idleMode(IdleMode.kCoast).apply();
+            elevatorRight.idleMode(IdleMode.kCoast).apply();
+        });
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(ELEVATOR_FF);
@@ -142,7 +157,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             pastStateTime = Timer.getFPGATimestamp();
             return pastState.position;
         }
-        return elevatorEncoder.getPosition().getValueAsDouble();
+        return (elevatorLeft.getPosition() + elevatorRight.getPosition()) / 2;
+        // return elevatorEncoder.getPosition().getValueAsDouble();
     }
 
     public final boolean isAtState() {
