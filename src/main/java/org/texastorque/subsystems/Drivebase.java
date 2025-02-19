@@ -23,7 +23,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> implements Subsystems, TorquePathingDrivebase {
@@ -58,7 +61,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public TorqueSwerveSpeeds inputSpeeds;
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
-    private Relation relation = Relation.NONE;
+    private Relation relation = Relation.RIGHT;
     private PIDController xController, yController, omegaController;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
@@ -130,14 +133,18 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
             Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
             if (alignPose.isPresent()) {
-                final Pose2d targetPose = alignPose.get();
+                Pose2d targetPose = alignPose.get();
                 
                 runAlignment(targetPose, mode);
             }
         }
 
         if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN) || wantsState(State.SLOW) || alignPoseOverride != null) {
-            inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
+            final boolean isRedAllianceAndSimulation = DriverStation.getAlliance().isPresent()
+                    ? DriverStation.getAlliance().get() == Alliance.Red && RobotBase.isSimulation()
+                    : false;
+            
+            inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(isRedAllianceAndSimulation ? perception.getHeading().rotateBy(Rotation2d.fromDegrees(180)) : perception.getHeading());
         }
         
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
@@ -181,6 +188,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .25;
         final double MAX_ALIGN_OMEGA_VELOCITY = mode.isTeleop() ? 2 * Math.PI : Math.PI / 2;
 
+        final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
+                    ? DriverStation.getAlliance().get() == Alliance.Red
+                    : false;
+
         double xPower = xController.calculate(perception.getPose().getX(), pose.getX());
         double yPower = yController.calculate(perception.getPose().getY(), pose.getY());
         double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), pose.getRotation().getDegrees());
@@ -189,8 +200,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (Math.abs(yPower) > MAX_ALIGN_VELOCITY) yPower = Math.signum(yPower) * MAX_ALIGN_VELOCITY;
         if (Math.abs(omegaPower) > MAX_ALIGN_OMEGA_VELOCITY) omegaPower = Math.signum(omegaPower) * MAX_ALIGN_OMEGA_VELOCITY;
 
-        inputSpeeds.vxMetersPerSecond = xPower;
-        inputSpeeds.vyMetersPerSecond = yPower;
+        inputSpeeds.vxMetersPerSecond = xPower * (isRedAlliance ? -1 : 1);
+        inputSpeeds.vyMetersPerSecond = yPower * (isRedAlliance ? -1 : 1);
         inputSpeeds.omegaRadiansPerSecond = omegaPower;
     }
 
