@@ -86,8 +86,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
-        if (desiredState.position > 5 && getElevatorPosition() > 3) {
-            // If we are moving up and high enough, move at the same time as claw
+        if ((desiredState.position > 5 && getElevatorPosition() > 3) || getElevatorPosition() > 5) {
+            // If we are moving up and high enough or very high enough, move at the same time as claw but not if going to L4 or at L4
             elevatorLeft.setVolts(volts + ELEVATOR_FF);
             elevatorRight.setVolts(volts + ELEVATOR_FF);
         } else if (desiredState.position < pastState.position) {

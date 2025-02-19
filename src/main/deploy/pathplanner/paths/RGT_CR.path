@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.574119318181816,
-        "y": 1.7464914772727285
+        "x": 5.274971590909091,
+        "y": 1.2479119318181824
       },
       "isLocked": false,
       "linkedName": "RGT"
@@ -20,8 +20,8 @@
         "y": 2.604048295454545
       },
       "prevControl": {
-        "x": 3.579801136363636,
-        "y": 1.1382244318181816
+        "x": 3.141051136363637,
+        "y": 0.9288210227272726
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 2.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 640.0,
@@ -50,5 +50,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

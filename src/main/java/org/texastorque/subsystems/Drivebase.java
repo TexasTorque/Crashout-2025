@@ -78,8 +78,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
         
-        xController = new PIDController(2.6, 0, 0);
-        yController = new PIDController(2.6, 0, 0);
+        xController = new PIDController(3.5, 0, 0);
+        yController = new PIDController(3.5, 0, 0);
         omegaController = new PIDController(.15, 0, 0);
         omegaController.enableContinuousInput(0, 360);
     }
@@ -174,6 +174,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public void runAlignment(final Pose2d pose, final TorqueMode mode) {
+        if (isAligned(mode)) {
+            setInputSpeeds(new TorqueSwerveSpeeds());
+            return;
+        }
         final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .25;
         final double MAX_ALIGN_OMEGA_VELOCITY = mode.isTeleop() ? 2 * Math.PI : Math.PI / 2;
 
@@ -192,8 +196,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     public boolean isAligned(final TorqueMode mode) {
         Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
-        final double TRANSLATION_TOLERANCE = .05;
-        final double ROTATION_TOLERANCE = 2;
+        final double TRANSLATION_TOLERANCE = .01;
+        final double ROTATION_TOLERANCE = 1;
 
         if (alignPoseOverride != null) alignPose = Optional.of(alignPoseOverride);
         if (alignPose.isEmpty()) return false;
@@ -201,6 +205,9 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
         final double rotation = (alignPose.get().getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
         final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
+
+        Debug.log("Rotation Aligned", rotationAligned);
+        Debug.log("Translation Aligned", translationAligned);
 
         if (translationAligned && rotationAligned) {
             if (mode.isAuto()) {

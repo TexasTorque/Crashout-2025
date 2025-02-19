@@ -14,6 +14,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -116,12 +117,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Coral State", coralState.toString());
         Debug.log("Algae State", algaeState.toString());
 
-        final double SHOULDER_MAX_VOLTS = 6;
+        final double SHOULDER_MAX_VOLTS = 9;
         double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.angle);
         final double ff = 1 * Math.cos(Math.toRadians(getShoulderAngle())); // Will need tuning
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
-        if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3) {
+        if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3 && (elevator.getState() != Elevator.State.SCORE_L4 || elevator.isAtState())) {
             // If we are moving up and high enough, move at the same time as claw
             shoulder.setVolts(volts + ff);
         } else if (elevator.getState().position > elevator.pastState.position) {
@@ -166,14 +167,15 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
             final double position = ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
 
-            if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3) {
+            if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3 && (elevator.getState() != Elevator.State.SCORE_L4 || elevator.isAtState())) {
                 // If we are moving up and high enough, move at the same time as claw
                 if (animationMultiplier > 1) return desiredState.angle;
                 return position;
             } else if (elevator.getState().position > elevator.pastState.position) {
-                if (elevator.isNearState()) {
+                if (elevator.isAtState() || (DriverStation.isAutonomous() && elevator.isNearState())) {
                     if (animationMultiplier > 1) return desiredState.angle;
                     return position;
+
                 }
             } else {
                 if (animationMultiplier > 1) return desiredState.angle;

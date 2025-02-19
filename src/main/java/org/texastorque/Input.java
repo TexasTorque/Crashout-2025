@@ -73,7 +73,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateSuperstructure();
         updateClimb();
 
-        final double DELTA = 0.1;
+        final double DELTA = 0.25;
         manualElevatorInitial.onTrue(() -> {
             Elevator.State.MANUAL.position = elevator.getElevatorPosition();
         });

@@ -26,7 +26,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
             new Marker(() -> {
                 elevator.setState(State.ALGAE_REMOVAL_LOW);
                 claw.setState(Claw.State.ALGAE_EXTRACTION);
-            }, .2)
+            }, .3)
         ));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
@@ -75,18 +75,6 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
-        // Move back to avoid claw hitting reef poles
-        addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(new Pose2d(3.6, 2.6, Rotation2d.fromDegrees(60)));
-            drivebase.setState(Drivebase.State.ALIGN);
-        }));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
-        addBlock(new TorqueRun(() -> {
-            drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
-            drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
-            drivebase.setAlignPoseOverride(null);
-        }));
-
         // Drive close right to coral station right
         addBlock(new TorqueFollowPath("CR_CSR", drivebase).withMarkers(
             new Marker(() -> {
@@ -124,25 +112,13 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
-        // Move back to avoid claw hitting reef poles
-        addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(new Pose2d(3.6, 2.6, Rotation2d.fromDegrees(60)));
-            drivebase.setState(Drivebase.State.ALIGN);
-        }));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
-        addBlock(new TorqueRun(() -> {
-            drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
-            drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
-            drivebase.setAlignPoseOverride(null);
-        }));
-
         // Drive close right to coral station right
         addBlock(new TorqueFollowPath("CR_CSR", drivebase).withMarkers(
             new Marker(() -> {
                 drivebase.setRelation(Relation.CENTER);
                 elevator.setState(State.CORAL_HP);
                 claw.setState(Claw.State.CORAL_HP);
-            }, .2),
+            }, .1),
             new Marker(() -> {
                 claw.setCoralState(Claw.CoralState.INTAKE);
             }, .75)
