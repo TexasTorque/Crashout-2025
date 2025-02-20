@@ -34,13 +34,14 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         ZERO(0),
         IN_FRAME(133),
         STOW(180),
-        L1_SCORE(240),
+        L1_SCORE(15.0293),
         MID_SCORE(160),
         L4_SCORE(180),
         NET(140),
         ALGAE_EXTRACTION(290),
         PROCESSOR(300),
-        CORAL_HP(38);
+        CORAL_HP(38),
+        ALGAE_GROUND_PICKUP(305);
 
         private final double angle;
 
@@ -68,7 +69,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum CoralState implements TorqueState {
-        INTAKE(-4), SHOOT(3), OFF(-2);
+        INTAKE(-4), SHOOT(3.5), OFF(-2);
 
         private final double volts;
 

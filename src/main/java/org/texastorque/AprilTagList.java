@@ -85,14 +85,19 @@ public enum AprilTagList {
 	),
 	ID_19(19, new Pose3d(4.075906, 4.746862, 0.308202, new Rotation3d(0, 0, 120)),
 			Placement.REEF,
-			new AlignPose2d(Relation.CENTER, new Pose2d(4.05, 5.20, Rotation2d.fromDegrees(300))),
-			new AlignPose2d(Relation.LEFT, new Pose2d(4, 5.25, Rotation2d.fromDegrees(300)))
+			new AlignPose2d(Relation.LEFT, new Pose2d(4, 5.25, Rotation2d.fromDegrees(300))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(4.06, 5.22, Rotation2d.fromDegrees(300))),
+			new AlignPose2d(Relation.RIGHT, new Pose2d(3.87, 5.11, Rotation2d.fromDegrees(300)))
 	),
 	ID_20(20, new Pose3d(4.905194, 4.746862, 0.308202, new Rotation3d(0, 0, 60)),
-			Placement.REEF
+			Placement.REEF,
+			new AlignPose2d(Relation.RIGHT, new Pose2d(5.15, 5.09, Rotation2d.fromDegrees(240))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(5.30, 5.01, Rotation2d.fromDegrees(240))),
+			new AlignPose2d(Relation.LEFT, new Pose2d(5.40, 4.95, Rotation2d.fromDegrees(240)))
 	),
 	ID_21(21, new Pose3d(5.321546, 4.02659, 0.308202, new Rotation3d(0, 0, 0)),
 			Placement.REEF,
+			new AlignPose2d(Relation.RIGHT, new Pose2d(5.74, 4.03, Rotation2d.fromDegrees(180))),
 			new AlignPose2d(Relation.CENTER, new Pose2d(5.77, 3.83, Rotation2d.fromDegrees(180))),
 			new AlignPose2d(Relation.LEFT, new Pose2d(5.74, 3.71, Rotation2d.fromDegrees(180)))
 	),

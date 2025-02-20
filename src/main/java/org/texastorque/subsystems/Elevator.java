@@ -37,7 +37,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         MANUAL(0), // Also not a setpoint!! Gets set to whatever we manually control it to
         LOW_STOW(1),
         STOW(3.4895),
-        SCORE_L1(4.5374),
+        SCORE_L1(3.12),
         SCORE_L2(1.2),
         SCORE_L3(4.2),
         SCORE_L4(10.0),
@@ -74,13 +74,13 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
 
         breakModeInput = new DigitalInput(0);
-        breakMode = new TorqueClickSupplier(breakModeInput::get);
-
-        State.ZERO.position = getElevatorPosition();
+        breakMode = new TorqueClickSupplier(() -> !breakModeInput.get());
     }
 
     @Override
-    public final void initialize(final TorqueMode mode) {}
+    public final void initialize(final TorqueMode mode) {
+        State.ZERO.position = getElevatorPosition();
+    }
 
     @Override
     public final void update(final TorqueMode mode) {
@@ -109,13 +109,13 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             elevatorRight.setVolts(volts + ELEVATOR_FF);
         }
 
-        breakMode.onTrueOrFalse(() -> {
-            elevatorLeft.idleMode(IdleMode.kBrake).apply();
-            elevatorRight.idleMode(IdleMode.kBrake).apply();
-        }, () -> {
-            elevatorLeft.idleMode(IdleMode.kCoast).apply();
-            elevatorRight.idleMode(IdleMode.kCoast).apply();
-        });
+        // breakMode.onTrueOrFalse(() -> {
+        //     elevatorLeft.idleMode(IdleMode.kBrake).apply();
+        //     elevatorRight.idleMode(IdleMode.kBrake).apply();
+        // }, () -> {
+        //     elevatorLeft.idleMode(IdleMode.kCoast).apply();
+        //     elevatorRight.idleMode(IdleMode.kCoast).apply();
+        // });
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(ELEVATOR_FF);
