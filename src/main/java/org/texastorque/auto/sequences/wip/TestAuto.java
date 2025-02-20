@@ -1,4 +1,4 @@
-package org.texastorque.auto.sequences;
+package org.texastorque.auto.sequences.wip;
 
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.auto.TorqueSequence;

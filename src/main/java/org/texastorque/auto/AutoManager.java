@@ -9,11 +9,10 @@ package org.texastorque.auto;
 import java.util.Optional;
 
 import org.texastorque.Subsystems;
-import org.texastorque.auto.sequences.CenterAuto;
-import org.texastorque.auto.sequences.CenterShootAuto;
+import org.texastorque.auto.sequences.CenterNet;
+import org.texastorque.auto.sequences.CenterProcessor;
 import org.texastorque.auto.sequences.LeftAuto;
 import org.texastorque.auto.sequences.RightAuto;
-import org.texastorque.auto.sequences.TestAuto;
 import org.texastorque.torquelib.auto.TorqueAutoManager;
 
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -23,11 +22,12 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadSequences() {
-        addSequence("LEFT -> 3 CORAL + .5 ALGAE", new LeftAuto());
-        addSequence("CENTER -> 1 CORAL -> 1 ALGAE", new CenterAuto());
-        addSequence("CENTER -> 1 CORAL -> 1 ALGAE SHOT", new CenterShootAuto());
-        addSequence("RIGHT -> 3 CORAL + .5 ALGAE", new RightAuto());
-        addSequence("TEST", new TestAuto());
+        addSequence("LEFT -> 3 CORAL", new LeftAuto());
+        addSequence("CENTER -> 1 CORAL -> 1 ALGAE", new CenterProcessor());
+        addSequence("CENTER -> 2 ALGAE NET", new CenterNet());
+        // addSequence("CENTER -> 1 CORAL -> 1 ALGAE SHOT", new CenterShootAuto());
+        addSequence("RIGHT -> 3 CORAL", new RightAuto());
+        // addSequence("TEST", new TestAuto());
     }
 
     @Override

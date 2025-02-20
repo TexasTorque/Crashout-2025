@@ -18,9 +18,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 import org.texastorque.subsystems.Drivebase;
 
-public class CenterAuto extends TorqueSequence implements Subsystems {
+public class CenterProcessor extends TorqueSequence implements Subsystems {
     
-    public CenterAuto() {
+    public CenterProcessor() {
         // Elevator & claw setpoints
         addBlock(new TorqueRun(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
