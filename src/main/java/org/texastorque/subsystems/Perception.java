@@ -1,8 +1,7 @@
 package org.texastorque.subsystems;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -61,11 +60,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	// Used to filter some noise directly out of the pose measurements.
 	private final TorqueRollingMedian filteredX, filteredY;
-	private Pose2d finalPose = new Pose2d();
-
 	private final Field2d field = new Field2d();
+	private final HashMap<Integer, Pose3d> tagsInView = new HashMap<>();
 	private ArrayList<TorqueFieldZone> zones;
-	private RawFiducial lastDetection;
+	private Pose2d filteredPose = new Pose2d();
 	
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.105425, 0.77653, -90, 45, 180);
@@ -91,47 +89,22 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public void update(TorqueMode mode) {
 		gyro_simulated += drivebase.inputSpeeds.omegaRadiansPerSecond / 180 * Math.PI;
 		gyro_simulated %= 2 * Math.PI;
-
-		LimelightHelpers.SetRobotOrientation(LIMELIGHT_HIGH, getHeading().getDegrees(), 0, 0, 0, 0, 0);
-		LimelightHelpers.SetRobotOrientation(LIMELIGHT_LOW, getHeading().getDegrees(), 0, 0, 0, 0, 0);
-		LimelightHelpers.PoseEstimate visionEstimateHigh = getVisionEstimate(LIMELIGHT_HIGH);
-		LimelightHelpers.PoseEstimate visionEstimateLow = getVisionEstimate(LIMELIGHT_LOW);
 		
-		final Pose2d odometryPose = poseEstimator.update(getHeading(), drivebase.getModulePositions());
+		updateOdometryLocalization();
+		updateVisionLocalization();
 
-		if (seesTag() && visionEstimateHigh != null && visionEstimateLow != null) {
-			if (visionEstimateHigh.tagCount > 0) {
-				if ((drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateHigh.rawFiducials, 16, 13, 12, 3, 2, 1))
-					|| (drivebase.getState() == Drivebase.State.PATHING && visionEstimateHigh.avgTagDist > 1)
-					|| visionEstimateLow.avgTagDist > 1.5) {
-						// disregard
-				} else {
-					poseEstimator.addVisionMeasurement(visionEstimateHigh.pose, visionEstimateHigh.timestampSeconds);
-				}
-			}
-			if (visionEstimateLow.tagCount > 0) {
-				if ((drivebase.getState() == Drivebase.State.ALIGN && containsAnyID(visionEstimateLow.rawFiducials, 16, 13, 12, 3, 2, 1))
-					|| (drivebase.getState() == Drivebase.State.PATHING && visionEstimateLow.avgTagDist > 1)
-					|| visionEstimateLow.avgTagDist > 1.5) {
-						// disregard
-				} else {
-					poseEstimator.addVisionMeasurement(visionEstimateLow.pose, visionEstimateLow.timestampSeconds);
-				}
-			}
+		field.setRobotPose(poseEstimator.getEstimatedPosition());
 
-			finalPose = new Pose2d(
-				filteredX.calculate(poseEstimator.getEstimatedPosition().getX()),
-				filteredY.calculate(poseEstimator.getEstimatedPosition().getY()),
-				getHeading()
-			);
-		} else {
-			finalPose = odometryPose;
-		}
+		filteredPose = new Pose2d(
+                filteredX.calculate(getPose().getX()),
+                filteredY.calculate(getPose().getY()),
+                getHeading()
+		);
 
-		field.setRobotPose(finalPose);
-
+		Debug.log("Filtered Pose", getFilteredPose().toString());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
+        Logger.recordOutput("Tag Poses", tagsInView.values().toArray(new Pose3d[tagsInView.values().size()]));
 
 		// Simulation poses
 		Logger.recordOutput("Robot Pose", getPose());
@@ -156,6 +129,42 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	@Override
 	public void clean(TorqueMode mode) {}
+
+	public void updateVisionLocalization() {
+		LimelightHelpers.SetRobotOrientation(LIMELIGHT_HIGH, getHeading().getDegrees(), 0, 0, 0, 0, 0);
+		LimelightHelpers.SetRobotOrientation(LIMELIGHT_LOW, getHeading().getDegrees(), 0, 0, 0, 0, 0);
+		LimelightHelpers.PoseEstimate visionEstimateHigh = getVisionEstimate(LIMELIGHT_HIGH);
+		LimelightHelpers.PoseEstimate visionEstimateLow = getVisionEstimate(LIMELIGHT_LOW);
+
+		final boolean shouldNotUseVision = drivebase.getState() == Drivebase.State.PATHING
+				|| gyro.getAngularVelocity().getRadians() > Math.PI;
+
+		if (shouldNotUseVision) return;
+
+		final boolean isHighInvalid = visionEstimateHigh.avgTagDist > 6
+				|| visionEstimateHigh.tagCount == 0
+				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateHigh.rawFiducials.length > 1)
+				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateHigh.rawFiducials.length == 1 && getCurrentZone() != null && getCurrentZone().getID() != visionEstimateHigh.rawFiducials[0].id);
+		
+		final boolean isLowInvalid = visionEstimateLow.avgTagDist > 6
+				|| visionEstimateLow.tagCount == 0
+				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateLow.rawFiducials.length > 1)
+				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateLow.rawFiducials.length == 1 && getCurrentZone() != null && getCurrentZone().getID() != visionEstimateLow.rawFiducials[0].id);
+		
+		Debug.log("High Invalid", isHighInvalid);
+		Debug.log("Low Invalid", isLowInvalid);
+
+		if (!isHighInvalid) {
+			poseEstimator.addVisionMeasurement(visionEstimateHigh.pose, visionEstimateHigh.timestampSeconds);
+		}
+		if (!isLowInvalid) {
+			poseEstimator.addVisionMeasurement(visionEstimateLow.pose, visionEstimateLow.timestampSeconds);
+		}
+	}
+
+	public void updateOdometryLocalization() {
+		poseEstimator.update(getHeading(), drivebase.getModulePositions());
+	}
 
 	public Pose3d[] getRealComponentPoses() {
 		final double elevatorPos = elevator.getElevatorPosition();
@@ -188,22 +197,13 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return false;
 	}
 
-	public RawFiducial getAlignDetection() {
-		// Get best apriltag detection (closest to center of frame)
-		final PoseEstimate estimate = getVisionEstimate(LIMELIGHT_HIGH);
-		if (estimate == null) return lastDetection;
-		if (estimate.rawFiducials.length == 0) return lastDetection;
-		
-		final List<RawFiducial> detections = Arrays.asList(estimate.rawFiducials);
-		RawFiducial bestDetection = detections.get(0);
-
-		for (RawFiducial raw : detections) {
-			if (Math.abs(raw.txnc) < Math.abs(bestDetection.txnc)) {
-				bestDetection = raw;
+	public TorqueFieldZone getCurrentZone() {
+		for (TorqueFieldZone zone : zones) {
+			if (zone.contains(getFilteredPose())) {
+				return zone;
 			}
 		}
-		lastDetection = bestDetection;
-		return bestDetection;
+		return null;
 	}
 
 	public Rotation2d getHeading() {
@@ -261,11 +261,15 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	private PoseEstimate getVisionEstimate(final String limelightName) {
-		return LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
+		return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+	}
+
+	public Pose2d getFilteredPose() {
+		return filteredPose;
 	}
 
 	public Pose2d getPose() {
-		return finalPose;
+		return poseEstimator.getEstimatedPosition();
 	}
 
 	public void createZones() {

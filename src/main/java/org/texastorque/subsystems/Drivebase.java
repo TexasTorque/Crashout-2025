@@ -130,7 +130,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (alignPoseOverride != null && wantsState(State.ALIGN)) {
             runAlignment(alignPoseOverride, mode);
         } else if (wantsState(State.ALIGN)) {
-            final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+            final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getFilteredPose(), relation);
             Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
             if (alignPose.isPresent()) {
                 Pose2d targetPose = alignPose.get();
