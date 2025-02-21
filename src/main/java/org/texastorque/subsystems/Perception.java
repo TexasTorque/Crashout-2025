@@ -91,7 +91,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		gyro_simulated %= 2 * Math.PI;
 		
 		updateOdometryLocalization();
-		updateVisionLocalization();
+		if (RobotBase.isReal()) updateVisionLocalization();
 
 		field.setRobotPose(poseEstimator.getEstimatedPosition());
 

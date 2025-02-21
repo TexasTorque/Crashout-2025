@@ -1,9 +1,10 @@
 package org.texastorque.auto.sequences;
 
 import org.texastorque.AlignPose2d.Relation;
+import org.texastorque.auto.routines.Align;
+import org.texastorque.auto.routines.QuickSwap;
 import org.texastorque.Subsystems;
 import org.texastorque.subsystems.Claw;
-import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.torquelib.auto.TorqueSequence;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
@@ -11,7 +12,9 @@ import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
-import org.texastorque.torquelib.base.TorqueMode;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class CenterNet extends TorqueSequence implements Subsystems {
 
@@ -26,18 +29,8 @@ public class CenterNet extends TorqueSequence implements Subsystems {
         // Drive center to far left
 		addBlock(new TorqueFollowPath("CTR_FL", drivebase));
 
-		// Alignment
-        addBlock(new TorqueRun(() -> {
-            drivebase.setRelation(Relation.CENTER);
-            drivebase.setState(Drivebase.State.ALIGN);
-        }));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
-        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
-
-        // Algae extraction
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
-        addBlock(new TorqueWaitTime(.5)); // Wait until we intake algae
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
+		// Quickswap
+		addBlock(new QuickSwap(new Pose2d(5.365, 5.325, Rotation2d.fromDegrees(-120))).command());
 
 		// Drive far left to net
 		addBlock(new TorqueFollowPath("FL_NET", drivebase).withMarkers(
@@ -71,12 +64,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
 		// Alignment
-        addBlock(new TorqueRun(() -> {
-            drivebase.setRelation(Relation.CENTER);
-            drivebase.setState(Drivebase.State.ALIGN);
-        }));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
-        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
+        addBlock(new Align(Relation.CENTER).command());
 
 		addBlock(new TorqueFollowPath("FF_NET", drivebase).withMarkers(
 			new Marker(() -> {
