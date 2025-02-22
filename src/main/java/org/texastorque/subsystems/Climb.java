@@ -11,7 +11,7 @@ import org.texastorque.torquelib.motors.TorqueNEO;
 public final class Climb extends TorqueStatorSubsystem<Climb.State> implements Subsystems {
 
     private static volatile Climb instance;
-    private final TorqueNEO climbLeft, climbRight;
+    private final TorqueNEO climb;
 
     public static enum State implements TorqueState {
         UP(4),
@@ -32,8 +32,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     private Climb() {
         super(State.OFF);
 
-        climbLeft = new TorqueNEO(Ports.CLIMB_LEFT);
-        climbRight = new TorqueNEO(Ports.CLIMB_RIGHT);
+        climb = new TorqueNEO(Ports.CLIMB);
     }
 
     @Override
@@ -42,9 +41,9 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Climb State", desiredState.toString());
+        Debug.log("Climb Position", climb.getPosition());
         
-        climbLeft.setVolts(desiredState.getVolts());
-        climbRight.setVolts(-desiredState.getVolts());
+        climb.setVolts(desiredState.getVolts());
     }
 
     @Override

@@ -13,7 +13,8 @@ import org.texastorque.torquelib.util.TorqueMath;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,7 +23,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     private static volatile Claw instance;
     private final TorqueNEO shoulder, algaeRollers, coralRollers;
-    private final PIDController shoulderPID;
+    private final ProfiledPIDController shoulderPID;
     private final CANcoder shoulderEncoder;
     private AlgaeState algaeState = AlgaeState.OFF;
     private CoralState coralState = CoralState.OFF;
@@ -92,7 +93,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             .apply();
 
         shoulderEncoder = new CANcoder(Ports.SHOULDER_ENCODER);
-        shoulderPID = new PIDController(.25, 0, 0);
+        shoulderPID = new ProfiledPIDController(.25, 0, 0,
+                new TrapezoidProfile.Constraints(1, 1));
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
             .apply();

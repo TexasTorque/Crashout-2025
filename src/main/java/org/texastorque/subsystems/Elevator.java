@@ -22,7 +22,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private static volatile Elevator instance;
     private final TorqueNEO elevatorLeft, elevatorRight;
     private final ProfiledPIDController elevatorPID;
-    private final CANcoder elevatorEncoder;
     public State pastState;
     private double pastStateTime;
     private final double ELEVATOR_FF = .3;
@@ -67,7 +66,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         
         elevatorPID = new ProfiledPIDController(25, 0, 0,
                 new TrapezoidProfile.Constraints(45, 45));
-        elevatorEncoder = new CANcoder(Ports.ELEVATOR_ENCODER);
     }
 
     @Override
@@ -142,8 +140,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             pastStateTime = Timer.getFPGATimestamp();
             return pastState.position;
         }
-        // return (elevatorLeft.getPosition() + elevatorRight.getPosition()) / 2;
-        return elevatorEncoder.getPosition().getValueAsDouble();
+        return (elevatorLeft.getPosition() + elevatorRight.getPosition()) / 2;
     }
 
     public final boolean isAtState() {
