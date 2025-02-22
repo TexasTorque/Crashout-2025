@@ -1,6 +1,6 @@
-# Bravo-2025
+# Crashout-2025
 
-Codebase for [Texas Torque](https://texastorque.org)'s 2025 bravo robot.
+Codebase for [Texas Torque](https://texastorque.org)'s 2025 competition robot.
 
 ## Subsystems
 
@@ -8,7 +8,7 @@ Codebase for [Texas Torque](https://texastorque.org)'s 2025 bravo robot.
 - Perception: vision processing with 2x limelight 3g & localization.
 - Elevator: custom three stage elevator.
 - Claw: shoulder with algae and coral endeffector in one.
-- Climb: deep climber with two neos.
+- Climb: deep climber with a neo vortex
 
 ## Contributors
 
