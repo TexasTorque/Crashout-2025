@@ -22,23 +22,25 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final ProfiledPIDController elevatorPID;
     public State pastState;
     private double pastStateTime;
+    private final double ELEVATOR_FF = .1;
 
-    // MAX ELEVATOR: 228
+    public final double MAX_ELEVATOR = 228;
+    public final double SAFE_HEIGHT = 60;
     public static enum State implements TorqueState {
-        ZERO(40), // Not actually a setpoint!! Gets set to whatever we
+        ZERO(100), // Not actually a setpoint!! Gets set to whatever we
                           // deployed at so the elevator doesn't try to go to the ZERO position @ startup
-        MANUAL(0), // Also not a setpoint!! Gets set to whatever we manually control it to
-        LOW_STOW(20),
-        STOW(40),
-        SCORE_L1(150),
-        SCORE_L2(0),
-        SCORE_L3(0),
-        SCORE_L4(0),
-        NET(0),
-        ALGAE_REMOVAL_LOW(0),
-        ALGAE_REMOVAL_HIGH(0),
-        PROCESSOR(0),
-        CORAL_HP(0);
+        MANUAL(100), // Also not a setpoint!! Gets set to whatever we manually control it to
+        STOW(61.2034),
+        SCORE_L1(61.2034),
+        SCORE_L2(47.6068),
+        SCORE_L3(79.0623),
+        SCORE_L4(204.144),
+        NET(204.144),
+        ALGAE_REMOVAL_LOW(154.7099),
+        ALGAE_REMOVAL_HIGH(201.1206),
+        PROCESSOR(82.4912),
+        CORAL_HP(61.2034),
+        CLIMB(61.2034);
 
         public double position;
 
@@ -62,6 +64,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         
         elevatorPID = new ProfiledPIDController(2, 0, 0,
                 new TrapezoidProfile.Constraints(300, 80));
+        
         elevatorPID.reset(getElevatorPosition());
     }
 
@@ -79,30 +82,27 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator At State", isAtState());
         Debug.log("Manual Position", Elevator.State.MANUAL.position);
 
-        final double ELEVATOR_MAX_VOLTS = 10;
+        final double ELEVATOR_MAX_VOLTS = 12;
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
         Debug.log("Elevator Volts", volts);
 
-        // if ((desiredState.position > 5 && getElevatorPosition() > 3) || getElevatorPosition() > 5) {
-        //     // If we are moving up and high enough or very high enough, move at the same time as claw but not if going to L4 or at L4
-        //     elevatorLeft.setVolts(volts + ELEVATOR_FF);
-        //     elevatorRight.setVolts(volts + ELEVATOR_FF);
-        // } else if (desiredState.position < pastState.position) {
-        //     // If we are moving down wait until claw moves first
-        //     if (claw.isAtState() || (mode.isAuto() && claw.isNearState())) {
-        //         elevatorLeft.setVolts(volts + ELEVATOR_FF);
-        //         elevatorRight.setVolts(volts + ELEVATOR_FF);
-        //     }
-        // } else {
-        //     // Otherwise, move elevator first
-        //     elevatorLeft.setVolts(volts + ELEVATOR_FF);
-        //     elevatorRight.setVolts(volts + ELEVATOR_FF);
-        // }
-
-        elevatorLeft.setVolts(volts + .1);
-        elevatorRight.setVolts(volts + .1);
+        if (desiredState.position > SAFE_HEIGHT && getElevatorPosition() > SAFE_HEIGHT) {
+            elevatorLeft.setVolts(volts + ELEVATOR_FF);
+            elevatorRight.setVolts(volts + ELEVATOR_FF);
+        } else if (getElevatorPosition() > desiredState.position) {
+            if (claw.isAtState()) {
+                elevatorLeft.setVolts(volts + ELEVATOR_FF);
+                elevatorRight.setVolts(volts + ELEVATOR_FF);
+            } else {
+                elevatorLeft.setVolts(ELEVATOR_FF);
+                elevatorRight.setVolts(ELEVATOR_FF);
+            }
+        } else if (getElevatorPosition() < desiredState.position) {
+            elevatorLeft.setVolts(volts + ELEVATOR_FF);
+            elevatorRight.setVolts(volts + ELEVATOR_FF);
+        }
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(0);

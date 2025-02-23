@@ -1,5 +1,6 @@
 package org.texastorque.subsystems;
 
+import org.texastorque.Input;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
@@ -10,33 +11,38 @@ import org.texastorque.torquelib.motors.TorqueNEO;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.controller.PIDController;
+
 public final class Climb extends TorqueStatorSubsystem<Climb.State> implements Subsystems {
 
     private static volatile Climb instance;
     private final TorqueNEO climb;
+    private final PIDController climbPID;
 
     public static enum State implements TorqueState {
-        UP(4),
-        OFF(0),
-        DOWN(-4);
+        OUT(278.7414),
+        IN(129.3085),
+        STOWED(0);
 
-        private final double volts;
+        private final double position;
 
-        private State(double volts) {
-            this.volts = volts;
+        private State(double position) {
+            this.position = position;
         }
 
-        public double getVolts() {
-            return volts;
+        public double getPosition() {
+            return position;
         }
     }
 
     private Climb() {
-        super(State.OFF);
+        super(State.STOWED);
 
         climb = new TorqueNEO(Ports.CLIMB)
                 .idleMode(IdleMode.kBrake)
                 .apply();
+
+        climbPID = new PIDController(1, 0, 0);
     }
 
     @Override
@@ -45,14 +51,23 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Climb State", desiredState.toString());
-        Debug.log("Climb Position", climb.getPosition());
+        Debug.log("Climb Position", getClimbPosition());
+
+        if (!Input.getInstance().isClimbMode()) return;
         
-        climb.setVolts(desiredState.getVolts());
+        final double MAX_VOLTS = 4;
+        double volts = climbPID.calculate(getClimbPosition(), desiredState.position);
+        if (Math.abs(volts) > MAX_VOLTS) volts = Math.signum(volts) * MAX_VOLTS;
+        climb.setVolts(volts);
     }
 
     @Override
     public final void clean(final TorqueMode mode) {
-        desiredState = State.OFF;
+
+    }
+
+    public double getClimbPosition() {
+        return climb.getPosition();
     }
 
     public static final synchronized Climb getInstance() {

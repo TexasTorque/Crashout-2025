@@ -24,7 +24,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     private static volatile Claw instance;
     private final TorqueNEO shoulder, algaeRollers, coralRollers;
-    private final PIDController shoulderPID;
+    private final ProfiledPIDController shoulderPID;
     private final CANcoder shoulderEncoder;
     private AlgaeState algaeState = AlgaeState.OFF;
     private CoralState coralState = CoralState.OFF;
@@ -34,18 +34,17 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     public static enum State implements TorqueState {
         ZERO(0),
-        IN_FRAME(230),
         STOW(26.2793),
-        L1_SCORE(0),
-        MID_SCORE(0),
-        L4_SCORE(0),
-        NET(0),
-        ALGAE_EXTRACTION(0),
-        PROCESSOR(0),
+        L1_SCORE(14.2383),
+        MID_SCORE(150),
+        L4_SCORE(180.5273),
+        NET(141.6797),
+        ALGAE_EXTRACTION(292.1484),
+        PROCESSOR(311.2207),
         CORAL_HP(38.2324),
-        ALGAE_GROUND_PICKUP(0);
+        CLIMB(230);
 
-        private final double angle;
+        private double angle;
 
         private State(double angle) {
             this.angle = angle;
@@ -57,7 +56,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum AlgaeState implements TorqueState {
-        INTAKE(-12), SHOOT(12), OFF(0);
+        INTAKE(-6), SHOOT(12), OFF(0);
 
         private final double volts;
 
@@ -95,21 +94,28 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             .apply();
 
         shoulderEncoder = new CANcoder(Ports.SHOULDER_ENCODER);
-        shoulderPID = new PIDController(.3, 0, 0);
+        shoulderPID = new ProfiledPIDController(.5, 0, 0,
+                new TrapezoidProfile.Constraints(720, 720));
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
             .apply();
 
         coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL)
             .inverted(true)
+            .currentLimit(4)
             .idleMode(IdleMode.kBrake)
             .apply();
 
-        coralSpike = new TorqueCurrentSpike(12);
+        coralSpike = new TorqueCurrentSpike(11);
+
+        shoulderPID.reset(getShoulderAngle());
     }
 
     @Override
-    public final void initialize(final TorqueMode mode) {}
+    public final void initialize(final TorqueMode mode) {
+        State.ZERO.angle = getShoulderAngle();
+        shoulderPID.reset(getShoulderAngle());
+    }
 
     @Override
     public final void update(final TorqueMode mode) {
@@ -131,32 +137,25 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
         } else {
-            shoulder.setVolts(volts + ff);
+            if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
+                shoulder.setVolts(volts + ff);
+            } else if (elevator.getElevatorPosition() > elevator.getState().position) {
+                shoulder.setVolts(volts + ff);
+            } else if (elevator.getElevatorPosition() < elevator.getState().position) {
+                if (elevator.isAtState()) {
+                    shoulder.setVolts(volts + ff);
+                } else {
+                    shoulder.setVolts(ff);
+                }
+            }
         }
 
-        // if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3 && (elevator.getState() != Elevator.State.SCORE_L4 || elevator.isAtState())) {
-        //     // If we are moving up and high enough, move at the same time as claw
-        //     shoulder.setVolts(volts + ff);
-        // } else if (elevator.getState().position > elevator.pastState.position) {
-        //     // If we are moving up wait for elevator to move first
-        //     if (elevator.isAtState() || (mode.isAuto() && elevator.isNearState())) {
-        //         shoulder.setVolts(volts + ff);
-        //     }
+        algaeRollers.setVolts(algaeState.getVolts());
+
+        // if (hasCoral()) {
+        //     coralRollers.setVolts(0);
         // } else {
-        //     // Otherwise, move claw first
-        //     shoulder.setVolts(volts + ff);
-        // }
-
-        // if (desiredState == State.ZERO) {
-        //     shoulder.setVolts(0);
-        // }
-
-        // algaeRollers.setVolts(algaeState.getVolts());
-        // coralRollers.setVolts(coralState.getVolts());
-
-        // // If we have coral, set volts to -2 to keep the coral inside
-        // if (hasCoral() && coralState != CoralState.SHOOT) {
-        //     coralRollers.setVolts(CoralState.OFF.volts);
+        //     coralRollers.setVolts(coralState.getVolts());
         // }
     }
 

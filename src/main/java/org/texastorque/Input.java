@@ -4,10 +4,12 @@ import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
+import org.texastorque.subsystems.Claw.AlgaeState;
 import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
+import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
@@ -19,11 +21,12 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueClickSupplier slowInitial, manualElevatorInitial;
-    private final TorqueBoolSupplier resetGyro, align, slow, lowStow,
-            stow, inFrame, L1, L2, L3, L4, leftRelation, rightRelation,
-            centerRelation, algaeExtractionHigh, algaeExtractionLow, net,
-            processor, climbUp, climbDown, manualElevatorUp, manualElevatorDown,
-            intakeCoral, outtakeCoral, outtakeAlgae, stopWheels, quickswap;
+    private final TorqueBoolSupplier resetGyro, align, slow, stow,
+            L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
+            algaeExtractionHigh, algaeExtractionLow, net, processor,
+            climbUp, climbDown, manualElevatorUp, manualElevatorDown,
+            intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, stopWheels,
+            climbMode;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -32,12 +35,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
+        intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         
         align = new TorqueBoolSupplier(driver::isRightTriggerDown);
 
-        lowStow = new TorqueBoolSupplier(driver::isDPADLeftDown);
         stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
-        inFrame = new TorqueBoolSupplier(driver::isDPADUpDown);
 
         slowInitial = new TorqueClickSupplier(driver::isLeftTriggerDown);
         slow = new TorqueBoolSupplier(driver::isLeftTriggerDown);
@@ -60,6 +62,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND);
         climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
 
+        climbMode = new TorqueToggleSupplier(driver::isDPADRightDown);
+
         manualElevatorInitial = new TorqueClickSupplier(() -> operator.getRightXAxis() > CONTROLLER_DEADBAND || operator.getRightYAxis() < -CONTROLLER_DEADBAND);
         manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
         manualElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
@@ -68,8 +72,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
 
         stopWheels = new TorqueBoolSupplier(driver::isRightBumperDown);
-
-        quickswap = new TorqueBoolSupplier(driver::isAButtonDown);
     }
 
     @Override
@@ -78,7 +80,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateSuperstructure();
         updateClimb();
 
-        final double DELTA = 0.25;
+        final double DELTA = 1;
         manualElevatorInitial.onTrue(() -> {
             Elevator.State.MANUAL.position = elevator.getElevatorPosition();
         });
@@ -159,9 +161,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
         });
-        lowStow.onTrue(() -> {
-            elevator.setState(Elevator.State.LOW_STOW);
-            claw.setState(Claw.State.STOW);
+        intakeAlgae.onTrue(() -> {
+            claw.setAlgaeState(AlgaeState.INTAKE);
         });
         stow.onTrue(() -> {
             elevator.setState(Elevator.State.STOW);
@@ -179,21 +180,22 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setAlgaeState(Claw.AlgaeState.OFF);
             claw.coralSpike.reset();
         });
-        inFrame.onTrue(() -> {
-            elevator.setState(Elevator.State.LOW_STOW);
-            claw.setState(Claw.State.IN_FRAME);
-        });
-        quickswap.onTrue(() -> {
-            
+        climbMode.onTrue(() -> {
+            elevator.setState(Elevator.State.CLIMB);
+            claw.setState(Claw.State.CLIMB);
         });
     }
 
     public final void updateClimb() {
-        climbUp.onTrue(() -> climb.setState(Climb.State.UP));
-        climbDown.onTrue(() -> climb.setState(Climb.State.DOWN));
+        climbUp.onTrue(() -> climb.setState(Climb.State.OUT));
+        climbDown.onTrue(() -> climb.setState(Climb.State.IN));
     }
 
-    public boolean isDebugMode() {
+    public final boolean isClimbMode() {
+        return climbMode.get();
+    }
+
+    public final boolean isDebugMode() {
         return false;
     }
 
