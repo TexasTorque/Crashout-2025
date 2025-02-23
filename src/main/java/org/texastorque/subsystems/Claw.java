@@ -13,6 +13,7 @@ import org.texastorque.torquelib.util.TorqueMath;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,7 +24,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     private static volatile Claw instance;
     private final TorqueNEO shoulder, algaeRollers, coralRollers;
-    private final ProfiledPIDController shoulderPID;
+    private final PIDController shoulderPID;
     private final CANcoder shoulderEncoder;
     private AlgaeState algaeState = AlgaeState.OFF;
     private CoralState coralState = CoralState.OFF;
@@ -33,16 +34,16 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     public static enum State implements TorqueState {
         ZERO(0),
-        IN_FRAME(133),
-        STOW(180),
-        L1_SCORE(15.0293),
-        MID_SCORE(160),
-        L4_SCORE(180),
-        NET(140),
-        ALGAE_EXTRACTION(290),
-        PROCESSOR(300),
-        CORAL_HP(38),
-        ALGAE_GROUND_PICKUP(305);
+        IN_FRAME(230),
+        STOW(26.2793),
+        L1_SCORE(0),
+        MID_SCORE(0),
+        L4_SCORE(0),
+        NET(0),
+        ALGAE_EXTRACTION(0),
+        PROCESSOR(0),
+        CORAL_HP(38.2324),
+        ALGAE_GROUND_PICKUP(0);
 
         private final double angle;
 
@@ -90,11 +91,11 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         shoulder = new TorqueNEO(Ports.SHOULDER)
             .idleMode(IdleMode.kBrake)
+            .inverted(true)
             .apply();
 
         shoulderEncoder = new CANcoder(Ports.SHOULDER_ENCODER);
-        shoulderPID = new ProfiledPIDController(.25, 0, 0,
-                new TrapezoidProfile.Constraints(1, 1));
+        shoulderPID = new PIDController(.3, 0, 0);
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
             .apply();
@@ -120,35 +121,43 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Coral State", coralState.toString());
         Debug.log("Algae State", algaeState.toString());
 
-        final double SHOULDER_MAX_VOLTS = 9;
+        final double SHOULDER_MAX_VOLTS = 12;
         double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.angle);
-        final double ff = 1 * Math.cos(Math.toRadians(getShoulderAngle())); // Will need tuning
+        final double ff = .25 * Math.sin(Math.toRadians(getShoulderAngle())); // Will need tuning
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
-        if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3 && (elevator.getState() != Elevator.State.SCORE_L4 || elevator.isAtState())) {
-            // If we are moving up and high enough, move at the same time as claw
-            shoulder.setVolts(volts + ff);
-        } else if (elevator.getState().position > elevator.pastState.position) {
-            // If we are moving up wait for elevator to move first
-            if (elevator.isAtState() || (mode.isAuto() && elevator.isNearState())) {
-                shoulder.setVolts(volts + ff);
-            }
-        } else {
-            // Otherwise, move claw first
-            shoulder.setVolts(volts + ff);
-        }
+        Debug.log("Shoulder Volts", volts);
 
         if (desiredState == State.ZERO) {
-            shoulder.setVolts(0);
+            shoulder.setVolts(ff);
+        } else {
+            shoulder.setVolts(volts + ff);
         }
 
-        algaeRollers.setVolts(algaeState.getVolts());
-        coralRollers.setVolts(coralState.getVolts());
+        // if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3 && (elevator.getState() != Elevator.State.SCORE_L4 || elevator.isAtState())) {
+        //     // If we are moving up and high enough, move at the same time as claw
+        //     shoulder.setVolts(volts + ff);
+        // } else if (elevator.getState().position > elevator.pastState.position) {
+        //     // If we are moving up wait for elevator to move first
+        //     if (elevator.isAtState() || (mode.isAuto() && elevator.isNearState())) {
+        //         shoulder.setVolts(volts + ff);
+        //     }
+        // } else {
+        //     // Otherwise, move claw first
+        //     shoulder.setVolts(volts + ff);
+        // }
 
-        // If we have coral, set volts to -2 to keep the coral inside
-        if (hasCoral() && coralState != CoralState.SHOOT) {
-            coralRollers.setVolts(CoralState.OFF.volts);
-        }
+        // if (desiredState == State.ZERO) {
+        //     shoulder.setVolts(0);
+        // }
+
+        // algaeRollers.setVolts(algaeState.getVolts());
+        // coralRollers.setVolts(coralState.getVolts());
+
+        // // If we have coral, set volts to -2 to keep the coral inside
+        // if (hasCoral() && coralState != CoralState.SHOOT) {
+        //     coralRollers.setVolts(CoralState.OFF.volts);
+        // }
     }
 
 	@Override
@@ -188,7 +197,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             pastStateTime = Timer.getFPGATimestamp();
             return pastState.angle;
         }
-        return (shoulderEncoder.getAbsolutePosition().getValueAsDouble() + .5) * 360;
+        return shoulderEncoder.getAbsolutePosition().getValueAsDouble() * 360;
     }
 
     public final boolean isAtState() {

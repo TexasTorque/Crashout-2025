@@ -8,6 +8,8 @@ import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.motors.TorqueNEO;
 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 public final class Climb extends TorqueStatorSubsystem<Climb.State> implements Subsystems {
 
     private static volatile Climb instance;
@@ -32,7 +34,9 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     private Climb() {
         super(State.OFF);
 
-        climb = new TorqueNEO(Ports.CLIMB);
+        climb = new TorqueNEO(Ports.CLIMB)
+                .idleMode(IdleMode.kBrake)
+                .apply();
     }
 
     @Override
