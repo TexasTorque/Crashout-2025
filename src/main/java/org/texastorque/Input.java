@@ -25,7 +25,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, stopWheels,
-            climbMode;
+            climbMode, intakeCoralWheels;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -33,6 +33,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
+        intakeCoralWheels = new TorqueBoolSupplier(driver::isAButtonDown);
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         
@@ -120,6 +121,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     }
 
     public final void updateSuperstructure() {
+        intakeCoralWheels.onTrue(() -> {
+            claw.setCoralState(Claw.CoralState.INTAKE);
+        });
         L1.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L1);
             claw.setState(Claw.State.SCORE_L1);
@@ -157,7 +161,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeCoral.onTrue(() -> {
             elevator.setState(Elevator.State.CORAL_HP);
             claw.setState(Claw.State.CORAL_HP);
-            claw.setCoralState(Claw.CoralState.INTAKE);
+            // claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
         });
         intakeAlgae.onTrue(() -> {

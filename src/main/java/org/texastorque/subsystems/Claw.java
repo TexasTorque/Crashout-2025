@@ -33,11 +33,11 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         STOW(26.2793),
         SCORE_L1(14.2383),
         MID_SCORE(150),
-        SCORE_L4(180.5273),
+        SCORE_L4(198.9844),
         NET(141.6797),
         ALGAE_EXTRACTION(292.1484),
         PROCESSOR(311.2207),
-        CORAL_HP(38.2324),
+        CORAL_HP(25),
         CLIMB(230);
 
         private double angle;
@@ -52,7 +52,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum AlgaeState implements TorqueState {
-        INTAKE(-6), SHOOT(12), OFF(0);
+        INTAKE(-6), SHOOT(6), OFF(0);
 
         private final double volts;
 
@@ -66,7 +66,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum CoralState implements TorqueState {
-        INTAKE(-4), SHOOT(3.5), OFF(-2);
+        INTAKE(-4), SHOOT(8), OFF(0);
 
         private final double volts;
 
@@ -137,8 +137,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
                 } else {
                     shoulder.setVolts(ff);
                 }
-            }
-            if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
+            } else if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
                 shoulder.setVolts(volts + ff);
             } else if (elevator.getElevatorPosition() > elevator.getState().position) {
                 shoulder.setVolts(volts + ff);
@@ -152,18 +151,20 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         }
 
         algaeRollers.setVolts(algaeState.getVolts());
+        coralRollers.setVolts(coralState.getVolts());
 
-        if (hasCoral()) {
-            coralRollers.setVolts(0);
-        } else {
-            coralRollers.setVolts(coralState.getVolts());
-        }
+        // if (hasCoral() && coralState != CoralState.SHOOT) {
+        //     coralRollers.setVolts(0);
+        // } else {
+        //     coralRollers.setVolts(coralState.getVolts());
+        // }
     }
 
 	@Override
     public final void clean(final TorqueMode mode) {
         if (mode.isTeleop()) {
             algaeState = AlgaeState.OFF;
+            coralState = CoralState.OFF;
         }
     }
 

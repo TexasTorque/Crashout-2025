@@ -31,14 +31,14 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         MANUAL(0), // Also not a setpoint!! Gets set to whatever we manually control it to
         STOW(61.2034),
         SCORE_L1(61.2034),
-        SCORE_L2(47.6068),
-        SCORE_L3(79.0623),
-        SCORE_L4(204.144),
+        SCORE_L2(39.952),
+        SCORE_L3(87.3845),
+        SCORE_L4(222.7442),
         NET(204.144),
-        ALGAE_REMOVAL_LOW(154.7099),
-        ALGAE_REMOVAL_HIGH(201.1206),
-        PROCESSOR(82.4912),
-        CORAL_HP(61.2034),
+        ALGAE_REMOVAL_LOW(134.3316),
+        ALGAE_REMOVAL_HIGH(185.2893),
+        PROCESSOR(66.4539),
+        CORAL_HP(72.7641),
         CLIMB(61.2034);
 
         public double position;

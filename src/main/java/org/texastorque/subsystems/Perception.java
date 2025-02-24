@@ -105,6 +105,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Filtered Pose", getFilteredPose().toString());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
+		Debug.log("Gyro Angle", getHeading().getDegrees());
         Logger.recordOutput("Tag Poses", tagsInView.values().toArray(new Pose3d[tagsInView.values().size()]));
 	}
 

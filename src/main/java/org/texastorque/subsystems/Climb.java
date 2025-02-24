@@ -9,39 +9,35 @@ import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.motors.TorqueNEO;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Climb extends TorqueStatorSubsystem<Climb.State> implements Subsystems {
 
     private static volatile Climb instance;
     private final TorqueNEO climb;
-    private final PIDController climbPID;
 
     public static enum State implements TorqueState {
-        OUT(278.7414),
-        IN(129.3085),
-        STOWED(0);
+        OUT(4),
+        IN(-4),
+        OFF(0);
 
-        private final double position;
+        private final double volts;
 
-        private State(double position) {
-            this.position = position;
+        private State(double volts) {
+            this.volts = volts;
         }
 
-        public double getPosition() {
-            return position;
+        public double getVolts() {
+            return volts;
         }
     }
 
     private Climb() {
-        super(State.STOWED);
+        super(State.OFF);
 
         climb = new TorqueNEO(Ports.CLIMB)
                 .idleMode(IdleMode.kBrake)
                 .apply();
-
-        climbPID = new PIDController(1, 0, 0);
     }
 
     @Override
@@ -54,18 +50,17 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
 
         if (claw.getState() != Claw.State.CLIMB) return;
         
-        final double MAX_VOLTS = 4;
-        double volts = climbPID.calculate(getClimbPosition(), desiredState.position);
-        if (Math.abs(volts) > MAX_VOLTS) volts = Math.signum(volts) * MAX_VOLTS;
-        climb.setVolts(volts);
+        climb.setVolts(desiredState.volts);
     }
 
     @Override
-    public final void clean(final TorqueMode mode) {}
+    public final void clean(final TorqueMode mode) {
+        desiredState = State.OFF;
+    }
 
     public double getClimbPosition() {
         if (RobotBase.isSimulation()) {
-            return desiredState.position;
+            return desiredState.volts;
         }
 
         return climb.getPosition();
