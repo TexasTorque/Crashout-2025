@@ -10,7 +10,6 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 
 public class Align extends TorqueSequence implements Subsystems {
 
@@ -25,7 +24,7 @@ public class Align extends TorqueSequence implements Subsystems {
 
 	public Align(final Pose2d pose) {
 		addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(new Pose2d(6.15, 3.0, Rotation2d.fromDegrees(-85)));
+            drivebase.setAlignPoseOverride(pose);
             drivebase.setState(Drivebase.State.ALIGN);
         }));
         addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
