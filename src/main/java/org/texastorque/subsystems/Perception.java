@@ -32,7 +32,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
@@ -109,12 +108,14 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		// Simulation poses
 		Logger.recordOutput("Robot Pose", getPose());
 		Logger.recordOutput("Animated Component Poses", new Pose3d[] {
-			new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 4, new Rotation3d()),
-			new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 3, new Rotation3d()),
-			new Pose3d(0, 0, Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d()),
-			new Pose3d(.109, 0, .578 + Math.sin(Timer.getTimestamp() % Math.PI) / 2, new Rotation3d(0, Math.sin(Timer.getTimestamp()) - 1, 0))
+			new Pose3d(0, 0, 0, new Rotation3d()),
+			new Pose3d(0, 0, 0, new Rotation3d()),
+			new Pose3d(0, 0, 0, new Rotation3d()),
+			new Pose3d(0.11, 0, 0.275, new Rotation3d()),
+			new Pose3d(-0.31, 0, 0.24, new Rotation3d())
 		});
 		Logger.recordOutput("Zeroed Component Poses", new Pose3d[] {
+			new Pose3d(),
 			new Pose3d(),
 			new Pose3d(),
 			new Pose3d(),
@@ -169,13 +170,14 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Pose3d[] getRealComponentPoses() {
 		final double elevatorPos = elevator.getElevatorPosition();
 		final double shoulderAngle = claw.getShoulderAngle();
-		final double elevatorMultiplier = elevatorPos / 12.5;
+		final double elevatorMultiplier = elevatorPos / elevator.MAX_HEIGHT;
 		
 		return new Pose3d[] {
 			new Pose3d(0, 0, .6 * elevatorMultiplier, new Rotation3d()),
 			new Pose3d(0, 0, 1.25 * elevatorMultiplier, new Rotation3d()),
 			new Pose3d(0, 0, 1.74 * elevatorMultiplier, new Rotation3d()),
-			new Pose3d(.109, .02, .278 + (1.74 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 180 + 360) % 360), 0))
+			new Pose3d(.109, .02, .278 + (1.74 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0)),
+			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 90 + 360) % 360), 0))
 		};
 	}
 

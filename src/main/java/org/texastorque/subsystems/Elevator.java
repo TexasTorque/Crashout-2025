@@ -1,6 +1,5 @@
 package org.texastorque.subsystems;
 
-import org.texastorque.Input;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
@@ -24,12 +23,12 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private double pastStateTime;
     private final double ELEVATOR_FF = .1;
 
-    public final double MAX_ELEVATOR = 228;
+    public final double MAX_HEIGHT = 228;
     public final double SAFE_HEIGHT = 60;
     public static enum State implements TorqueState {
-        ZERO(100), // Not actually a setpoint!! Gets set to whatever we
+        ZERO(0), // Not actually a setpoint!! Gets set to whatever we
                           // deployed at so the elevator doesn't try to go to the ZERO position @ startup
-        MANUAL(100), // Also not a setpoint!! Gets set to whatever we manually control it to
+        MANUAL(0), // Also not a setpoint!! Gets set to whatever we manually control it to
         STOW(61.2034),
         SCORE_L1(61.2034),
         SCORE_L2(47.6068),
@@ -123,20 +122,19 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public final double getElevatorPosition() {
         if (RobotBase.isSimulation()) {
-            final double timeToAnimate = Math.abs(desiredState.position - pastState.position) / 4;
+            final double timeToAnimate = Math.abs(desiredState.position - pastState.position) / 114;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
             final double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
 
-            if (desiredState.position > 5 && position > 3) {
-                // If we are moving up and high enough, move at the same time as claw
+            if (desiredState.position > SAFE_HEIGHT && position > SAFE_HEIGHT) {
                 if (animationMultiplier >= 1) return desiredState.position;
                 return position;
-            } else if (desiredState.position < pastState.position) {
-                if (claw.isNearState()) {
+            } else if (position > desiredState.position) {
+                if (claw.isAtState()) {
                     if (animationMultiplier >= 1) return desiredState.position;
                     return position;
                 }
-            } else {
+            } else if (position < desiredState.position) {
                 if (animationMultiplier >= 1) return desiredState.position;
                 return position;
             }

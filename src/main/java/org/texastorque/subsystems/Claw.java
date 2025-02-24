@@ -9,14 +9,10 @@ import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.control.TorqueCurrentSpike;
 import org.texastorque.torquelib.motors.TorqueNEO;
 import org.texastorque.torquelib.util.TorqueMath;
-
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -178,19 +174,17 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
             final double position = ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
 
-            if (elevator.getState().position > 5 && elevator.getElevatorPosition() > 3 && (elevator.getState() != Elevator.State.SCORE_L4 || elevator.isAtState())) {
-                // If we are moving up and high enough, move at the same time as claw
+            if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
                 if (animationMultiplier > 1) return desiredState.angle;
                 return position;
-            } else if (elevator.getState().position > elevator.pastState.position) {
-                if (elevator.isAtState() || (DriverStation.isAutonomous() && elevator.isNearState())) {
+            } else if (elevator.getElevatorPosition() > elevator.getState().position) {
+                if (animationMultiplier > 1) return desiredState.angle;
+                return position;
+            } else if (elevator.getElevatorPosition() < elevator.getState().position) {
+                if (elevator.isAtState()) {
                     if (animationMultiplier > 1) return desiredState.angle;
                     return position;
-
                 }
-            } else {
-                if (animationMultiplier > 1) return desiredState.angle;
-                return position;
             }
 
             pastStateTime = Timer.getFPGATimestamp();

@@ -9,7 +9,6 @@ import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
-import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
@@ -62,7 +61,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND);
         climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
 
-        climbMode = new TorqueToggleSupplier(driver::isDPADRightDown);
+        climbMode = new TorqueBoolSupplier(driver::isDPADRightDown);
 
         manualElevatorInitial = new TorqueClickSupplier(() -> operator.getRightXAxis() > CONTROLLER_DEADBAND || operator.getRightYAxis() < -CONTROLLER_DEADBAND);
         manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
@@ -189,10 +188,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     public final void updateClimb() {
         climbUp.onTrue(() -> climb.setState(Climb.State.OUT));
         climbDown.onTrue(() -> climb.setState(Climb.State.IN));
-    }
-
-    public final boolean isClimbMode() {
-        return climbMode.get();
     }
 
     public final boolean isDebugMode() {
