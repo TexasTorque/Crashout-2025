@@ -128,8 +128,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         final double ff = .25 * Math.sin(Math.toRadians(getShoulderAngle())); // Will need tuning
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
-        Debug.log("Shoulder Volts", volts);
-
         if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
         } else {
@@ -155,11 +153,11 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         algaeRollers.setVolts(algaeState.getVolts());
 
-        // if (hasCoral()) {
-        //     coralRollers.setVolts(0);
-        // } else {
-        //     coralRollers.setVolts(coralState.getVolts());
-        // }
+        if (hasCoral()) {
+            coralRollers.setVolts(0);
+        } else {
+            coralRollers.setVolts(coralState.getVolts());
+        }
     }
 
 	@Override
@@ -181,7 +179,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
             final double position = ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
 
-            if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
+            if (desiredState == State.SCORE_L4) {
+                if (elevator.isAtState() && elevator.getState() == Elevator.State.SCORE_L4) {
+                    if (animationMultiplier > 1) return desiredState.angle;
+                    return position;
+                }
+            } else if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
                 if (animationMultiplier > 1) return desiredState.angle;
                 return position;
             } else if (elevator.getElevatorPosition() > elevator.getState().position) {

@@ -85,8 +85,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
-        Debug.log("Elevator Volts", volts);
-
         if (desiredState.position > SAFE_HEIGHT && getElevatorPosition() > SAFE_HEIGHT) {
             elevatorLeft.setVolts(volts + ELEVATOR_FF);
             elevatorRight.setVolts(volts + ELEVATOR_FF);
@@ -110,9 +108,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     @Override
-    public final void clean(final TorqueMode mode) {
-        
-    }
+    public final void clean(final TorqueMode mode) {}
 
     @Override
     public void onStateChange(final State lastState) {
