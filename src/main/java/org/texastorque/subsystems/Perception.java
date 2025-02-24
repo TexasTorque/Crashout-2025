@@ -100,32 +100,12 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
                 getHeading()
 		);
 
+		updateVisualization();
+
 		Debug.log("Filtered Pose", getFilteredPose().toString());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
         Logger.recordOutput("Tag Poses", tagsInView.values().toArray(new Pose3d[tagsInView.values().size()]));
-
-		// Simulation poses
-		Logger.recordOutput("Robot Pose", getPose());
-		Logger.recordOutput("Animated Component Poses", new Pose3d[] {
-			new Pose3d(0, 0, 0, new Rotation3d()),
-			new Pose3d(0, 0, 0, new Rotation3d()),
-			new Pose3d(0, 0, 0, new Rotation3d()),
-			new Pose3d(0.11, 0, 0.275, new Rotation3d()),
-			new Pose3d(-0.31, 0, 0.24, new Rotation3d())
-		});
-		Logger.recordOutput("Zeroed Component Poses", new Pose3d[] {
-			new Pose3d(),
-			new Pose3d(),
-			new Pose3d(),
-			new Pose3d(),
-			new Pose3d()
-		});
-		Logger.recordOutput("Real Component Poses", getRealComponentPoses());
-
-		for (TorqueFieldZone zone : zones) {
-			Logger.recordOutput("Zone ID " + zone.getID(), zone.getPolygon());
-		}
 	}
 
 	@Override
@@ -165,6 +145,29 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public void updateOdometryLocalization() {
 		poseEstimator.update(getHeading(), drivebase.getModulePositions());
+	}
+
+	public void updateVisualization() {
+		Logger.recordOutput("Robot Pose", getPose());
+		Logger.recordOutput("Animated Component Poses", new Pose3d[] {
+			new Pose3d(0, 0, 0, new Rotation3d()),
+			new Pose3d(0, 0, 0, new Rotation3d()),
+			new Pose3d(0, 0, 0, new Rotation3d()),
+			new Pose3d(0.11, 0, 0.275, new Rotation3d()),
+			new Pose3d(-0.31, 0, 0.24, new Rotation3d())
+		});
+		Logger.recordOutput("Zeroed Component Poses", new Pose3d[] {
+			new Pose3d(),
+			new Pose3d(),
+			new Pose3d(),
+			new Pose3d(),
+			new Pose3d()
+		});
+		Logger.recordOutput("Real Component Poses", getRealComponentPoses());
+
+		for (TorqueFieldZone zone : zones) {
+			Logger.recordOutput("Zone ID " + zone.getID(), zone.getPolygon());
+		}
 	}
 
 	public Pose3d[] getRealComponentPoses() {
