@@ -122,7 +122,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     public final void updateSuperstructure() {
         L1.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L1);
-            claw.setState(Claw.State.L1_SCORE);
+            claw.setState(Claw.State.SCORE_L1);
         });
         L2.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L2);
@@ -134,7 +134,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         L4.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L4);
-            claw.setState(Claw.State.L4_SCORE);
+            claw.setState(Claw.State.SCORE_L4);
         });
         net.onTrue(() -> {
             elevator.setState(Elevator.State.NET);

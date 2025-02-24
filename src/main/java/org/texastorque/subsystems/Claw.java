@@ -31,9 +31,9 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(26.2793),
-        L1_SCORE(14.2383),
+        SCORE_L1(14.2383),
         MID_SCORE(150),
-        L4_SCORE(180.5273),
+        SCORE_L4(180.5273),
         NET(141.6797),
         ALGAE_EXTRACTION(292.1484),
         PROCESSOR(311.2207),
@@ -133,6 +133,13 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
         } else {
+            if (desiredState == State.SCORE_L4) {
+                if (elevator.isAtState() && elevator.getState() == Elevator.State.SCORE_L4) {
+                    shoulder.setVolts(volts + ff);
+                } else {
+                    shoulder.setVolts(ff);
+                }
+            }
             if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
                 shoulder.setVolts(volts + ff);
             } else if (elevator.getElevatorPosition() > elevator.getState().position) {
