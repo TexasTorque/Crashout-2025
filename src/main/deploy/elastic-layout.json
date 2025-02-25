@@ -11,13 +11,13 @@
             "title": "limelight-high",
             "x": 0.0,
             "y": 0.0,
-            "width": 384.0,
-            "height": 256.0,
+            "width": 256.0,
+            "height": 384.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight-high",
               "period": 0.06,
-              "rotation_turns": 0
+              "rotation_turns": 3
             }
           },
           {
@@ -115,8 +115,8 @@
           },
           {
             "title": "Sees Tag",
-            "x": 0.0,
-            "y": 512.0,
+            "x": 256.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -133,7 +133,7 @@
           {
             "title": "limelight-low",
             "x": 0.0,
-            "y": 256.0,
+            "y": 384.0,
             "width": 384.0,
             "height": 256.0,
             "type": "Camera Stream",
@@ -145,8 +145,8 @@
           },
           {
             "title": "Has Coral",
-            "x": 128.0,
-            "y": 512.0,
+            "x": 256.0,
+            "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -163,7 +163,7 @@
           {
             "title": "Is Aligned",
             "x": 256.0,
-            "y": 512.0,
+            "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
