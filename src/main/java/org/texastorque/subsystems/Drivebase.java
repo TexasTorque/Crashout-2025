@@ -125,6 +125,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
         Debug.log("Relation", relation.toString());
         Debug.log("Is Aligned", isAligned(mode));
+        Debug.log("In Zone", perception.getCurrentZone() != null);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
         if (alignPoseOverride != null && wantsState(State.ALIGN)) {
@@ -185,12 +186,12 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             setInputSpeeds(new TorqueSwerveSpeeds());
             return;
         }
-        final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .25;
+        final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .5;
         final double MAX_ALIGN_OMEGA_VELOCITY = mode.isTeleop() ? 2 * Math.PI : Math.PI / 2;
 
-        double xPower = xController.calculate(perception.getPose().getX(), pose.getX());
-        double yPower = yController.calculate(perception.getPose().getY(), pose.getY());
-        double omegaPower = omegaController.calculate(perception.getPose().getRotation().getDegrees(), pose.getRotation().getDegrees());
+        double xPower = xController.calculate(perception.getFilteredPose().getX(), pose.getX());
+        double yPower = yController.calculate(perception.getFilteredPose().getY(), pose.getY());
+        double omegaPower = omegaController.calculate(perception.getFilteredPose().getRotation().getDegrees(), pose.getRotation().getDegrees());
 
         if (Math.abs(xPower) > MAX_ALIGN_VELOCITY) xPower = Math.signum(xPower) * MAX_ALIGN_VELOCITY;
         if (Math.abs(yPower) > MAX_ALIGN_VELOCITY) yPower = Math.signum(yPower) * MAX_ALIGN_VELOCITY;

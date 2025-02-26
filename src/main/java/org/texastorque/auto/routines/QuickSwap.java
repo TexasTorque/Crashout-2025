@@ -13,12 +13,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class QuickSwap extends TorqueSequence implements Subsystems {
 
 	public QuickSwap(final Pose2d backupPose) {
+        // Algae extraction
+        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
+
 		// Alignment
         addBlock(new Align(Relation.CENTER).command());
 
-        // Algae extraction
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
-        addBlock(new TorqueWaitTime(.5)); // Wait until we intake algae
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
         // Move back to avoid claw hitting reef poles

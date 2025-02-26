@@ -9,6 +9,7 @@ import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
+import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
@@ -25,7 +26,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, stopWheels,
-            climbMode, intakeCoralWheels;
+            climbMode;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -33,8 +34,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
-        intakeCoralWheels = new TorqueBoolSupplier(driver::isAButtonDown);
-        intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
+        intakeCoral = new TorqueToggleSupplier(driver::isLeftBumperDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         
         align = new TorqueBoolSupplier(driver::isRightTriggerDown);
@@ -121,9 +121,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     }
 
     public final void updateSuperstructure() {
-        intakeCoralWheels.onTrue(() -> {
-            claw.setCoralState(Claw.CoralState.INTAKE);
-        });
         L1.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L1);
             claw.setState(Claw.State.SCORE_L1);
@@ -161,7 +158,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeCoral.onTrue(() -> {
             elevator.setState(Elevator.State.CORAL_HP);
             claw.setState(Claw.State.CORAL_HP);
-            // claw.setCoralState(Claw.CoralState.INTAKE);
+            claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
         });
         intakeAlgae.onTrue(() -> {

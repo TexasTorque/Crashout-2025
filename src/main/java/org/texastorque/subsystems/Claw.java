@@ -52,7 +52,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum AlgaeState implements TorqueState {
-        INTAKE(-6), SHOOT(6), OFF(0);
+        INTAKE(-6), SHOOT(12), OFF(0);
 
         private final double volts;
 
@@ -66,7 +66,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum CoralState implements TorqueState {
-        INTAKE(-4), SHOOT(8), OFF(0);
+        INTAKE(-4), SHOOT(4), OFF(-1);
 
         private final double volts;
 
@@ -153,11 +153,11 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         algaeRollers.setVolts(algaeState.getVolts());
         coralRollers.setVolts(coralState.getVolts());
 
-        // if (hasCoral() && coralState != CoralState.SHOOT) {
-        //     coralRollers.setVolts(0);
-        // } else {
-        //     coralRollers.setVolts(coralState.getVolts());
-        // }
+        if (hasCoral() && coralState != CoralState.SHOOT) {
+            coralRollers.setVolts(CoralState.OFF.volts);
+        } else {
+            coralRollers.setVolts(coralState.getVolts());
+        }
     }
 
 	@Override

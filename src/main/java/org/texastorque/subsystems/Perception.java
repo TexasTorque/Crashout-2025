@@ -1,11 +1,11 @@
 package org.texastorque.subsystems;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.AlignPose2d;
+import org.texastorque.AlignPose2d.Placement;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.AprilTagList;
 import org.texastorque.LimelightHelpers;
@@ -60,7 +60,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	// Used to filter some noise directly out of the pose measurements.
 	private final TorqueRollingMedian filteredX, filteredY;
 	private final Field2d field = new Field2d();
-	private final HashMap<Integer, Pose3d> tagsInView = new HashMap<>();
 	private ArrayList<TorqueFieldZone> zones;
 	private Pose2d filteredPose = new Pose2d();
 	
@@ -102,11 +101,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		updateVisualization();
 
-		Debug.log("Filtered Pose", getFilteredPose().toString());
+		Logger.recordOutput("Filtered Pose", getFilteredPose());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
 		Debug.log("Gyro Angle", getHeading().getDegrees());
-        Logger.recordOutput("Tag Poses", tagsInView.values().toArray(new Pose3d[tagsInView.values().size()]));
 	}
 
 	@Override
@@ -125,13 +123,13 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		final boolean isHighInvalid = visionEstimateHigh.avgTagDist > 6
 				|| visionEstimateHigh.tagCount == 0
-				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateHigh.rawFiducials.length > 1)
-				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateHigh.rawFiducials.length == 1 && getCurrentZone() != null && getCurrentZone().getID() != visionEstimateHigh.rawFiducials[0].id);
+				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateHigh.rawFiducials.length > 2)
+				|| (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.REEF);
 		
 		final boolean isLowInvalid = visionEstimateLow.avgTagDist > 6
 				|| visionEstimateLow.tagCount == 0
-				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateLow.rawFiducials.length > 1)
-				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateLow.rawFiducials.length == 1 && getCurrentZone() != null && getCurrentZone().getID() != visionEstimateLow.rawFiducials[0].id);
+				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateLow.rawFiducials.length > 2)
+				|| (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.CORAL_STATION);
 		
 		Debug.log("High Invalid", isHighInvalid);
 		Debug.log("Low Invalid", isLowInvalid);
