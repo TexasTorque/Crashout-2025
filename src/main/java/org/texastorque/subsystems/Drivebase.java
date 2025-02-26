@@ -47,7 +47,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     private static volatile Drivebase instance;
 
-    public static final double WIDTH = 0.5619242,
+    public static final double WIDTH = 0.417581911,
             MAX_VELOCITY = TorqueSwerveModuleKraken.maxVelocity,
             MAX_ANGULAR_VELOCITY = 4 * Math.PI;
 
@@ -61,7 +61,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public TorqueSwerveSpeeds inputSpeeds;
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
-    private Relation relation = Relation.RIGHT;
+    private Relation relation = Relation.CENTER;
     private PIDController xController, yController, omegaController;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
