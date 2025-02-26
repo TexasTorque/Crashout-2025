@@ -34,7 +34,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         addBlock(new QuickSwap(new Pose2d(3.6, 2.6, Rotation2d.fromDegrees(60))).command());
 
         // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("CR_CSR_TOSS", drivebase).withMarkers(
             new Marker(() -> {
                 claw.setAlgaeState(Claw.AlgaeState.SHOOT);
             }, .5),
@@ -44,6 +44,9 @@ public class RightAuto extends TorqueSequence implements Subsystems {
                 claw.setState(Claw.State.CORAL_HP);
             }, .7)
         ));
+
+        // Alignment
+        addBlock(new Align(Relation.CENTER).command());
 
         // Pickup coral from coral station
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
@@ -74,6 +77,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
             }, .1)
         ));
 
+        // Alignment
         addBlock(new Align(Relation.CENTER).command());
 
         // Pickup coral from coral station
