@@ -122,16 +122,19 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
             final double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
 
-            if (desiredState.position > SAFE_HEIGHT && position > SAFE_HEIGHT) {
-                if (animationMultiplier >= 1) return desiredState.position;
+            if (desiredState == State.SCORE_L4) {
+                if (animationMultiplier > 1) return desiredState.position;
+                return position;
+            } else if (desiredState.position > SAFE_HEIGHT && position > SAFE_HEIGHT) {
+                if (animationMultiplier > 1) return desiredState.position;
                 return position;
             } else if (position > desiredState.position) {
                 if (claw.isAtState()) {
-                    if (animationMultiplier >= 1) return desiredState.position;
+                    if (animationMultiplier > 1) return desiredState.position;
                     return position;
                 }
             } else if (position < desiredState.position) {
-                if (animationMultiplier >= 1) return desiredState.position;
+                if (animationMultiplier > 1) return desiredState.position;
                 return position;
             }
 
