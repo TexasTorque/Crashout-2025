@@ -124,19 +124,19 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Drivebase State", desiredState.toString());
         Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
         Debug.log("Relation", relation.toString());
-        Debug.log("Is Aligned", isAligned(mode));
+        Debug.log("Is Aligned", isAligned());
         Debug.log("In Zone", perception.getCurrentZone() != null);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
 
         if (alignPoseOverride != null && wantsState(State.ALIGN)) {
-            runAlignment(alignPoseOverride, mode);
+            runAlignment(alignPoseOverride);
         } else if (wantsState(State.ALIGN)) {
             final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getFilteredPose(), relation);
             Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
             if (alignPose.isPresent()) {
                 Pose2d targetPose = alignPose.get();
                 
-                runAlignment(targetPose, mode);
+                runAlignment(targetPose);
             }
         }
 
@@ -181,13 +181,13 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
     }
 
-    public void runAlignment(final Pose2d pose, final TorqueMode mode) {
-        if (isAligned(mode)) {
+    public void runAlignment(final Pose2d pose) {
+        if (isAligned()) {
             setInputSpeeds(new TorqueSwerveSpeeds());
             return;
         }
-        final double MAX_ALIGN_VELOCITY = mode.isTeleop() ? 1.5 : .5;
-        final double MAX_ALIGN_OMEGA_VELOCITY = mode.isTeleop() ? 2 * Math.PI : Math.PI / 2;
+        final double MAX_ALIGN_VELOCITY = DriverStation.isTeleop() ? 1.5 : .5;
+        final double MAX_ALIGN_OMEGA_VELOCITY = DriverStation.isTeleop() ? 2 * Math.PI : Math.PI / 2;
 
         double xPower = xController.calculate(perception.getFilteredPose().getX(), pose.getX());
         double yPower = yController.calculate(perception.getFilteredPose().getY(), pose.getY());
@@ -202,7 +202,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         inputSpeeds.omegaRadiansPerSecond = omegaPower;
     }
 
-    public boolean isAligned(final TorqueMode mode) {
+    public boolean isAligned() {
         Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
         final double TRANSLATION_TOLERANCE = .01;
         final double ROTATION_TOLERANCE = 1;
@@ -218,7 +218,31 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Translation Aligned", translationAligned);
 
         if (translationAligned && rotationAligned) {
-            if (mode.isAuto()) {
+            if (DriverStation.isAutonomous()) {
+                setInputSpeeds(new TorqueSwerveSpeeds());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isNearAligned() {
+        Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+        final double TRANSLATION_TOLERANCE = .05;
+        final double ROTATION_TOLERANCE = 2;
+
+        if (alignPoseOverride != null) alignPose = Optional.of(alignPoseOverride);
+        if (alignPose.isEmpty()) return false;
+        final double distance = alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation());
+        final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
+        final double rotation = (alignPose.get().getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
+        final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
+
+        Debug.log("Rotation Aligned", rotationAligned);
+        Debug.log("Translation Aligned", translationAligned);
+
+        if (translationAligned && rotationAligned) {
+            if (DriverStation.isAutonomous()) {
                 setInputSpeeds(new TorqueSwerveSpeeds());
             }
             return true;

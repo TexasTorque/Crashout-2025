@@ -6,11 +6,6 @@ import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
-import org.texastorque.torquelib.base.TorqueMode;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.auto.routines.Align;
@@ -19,6 +14,9 @@ import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Elevator.State;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class LeftAuto extends TorqueSequence implements Subsystems {
     
@@ -49,7 +47,7 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         ));
         
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
 
         // Pickup coral from coral station
         addBlock(new TorqueWaitTime(.5));
@@ -83,7 +81,7 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         ));
         
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ALIGN)));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned()));
 
         // Pickup coral from coral station
         addBlock(new TorqueWaitTime(.5));

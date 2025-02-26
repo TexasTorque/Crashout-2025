@@ -6,7 +6,6 @@ import org.texastorque.subsystems.Drivebase;
 import org.texastorque.torquelib.auto.TorqueSequence;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
-import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,7 +17,7 @@ public class Align extends TorqueSequence implements Subsystems {
             drivebase.setRelation(relation);
             drivebase.setState(Drivebase.State.ALIGN);
         }));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isNearAligned()));
         addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
 	}
 
@@ -27,7 +26,7 @@ public class Align extends TorqueSequence implements Subsystems {
             drivebase.setAlignPoseOverride(pose);
             drivebase.setState(Drivebase.State.ALIGN);
         }));
-        addBlock(new TorqueWaitUntil(() -> drivebase.isAligned(TorqueMode.AUTO)));
+        addBlock(new TorqueWaitUntil(() -> drivebase.isNearAligned()));
         addBlock(new TorqueRun(() -> {
             drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
             drivebase.setState(Drivebase.State.ROBOT_RELATIVE);

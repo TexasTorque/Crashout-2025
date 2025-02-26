@@ -45,11 +45,9 @@ public class RightAuto extends TorqueSequence implements Subsystems {
             }, .7)
         ));
 
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
-
         // Pickup coral from coral station
+        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
         addBlock(new TorqueWaitTime(.5));
-
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station right to close right
@@ -78,11 +76,9 @@ public class RightAuto extends TorqueSequence implements Subsystems {
 
         addBlock(new Align(Relation.CENTER).command());
 
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
-
         // Pickup coral from coral station
+        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
         addBlock(new TorqueWaitTime(.5));
-
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station right to close right
