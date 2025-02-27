@@ -64,7 +64,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
 		// Alignment
-        addBlock(new Align(Relation.CENTER).command());
+        addBlock(new Align(Relation.CENTER, 1.2).command());
 
 		addBlock(new TorqueFollowPath("FF_NET", drivebase).withMarkers(
 			new Marker(() -> {

@@ -59,7 +59,7 @@ public class CenterProcessor extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
-        addBlock(new Align(Relation.CENTER).command());
+        addBlock(new Align(Relation.CENTER, 1.2).command());
 
         // Algae extraction
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));

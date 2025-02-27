@@ -36,7 +36,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         // Drive close right to coral station right
         addBlock(new TorqueFollowPath("CR_CSR_TOSS", drivebase).withMarkers(
             new Marker(() -> {
-                claw.setAlgaeState(Claw.AlgaeState.SHOOT);
+                claw.setAlgaeState(Claw.AlgaeState.SHOOT_SLOW);
             }, .5),
             new Marker(() -> {
                 claw.setAlgaeState(Claw.AlgaeState.OFF);
@@ -45,12 +45,13 @@ public class RightAuto extends TorqueSequence implements Subsystems {
             }, .7)
         ));
 
+        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
+
         // Alignment
-        addBlock(new Align(Relation.CENTER).command());
+        addBlock(new Align(Relation.CENTER, 1.2).command());
 
         // Pickup coral from coral station
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
-        addBlock(new TorqueWaitTime(.5));
+        addBlock(new TorqueWaitTime(1.5));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station right to close right
@@ -62,7 +63,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         ));
 
         // Alignment
-        addBlock(new Align(Relation.RIGHT).command());
+        addBlock(new Align(Relation.RIGHT, 1.2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
@@ -77,12 +78,13 @@ public class RightAuto extends TorqueSequence implements Subsystems {
             }, .1)
         ));
 
+        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
+
         // Alignment
-        addBlock(new Align(Relation.CENTER).command());
+        addBlock(new Align(Relation.CENTER, 1.2).command());
 
         // Pickup coral from coral station
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
-        addBlock(new TorqueWaitTime(.5));
+        addBlock(new TorqueWaitTime(1.5));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station right to close right
@@ -94,7 +96,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         ));
 
         // Alignment
-        addBlock(new Align(Relation.RIGHT).command());
+        addBlock(new Align(Relation.RIGHT, 1.2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));

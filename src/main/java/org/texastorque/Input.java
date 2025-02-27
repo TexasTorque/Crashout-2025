@@ -9,7 +9,6 @@ import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
-import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
@@ -34,7 +33,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
-        intakeCoral = new TorqueToggleSupplier(driver::isLeftBumperDown);
+        intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         
         align = new TorqueBoolSupplier(driver::isRightTriggerDown);
@@ -169,16 +168,15 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setState(Claw.State.STOW);
         });
         outtakeCoral.onTrue(() -> {
-            claw.setCoralState(Claw.CoralState.SHOOT);
+            if (claw.getState() == Claw.State.SCORE_L1) {
+                claw.setCoralState(Claw.CoralState.SHOOT_FAST);
+            } else {
+                claw.setCoralState(Claw.CoralState.SHOOT);
+            }
             claw.coralSpike.reset();
         });
         outtakeAlgae.onTrue(() -> {
             claw.setAlgaeState(Claw.AlgaeState.SHOOT);
-        });
-        stopWheels.onTrue(() -> {
-            claw.setCoralState(Claw.CoralState.OFF);
-            claw.setAlgaeState(Claw.AlgaeState.OFF);
-            claw.coralSpike.reset();
         });
         climbMode.onTrue(() -> {
             elevator.setState(Elevator.State.CLIMB);

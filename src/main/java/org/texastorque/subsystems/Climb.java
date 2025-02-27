@@ -17,8 +17,8 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     private final TorqueNEO climb;
 
     public static enum State implements TorqueState {
-        OUT(4),
-        IN(-4),
+        OUT(12),
+        IN(-6),
         OFF(0);
 
         private final double volts;

@@ -12,21 +12,24 @@ import edu.wpi.first.math.geometry.Pose2d;
 
 public class Align extends TorqueSequence implements Subsystems {
 
-	public Align(final Relation relation) {
+	public Align(final Relation relation, final double timeToAlign) {
         addBlock(new TorqueRun(() -> {
             drivebase.setRelation(relation);
             drivebase.setState(Drivebase.State.ALIGN);
         }));
-        addBlock(new TorqueWaitTimeUntil(5, () -> drivebase.isAligned()));
-        addBlock(new TorqueRun(() -> drivebase.setState(Drivebase.State.ROBOT_RELATIVE)));
+        addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isNearAligned()));
+        addBlock(new TorqueRun(() -> {
+            drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
+            drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
+        }));
 	}
 
-	public Align(final Pose2d pose) {
+	public Align(final Pose2d pose, final double timeToAlign) {
 		addBlock(new TorqueRun(() -> {
             drivebase.setAlignPoseOverride(pose);
             drivebase.setState(Drivebase.State.ALIGN);
         }));
-        addBlock(new TorqueWaitTimeUntil(5, () -> drivebase.isAligned()));
+        addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isNearAligned()));
         addBlock(new TorqueRun(() -> {
             drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
             drivebase.setState(Drivebase.State.ROBOT_RELATIVE);

@@ -61,7 +61,7 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         ));
 
         // Alignment
-        addBlock(new Align(Relation.RIGHT).command());
+        addBlock(new Align(Relation.RIGHT, 1.2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
@@ -95,7 +95,7 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         ));
 
         // Alignment
-        addBlock(new Align(Relation.RIGHT).command());
+        addBlock(new Align(Relation.RIGHT, 1.2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));

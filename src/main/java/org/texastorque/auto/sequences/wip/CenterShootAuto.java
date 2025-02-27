@@ -1,7 +1,6 @@
 package org.texastorque.auto.sequences.wip;
 
 import org.texastorque.Subsystems;
-import org.texastorque.auto.routines.Align;
 import org.texastorque.auto.routines.QuickSwap;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
@@ -30,9 +29,6 @@ public class CenterShootAuto extends TorqueSequence implements Subsystems {
 
         // Quickswap
         addBlock(new QuickSwap(new Pose2d(6.15, 4, Rotation2d.fromDegrees(180))).command());
-
-        // Move back to avoid claw hitting reef poles & align to processor
-        addBlock(new Align(new Pose2d(6.15, 3.0, Rotation2d.fromDegrees(-85))).command());
 
         // Move to processor state
         addBlock(new TorqueRun(() -> {
