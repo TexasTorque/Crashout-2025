@@ -64,7 +64,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private Pose2d filteredPose = new Pose2d();
 	
 	public Perception() {
-		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.105425, 0.77653, -90, 45, 180);
+		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.118125, 0.77653 + 0.0254, -90, 45, 180);
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_LOW, 0.0916686, 0.127, 0.164267, 0, 25, 0);
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
@@ -81,7 +81,11 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	final String LIMELIGHT_LOW = "limelight-low";
 
 	@Override
-	public void initialize(TorqueMode mode) {}
+	public void initialize(TorqueMode mode) {
+		if (mode.isAuto()) {
+			resetHeading(180);
+		}
+	}
 
 	@Override
 	public void update(TorqueMode mode) {
@@ -121,12 +125,14 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		if (shouldNotUseVision) return;
 
-		final boolean isHighInvalid = visionEstimateHigh.avgTagDist > 6
+		final boolean isHighInvalid = visionEstimateHigh == null
+				||visionEstimateHigh.avgTagDist > 6
 				|| visionEstimateHigh.tagCount == 0
 				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateHigh.rawFiducials.length > 2)
 				|| (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.REEF);
 		
-		final boolean isLowInvalid = visionEstimateLow.avgTagDist > 6
+		final boolean isLowInvalid = visionEstimateLow == null
+				|| visionEstimateLow.avgTagDist > 6
 				|| visionEstimateLow.tagCount == 0
 				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateLow.rawFiducials.length > 2)
 				|| (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.CORAL_STATION);
@@ -241,14 +247,18 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return Optional.empty();
 	}
 
-	public void resetHeading() {
+	public void resetHeading(final double offset) {
 		gyro_simulated = 0;
 
 		final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
                     ? DriverStation.getAlliance().get() == Alliance.Red
                     : false;
-		gyro.setOffsetCW(Rotation2d.fromDegrees(isRedAlliance ? 180 : 0));
+		gyro.setOffsetCW(Rotation2d.fromDegrees((isRedAlliance ? 180 : 0) + offset));
 		setPose(new Pose2d(0, 0, getHeading()));
+	}
+	
+	public void resetHeading() {
+		resetHeading(0);
 	}
 
 	public void setCurrentTrajectory(final Trajectory trajectory) {

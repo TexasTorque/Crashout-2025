@@ -63,40 +63,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         ));
 
         // Alignment
-        addBlock(new Align(Relation.RIGHT, 1.2).command());
-
-        // Coral placement
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
-        addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
-
-        // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR", drivebase).withMarkers(
-            new Marker(() -> {
-                elevator.setState(State.CORAL_HP);
-                claw.setState(Claw.State.CORAL_HP);
-            }, .1)
-        ));
-
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
-
-        // Alignment
-        addBlock(new Align(Relation.CENTER, 1.2).command());
-
-        // Pickup coral from coral station
-        addBlock(new TorqueWaitTime(1.5));
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
-
-        // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("CSR_CR", drivebase).withMarkers(
-            new Marker(() -> {
-                elevator.setState(Elevator.State.SCORE_L2);
-                claw.setState(Claw.State.MID_SCORE);
-            }, .2)
-        ));
-
-        // Alignment
-        addBlock(new Align(Relation.RIGHT, 1.2).command());
+        addBlock(new Align(Relation.RIGHT, 2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));

@@ -34,10 +34,10 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         STOW(26.2793),
         SCORE_L1(11.5),
         MID_SCORE(150),
-        SCORE_L4(198.9844),
+        SCORE_L4(180),
         NET(141.6797),
         ALGAE_EXTRACTION(292.1484),
-        PROCESSOR(311.2207),
+        PROCESSOR(69.9207),
         CORAL_HP(15),
         CLIMB(230);
 
@@ -67,7 +67,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum CoralState implements TorqueState {
-        INTAKE(-6), SHOOT(4), SHOOT_FAST(12), OFF(-.5);
+        INTAKE(-4), SHOOT(3.5), OFF(-1);
 
         private final double volts;
 
@@ -103,7 +103,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             .idleMode(IdleMode.kBrake)
             .apply();
 
-        coralSpike = new TorqueCurrentSpike(16);
+        coralSpike = new TorqueCurrentSpike(18);
         spikeTimer = new Timer();
 
         shoulderPID.reset(getShoulderAngle());
@@ -154,6 +154,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         algaeRollers.setVolts(algaeState.getVolts());
 
+        if (coralState == CoralState.SHOOT) 
+            coralSpike.reset();
         if (coralState == CoralState.INTAKE && desiredState != State.CORAL_HP)
             coralState = CoralState.OFF;
         

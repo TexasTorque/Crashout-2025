@@ -170,11 +170,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setState(Claw.State.STOW);
         });
         outtakeCoral.onTrue(() -> {
-            if (claw.getState() == Claw.State.SCORE_L1) {
-                claw.setCoralState(Claw.CoralState.SHOOT_FAST);
-            } else {
-                claw.setCoralState(Claw.CoralState.SHOOT);
-            }
+            claw.setCoralState(Claw.CoralState.SHOOT);
             claw.coralSpike.reset();
         });
         outtakeAlgae.onTrue(() -> {
