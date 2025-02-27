@@ -24,8 +24,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
-            intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae, stopWheels,
-            climbMode;
+            intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
+            climbMode, manualClimbInitial, manualClimbUp, manualClimbDown;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -58,10 +58,14 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
         centerRelation = new TorqueBoolSupplier(operator::isDPADUpDown);
 
-        climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND);
+        climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND && !operator.isLeftStickClickDown());
         climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
 
         climbMode = new TorqueBoolSupplier(driver::isDPADRightDown);
+
+        manualClimbInitial = new TorqueClickSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()) || (operator.getLeftYAxis() < -CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
+        manualClimbUp = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
+        manualClimbDown = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
 
         manualElevatorInitial = new TorqueClickSupplier(() -> operator.getRightXAxis() > CONTROLLER_DEADBAND || operator.getRightYAxis() < -CONTROLLER_DEADBAND);
         manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
@@ -69,8 +73,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
-
-        stopWheels = new TorqueBoolSupplier(driver::isRightBumperDown);
     }
 
     @Override
@@ -187,6 +189,19 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     public final void updateClimb() {
         climbUp.onTrue(() -> climb.setState(Climb.State.OUT));
         climbDown.onTrue(() -> climb.setState(Climb.State.IN));
+
+        final double DELTA = 10;
+        manualClimbInitial.onTrue(() -> {
+            Climb.State.MANUAL.position = climb.getClimbPosition();
+        });
+        manualClimbUp.onTrue(() -> {
+            climb.setState(Climb.State.MANUAL);
+            Climb.State.MANUAL.position = -DELTA + climb.getClimbPosition();
+        });
+        manualClimbDown.onTrue(() -> {
+            climb.setState(Climb.State.MANUAL);
+            Climb.State.MANUAL.position = DELTA + climb.getClimbPosition();
+        });
     }
 
     public final boolean isDebugMode() {
