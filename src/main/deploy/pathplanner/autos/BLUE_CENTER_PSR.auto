@@ -1,0 +1,25 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BLUE_CTR_FF"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BLUE_FF_PSR"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "BLUE",
+  "choreoAuto": false
+}

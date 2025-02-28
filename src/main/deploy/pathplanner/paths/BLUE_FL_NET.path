@@ -3,37 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.749318181818182,
-        "y": 5.386122159090909
+        "x": 5.364169520547945,
+        "y": 4.964105308219178
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.95159090909091,
-        "y": 5.92559659090909
+        "x": 5.935145547945206,
+        "y": 5.505029965753424
       },
       "isLocked": false,
-      "linkedName": "CL"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.2165340909090911,
-        "y": 7.181008522727272
+        "x": 6.882,
+        "y": 5.445
       },
       "prevControl": {
-        "x": 2.0142613636363627,
-        "y": 6.463053977272727
+        "x": 5.882,
+        "y": 5.445
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CSL"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 175.35760256086692
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "BLUE_CENTER_NET",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

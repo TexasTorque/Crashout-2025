@@ -1,27 +1,27 @@
-package org.texastorque.auto.sequences;
+package org.texastorque.auto.sequences.blue;
 
-import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Subsystems;
+import org.texastorque.torquelib.auto.TorqueSequence;
+import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
+import org.texastorque.torquelib.auto.commands.TorqueRun;
+import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
+import org.texastorque.torquelib.auto.marker.Marker;
+import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
+import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.auto.routines.Align;
 import org.texastorque.auto.routines.QuickSwap;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Elevator.State;
-import org.texastorque.torquelib.auto.TorqueSequence;
-import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
-import org.texastorque.torquelib.auto.commands.TorqueRun;
-import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
-import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
-import org.texastorque.torquelib.auto.marker.Marker;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class RightAuto extends TorqueSequence implements Subsystems {
+public class BlueLeftAuto extends TorqueSequence implements Subsystems {
     
-    public RightAuto() {
-        // Drive right to close right
-        addBlock(new TorqueFollowPath("RGT_CR", drivebase).withMarkers(
+    public BlueLeftAuto() {
+        // Drive left to close left
+        addBlock(new TorqueFollowPath("BLUE_LFT_CL", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(State.ALGAE_REMOVAL_LOW);
                 claw.setState(Claw.State.ALGAE_EXTRACTION);
@@ -31,10 +31,10 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(() -> new Pose2d(3.6, 2.6, Rotation2d.fromDegrees(60))).command());
+        addBlock(new QuickSwap(new Pose2d(3.94, 5.43, Rotation2d.fromDegrees(300))).command());
 
-        // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("CR_CSR_TOSS", drivebase).withMarkers(
+        // Drive close left to coral station left
+        addBlock(new TorqueFollowPath("BLUE_CL_CSL", drivebase).withMarkers(
             new Marker(() -> {
                 claw.setAlgaeState(Claw.AlgaeState.SHOOT_SLOW);
             }, .5),
@@ -44,9 +44,7 @@ public class RightAuto extends TorqueSequence implements Subsystems {
                 claw.setState(Claw.State.CORAL_HP);
             }, .7)
         ));
-
-        addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
-
+        
         // Alignment
         addBlock(new Align(Relation.CENTER, 1.2).command());
 
@@ -54,8 +52,8 @@ public class RightAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(1.5));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
-        // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("CSR_CR", drivebase).withMarkers(
+        // Drive coral station left to close left
+        addBlock(new TorqueFollowPath("BLUE_CSL_CL", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L3);
                 claw.setState(Claw.State.MID_SCORE);

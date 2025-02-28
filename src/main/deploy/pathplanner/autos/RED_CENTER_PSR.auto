@@ -7,31 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CTR_FF"
+            "pathName": "RED_CTR_FF"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FF_PSR"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "PSR_FR"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FR_PSR"
+            "pathName": "RED_FF_PSR"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "RED",
   "choreoAuto": false
 }

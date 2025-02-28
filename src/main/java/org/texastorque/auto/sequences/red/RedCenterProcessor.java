@@ -1,8 +1,6 @@
-package org.texastorque.auto.sequences;
+package org.texastorque.auto.sequences.red;
 
 import org.texastorque.Subsystems;
-import org.texastorque.AlignPose2d.Relation;
-import org.texastorque.auto.routines.Align;
 import org.texastorque.auto.routines.QuickSwap;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
@@ -16,9 +14,9 @@ import org.texastorque.torquelib.auto.marker.Marker;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class CenterProcessor extends TorqueSequence implements Subsystems {
+public class RedCenterProcessor extends TorqueSequence implements Subsystems {
     
-    public CenterProcessor() {
+    public RedCenterProcessor() {
         // Elevator & claw setpoints
         addBlock(new TorqueRun(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
@@ -26,15 +24,15 @@ public class CenterProcessor extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far
-        addBlock(new TorqueFollowPath("CTR_FF", drivebase));
+        addBlock(new TorqueFollowPath("RED_CTR_FF", drivebase));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(() -> new Pose2d(6.15, 4, Rotation2d.fromDegrees(180))).command());
+        addBlock(new QuickSwap(new Pose2d(11.435, 3.957, Rotation2d.fromDegrees(0))).command());
 
         // Drive far to processor
-        addBlock(new TorqueFollowPath("FF_PSR", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("RED_FF_PSR", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.PROCESSOR);
                 claw.setState(Claw.State.PROCESSOR);
@@ -46,24 +44,6 @@ public class CenterProcessor extends TorqueSequence implements Subsystems {
         // Score algae in processor
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot algae
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
-
-        // Drive processor to far right
-        addBlock(new TorqueFollowPath("PSR_FR", drivebase).withMarkers(
-            new Marker(() -> {
-                elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
-                claw.setState(Claw.State.ALGAE_EXTRACTION);
-            }, .2)
-        ));
-
-        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
-
-        // Alignment
-        addBlock(new Align(Relation.CENTER, 1.2).command());
-
-        // Algae extraction
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
-        addBlock(new TorqueWaitTime(.5)); // Wait until we intake algae
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
     }
 }

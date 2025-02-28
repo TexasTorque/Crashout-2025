@@ -10,10 +10,14 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.texastorque.Subsystems;
-import org.texastorque.auto.sequences.CenterNet;
-import org.texastorque.auto.sequences.CenterProcessor;
-import org.texastorque.auto.sequences.LeftAuto;
-import org.texastorque.auto.sequences.RightAuto;
+import org.texastorque.auto.sequences.blue.BlueCenterNet;
+import org.texastorque.auto.sequences.blue.BlueCenterProcessor;
+import org.texastorque.auto.sequences.blue.BlueLeftAuto;
+import org.texastorque.auto.sequences.blue.BlueRightAuto;
+import org.texastorque.auto.sequences.red.RedCenterNet;
+import org.texastorque.auto.sequences.red.RedCenterProcessor;
+import org.texastorque.auto.sequences.red.RedLeftAuto;
+import org.texastorque.auto.sequences.red.RedRightAuto;
 import org.texastorque.torquelib.auto.TorqueAutoManager;
 
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -26,26 +30,37 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadSequences() {
-        addSequence("LEFT -> 3 CORAL", new LeftAuto());
-        addSequence("CENTER -> 1 CORAL -> 1 ALGAE", new CenterProcessor());
-        addSequence("CENTER -> 2 ALGAE NET", new CenterNet());
-        // addSequence("CENTER -> 1 CORAL -> 1 ALGAE SHOT", new CenterShootAuto());
-        addSequence("RIGHT -> 3 CORAL", new RightAuto());
+        addSequence("BLUE LEFT -> 2 CORAL", new BlueLeftAuto());
+        addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE", new BlueCenterProcessor());
+        addSequence("BLUE CENTER -> 1 CORAL -> 2 ALGAE NET", new BlueCenterNet());
+        addSequence("BLUE RIGHT -> 2 CORAL", new BlueRightAuto());
+
+        addSequence("RED LEFT -> 2 CORAL", new RedLeftAuto());
+        addSequence("RED CENTER -> 1 CORAL -> 1 ALGAE", new RedCenterProcessor());
+        addSequence("RED CENTER -> 1 CORAL -> 2 ALGAE NET", new RedCenterNet());
+        addSequence("RED RIGHT -> 2 CORAL", new RedRightAuto());
+
         // addSequence("TEST", new TestAuto());
     }
 
     @Override
     public final void loadPaths() {
-        pathLoader.preloadPath("CL_CSL");
-        pathLoader.preloadPath("CR_CSR");
-        pathLoader.preloadPath("CSL_CL");
-        pathLoader.preloadPath("CSR_CR");
-        pathLoader.preloadPath("CTR_FF");
-        pathLoader.preloadPath("FF_PSR");
-        pathLoader.preloadPath("FR_PSR");
-        pathLoader.preloadPath("LFT_CL");
-        pathLoader.preloadPath("PSR_FR");
-        pathLoader.preloadPath("RGT_CR");
+        pathLoader.preloadPath("BLUE_CL_CSL");
+        pathLoader.preloadPath("BLUE_CR_CSR");
+        pathLoader.preloadPath("BLUE_CSL_CL");
+        pathLoader.preloadPath("BLUE_CSR_CR");
+        pathLoader.preloadPath("BLUE_CTR_FF");
+        pathLoader.preloadPath("BLUE_FF_PSR");
+        pathLoader.preloadPath("BLUE_LFT_CL");
+        pathLoader.preloadPath("BLUE_RGT_CR");
+        pathLoader.preloadPath("RED_CL_CSL");
+        pathLoader.preloadPath("RED_CR_CSR");
+        pathLoader.preloadPath("RED_CSL_CL");
+        pathLoader.preloadPath("RED_CSR_CR");
+        pathLoader.preloadPath("RED_CTR_FF");
+        pathLoader.preloadPath("RED_FF_PSR");
+        pathLoader.preloadPath("RED_LFT_CL");
+        pathLoader.preloadPath("RED_RGT_CR");
         pathLoader.preloadPath("NA_NA");
         pathLoader.preloadPath("test");
     }

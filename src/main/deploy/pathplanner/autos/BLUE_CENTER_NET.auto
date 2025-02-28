@@ -7,37 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RGT_CR"
+            "pathName": "BLUE_CTR_FL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CR_CSR_TOSS"
+            "pathName": "BLUE_FL_NET"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CSR_CR"
+            "pathName": "BLUE_NET_FF"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CR_CSR"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "CSR_CR"
+            "pathName": "BLUE_FF_NET"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "BLUE",
   "choreoAuto": false
 }

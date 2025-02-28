@@ -7,37 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LFT_CL"
+            "pathName": "RED_CTR_FL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CL_CSL"
+            "pathName": "RED_FL_NET"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CSL_CL"
+            "pathName": "RED_NET_FF"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CL_CSL"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "CSL_CL"
+            "pathName": "RED_FF_NET"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "RED",
   "choreoAuto": false
 }

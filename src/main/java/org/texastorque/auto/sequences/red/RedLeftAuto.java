@@ -1,4 +1,4 @@
-package org.texastorque.auto.sequences;
+package org.texastorque.auto.sequences.red;
 
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.auto.TorqueSequence;
@@ -16,14 +16,12 @@ import org.texastorque.subsystems.Elevator.State;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class LeftAuto extends TorqueSequence implements Subsystems {
+public class RedLeftAuto extends TorqueSequence implements Subsystems {
     
-    public LeftAuto() {
+    public RedLeftAuto() {
         // Drive left to close left
-        addBlock(new TorqueFollowPath("LFT_CL", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("RED_LFT_CL", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(State.ALGAE_REMOVAL_LOW);
                 claw.setState(Claw.State.ALGAE_EXTRACTION);
@@ -33,15 +31,10 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(() -> {
-            if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-                return new Pose2d(13.99, 5.43, Rotation2d.fromDegrees(240));
-            }
-            return new Pose2d(3.94, 5.43, Rotation2d.fromDegrees(300));
-        }).command());
+        addBlock(new QuickSwap(new Pose2d(13.944, 2.590, Rotation2d.fromDegrees(120))).command());
 
         // Drive close left to coral station left
-        addBlock(new TorqueFollowPath("CL_CSL_TOSS", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("RED_CL_CSL", drivebase).withMarkers(
             new Marker(() -> {
                 claw.setAlgaeState(Claw.AlgaeState.SHOOT_SLOW);
             }, .5),
@@ -60,7 +53,7 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station left to close left
-        addBlock(new TorqueFollowPath("CSL_CL", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("RED_CSL_CL", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L3);
                 claw.setState(Claw.State.MID_SCORE);

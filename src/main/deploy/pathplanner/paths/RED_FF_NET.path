@@ -3,37 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.359730113636363,
-        "y": 2.65
+        "x": 11.78013698630137,
+        "y": 4.287949486301369
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.891278409090908,
-        "y": 1.7980113636363626
+        "x": 10.998801369863013,
+        "y": 4.212821061643836
       },
       "isLocked": false,
-      "linkedName": "FR"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.1,
-        "y": 0.4800994318181813
+        "x": 10.518,
+        "y": 2.455
       },
       "prevControl": {
-        "x": 6.008593749999998,
-        "y": 1.211349431818181
+        "x": 10.517979452054794,
+        "y": 3.085894691780822
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "PSR"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.6836879432624173,
-      "rotationDegrees": -87.85883110255736
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "RED_CENTER_NET",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

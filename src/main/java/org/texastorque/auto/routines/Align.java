@@ -1,7 +1,5 @@
 package org.texastorque.auto.routines;
 
-import java.util.function.Supplier;
-
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.subsystems.Drivebase;
@@ -9,7 +7,6 @@ import org.texastorque.torquelib.auto.TorqueSequence;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTimeUntil;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
-
 import edu.wpi.first.math.geometry.Pose2d;
 
 public class Align extends TorqueSequence implements Subsystems {
@@ -26,9 +23,9 @@ public class Align extends TorqueSequence implements Subsystems {
         }));
 	}
 
-	public Align(final Supplier<Pose2d> pose, final double timeToAlign) {
+	public Align(final Pose2d pose, final double timeToAlign) {
 		addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(pose.get());
+            drivebase.setAlignPoseOverride(pose);
             drivebase.setState(Drivebase.State.ALIGN);
         }));
         addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isNearAligned()));

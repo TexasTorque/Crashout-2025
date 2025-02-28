@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.309176136363636,
-        "y": 1.8561789772727275
+        "x": 10.20244006849315,
+        "y": 3.9573844178082194
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.274971590909091,
-        "y": 1.2479119318181824
+        "x": 11.202440068493155,
+        "y": 3.9573844178082194
       },
       "isLocked": false,
-      "linkedName": "RGT"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.101164772727273,
-        "y": 2.284957386363636
+        "x": 11.435,
+        "y": 3.957
       },
       "prevControl": {
-        "x": 2.740548334371109,
-        "y": 1.1129539617061026
+        "x": 10.435,
+        "y": 3.957
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
+    "maxVelocity": 3.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 640.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "RED_CENTER_PSR",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

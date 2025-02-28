@@ -1,4 +1,4 @@
-package org.texastorque.auto.sequences.wip;
+package org.texastorque.auto.sequences.blue;
 
 import org.texastorque.Subsystems;
 import org.texastorque.auto.routines.QuickSwap;
@@ -9,13 +9,14 @@ import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
+import org.texastorque.torquelib.auto.marker.Marker;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class CenterShootAuto extends TorqueSequence implements Subsystems {
+public class BlueCenterProcessor extends TorqueSequence implements Subsystems {
     
-    public CenterShootAuto() {
+    public BlueCenterProcessor() {
         // Elevator & claw setpoints
         addBlock(new TorqueRun(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
@@ -23,22 +24,24 @@ public class CenterShootAuto extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far
-        addBlock(new TorqueFollowPath("CTR_FF", drivebase));
+        addBlock(new TorqueFollowPath("BLUE_CTR_FF", drivebase));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
         addBlock(new QuickSwap(new Pose2d(6.15, 4, Rotation2d.fromDegrees(180))).command());
 
-        // Move to processor state
-        addBlock(new TorqueRun(() -> {
-            elevator.setState(Elevator.State.PROCESSOR);
-            claw.setState(Claw.State.PROCESSOR);
-        }));
+        // Drive far to processor
+        addBlock(new TorqueFollowPath("BLUE_FF_PSR", drivebase).withMarkers(
+            new Marker(() -> {
+                elevator.setState(Elevator.State.PROCESSOR);
+                claw.setState(Claw.State.PROCESSOR);
+            }, .2)
+        ));
 
-        addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
+        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
-        // SHOOT ALGAE!
+        // Score algae in processor
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot algae
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));

@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RED_RGT_CR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RED_CR_CSR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RED_CSR_CR"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "RED",
+  "choreoAuto": false
+}

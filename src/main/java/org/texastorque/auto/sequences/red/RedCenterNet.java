@@ -1,4 +1,4 @@
-package org.texastorque.auto.sequences;
+package org.texastorque.auto.sequences.red;
 
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.auto.routines.Align;
@@ -16,10 +16,9 @@ import org.texastorque.torquelib.auto.marker.Marker;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class CenterNet extends TorqueSequence implements Subsystems {
+public class RedCenterNet extends TorqueSequence implements Subsystems {
 
-	// E Algae Extraction -> Net -> D Algae Extraction -> Net -> C Algae Extraction
-	public CenterNet() {
+	public RedCenterNet() {
 		// Elevator & claw setpoints
         addBlock(new TorqueRun(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
@@ -27,13 +26,13 @@ public class CenterNet extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far left
-		addBlock(new TorqueFollowPath("CTR_FL", drivebase));
+		addBlock(new TorqueFollowPath("RED_CTR_FL", drivebase));
 
 		// Quickswap
-		addBlock(new QuickSwap(() -> new Pose2d(5.365, 5.325, Rotation2d.fromDegrees(-120))).command());
+		addBlock(new QuickSwap(new Pose2d(12.171, 2.695, Rotation2d.fromDegrees(60))).command());
 
 		// Drive far left to net
-		addBlock(new TorqueFollowPath("FL_NET", drivebase).withMarkers(
+		addBlock(new TorqueFollowPath("RED_FL_NET", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 				claw.setState(Claw.State.NET);
@@ -47,26 +46,18 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
 		addBlock(new TorqueRun(() -> {
-			elevator.setState(Elevator.State.STOW);
-			claw.setState(Claw.State.STOW);
+			elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
+			claw.setState(Claw.State.ALGAE_EXTRACTION);
 		}));
 
-		addBlock(new TorqueWaitTime(1));
-
-		addBlock(new TorqueFollowPath("NET_FF", drivebase));
-
-		// Elevator & claw setpoints
-        addBlock(new TorqueRun(() -> {
-            elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
-            claw.setState(Claw.State.ALGAE_EXTRACTION);
-        }));
+		addBlock(new TorqueFollowPath("RED_NET_FF", drivebase));
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
 		// Alignment
         addBlock(new Align(Relation.CENTER, 1.2).command());
 
-		addBlock(new TorqueFollowPath("FF_NET", drivebase).withMarkers(
+		addBlock(new TorqueFollowPath("RED_FF_NET", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 				claw.setState(Claw.State.NET);

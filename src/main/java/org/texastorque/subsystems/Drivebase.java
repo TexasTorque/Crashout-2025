@@ -24,9 +24,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> implements Subsystems, TorquePathingDrivebase {
@@ -141,11 +139,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
 
         if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN) || wantsState(State.SLOW) || alignPoseOverride != null) {
-            final boolean isRedAllianceAndSimulation = DriverStation.getAlliance().isPresent()
-                    ? DriverStation.getAlliance().get() == Alliance.Red && RobotBase.isSimulation()
-                    : false;
-            
-            inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(isRedAllianceAndSimulation ? perception.getHeading().rotateBy(Rotation2d.fromDegrees(180)) : perception.getHeading());
+            inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
         }
         
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
