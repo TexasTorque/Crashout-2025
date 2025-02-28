@@ -27,7 +27,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         STOWED(0),
         MANUAL(0), // Not a setpoint! Acts as a manual control
         OUT(278.7414),
-        IN(129.3085);
+        IN(80);
 
         public double position;
 
