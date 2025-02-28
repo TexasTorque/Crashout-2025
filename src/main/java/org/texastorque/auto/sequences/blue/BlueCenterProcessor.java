@@ -29,7 +29,7 @@ public class BlueCenterProcessor extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(new Pose2d(6.15, 4, Rotation2d.fromDegrees(180))).command());
+        addBlock(new QuickSwap(new Pose2d(6.06, 4.0, Rotation2d.fromDegrees(180))).command());
 
         // Drive far to processor
         addBlock(new TorqueFollowPath("BLUE_FF_PSR", drivebase).withMarkers(

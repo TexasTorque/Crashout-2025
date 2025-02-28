@@ -31,12 +31,12 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
     @Override
     public final void loadSequences() {
         addSequence("BLUE LEFT -> 2 CORAL", new BlueLeftAuto());
-        addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE", new BlueCenterProcessor());
+        addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new BlueCenterProcessor());
         addSequence("BLUE CENTER -> 1 CORAL -> 2 ALGAE NET", new BlueCenterNet());
         addSequence("BLUE RIGHT -> 2 CORAL", new BlueRightAuto());
 
         addSequence("RED LEFT -> 2 CORAL", new RedLeftAuto());
-        addSequence("RED CENTER -> 1 CORAL -> 1 ALGAE", new RedCenterProcessor());
+        addSequence("RED CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new RedCenterProcessor());
         addSequence("RED CENTER -> 1 CORAL -> 2 ALGAE NET", new RedCenterNet());
         addSequence("RED RIGHT -> 2 CORAL", new RedRightAuto());
 

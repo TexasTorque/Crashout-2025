@@ -70,6 +70,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     @Override
     public final void initialize(final TorqueMode mode) {
         State.ZERO.position = getElevatorPosition();
+        setState(State.ZERO);
         elevatorPID.reset(getElevatorPosition());
     }
 

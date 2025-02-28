@@ -54,8 +54,12 @@ public class BlueCenterNet extends TorqueSequence implements Subsystems {
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
+		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
+
 		// Alignment
         addBlock(new Align(Relation.CENTER, 1.2).command());
+
+		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
 		addBlock(new TorqueFollowPath("BLUE_FF_NET", drivebase).withMarkers(
 			new Marker(() -> {
