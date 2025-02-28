@@ -30,7 +30,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueFollowPath("CTR_FL", drivebase));
 
 		// Quickswap
-		addBlock(new QuickSwap(new Pose2d(5.365, 5.325, Rotation2d.fromDegrees(-120))).command());
+		addBlock(new QuickSwap(() -> new Pose2d(5.365, 5.325, Rotation2d.fromDegrees(-120))).command());
 
 		// Drive far left to net
 		addBlock(new TorqueFollowPath("FL_NET", drivebase).withMarkers(

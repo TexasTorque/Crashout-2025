@@ -28,7 +28,7 @@ public class CenterShootAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(new Pose2d(6.15, 4, Rotation2d.fromDegrees(180))).command());
+        addBlock(new QuickSwap(() -> new Pose2d(6.15, 4, Rotation2d.fromDegrees(180))).command());
 
         // Move to processor state
         addBlock(new TorqueRun(() -> {

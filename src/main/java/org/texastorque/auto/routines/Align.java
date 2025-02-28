@@ -1,5 +1,7 @@
 package org.texastorque.auto.routines;
 
+import java.util.function.Supplier;
+
 import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.subsystems.Drivebase;
@@ -24,9 +26,9 @@ public class Align extends TorqueSequence implements Subsystems {
         }));
 	}
 
-	public Align(final Pose2d pose, final double timeToAlign) {
+	public Align(final Supplier<Pose2d> pose, final double timeToAlign) {
 		addBlock(new TorqueRun(() -> {
-            drivebase.setAlignPoseOverride(pose);
+            drivebase.setAlignPoseOverride(pose.get());
             drivebase.setState(Drivebase.State.ALIGN);
         }));
         addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isNearAligned()));

@@ -1,6 +1,9 @@
 package org.texastorque.auto.routines;
 
 import org.texastorque.AlignPose2d.Relation;
+
+import java.util.function.Supplier;
+
 import org.texastorque.Subsystems;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
@@ -12,7 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 
 public class QuickSwap extends TorqueSequence implements Subsystems {
 
-	public QuickSwap(final Pose2d backupPose) {
+	public QuickSwap(final Supplier<Pose2d> backupPose) {
         // Algae extraction
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 

@@ -27,7 +27,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public final TorqueCurrentSpike coralSpike;
     private State pastState;
     private double pastStateTime;
-    private Timer spikeTimer;
 
     public static enum State implements TorqueState {
         ZERO(0),
@@ -53,7 +52,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum AlgaeState implements TorqueState {
-        INTAKE(-6), SHOOT(12), SHOOT_SLOW(4), OFF(0);
+        INTAKE(-10), SHOOT(12), SHOOT_SLOW(4), OFF(0);
 
         private final double volts;
 
@@ -104,7 +103,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             .apply();
 
         coralSpike = new TorqueCurrentSpike(18);
-        spikeTimer = new Timer();
 
         shoulderPID.reset(getShoulderAngle());
     }

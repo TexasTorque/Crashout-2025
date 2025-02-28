@@ -16,6 +16,8 @@ import org.texastorque.subsystems.Elevator.State;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class LeftAuto extends TorqueSequence implements Subsystems {
     
@@ -31,7 +33,12 @@ public class LeftAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(new Pose2d(3.94, 5.43, Rotation2d.fromDegrees(300))).command());
+        addBlock(new QuickSwap(() -> {
+            if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+                return new Pose2d(13.99, 5.43, Rotation2d.fromDegrees(240));
+            }
+            return new Pose2d(3.94, 5.43, Rotation2d.fromDegrees(300));
+        }).command());
 
         // Drive close left to coral station left
         addBlock(new TorqueFollowPath("CL_CSL_TOSS", drivebase).withMarkers(

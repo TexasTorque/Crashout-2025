@@ -6,6 +6,7 @@
  */
 package org.texastorque.auto;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.texastorque.Subsystems;
@@ -16,6 +17,9 @@ import org.texastorque.auto.sequences.RightAuto;
 import org.texastorque.torquelib.auto.TorqueAutoManager;
 
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPoint;
+
+import edu.wpi.first.math.geometry.Translation2d;
 
 public final class AutoManager extends TorqueAutoManager implements Subsystems {
     private static volatile AutoManager instance;
@@ -53,6 +57,21 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
         }
         System.out.println("Failed to load path " + pathName);
         return pathLoader.getPathUnsafe("NA_NA");
+    }
+
+    public static final PathPlannerPath shift(final PathPlannerPath path) {
+        final double FIELD_LENGTH_2024 = 16.54;
+        final double FIELD_LENGTH_2025 = 17.548225;
+        final double FIELD_WIDTH_2024 = 8.21055;
+        final double FIELD_WIDTH_2025 = 8.0518;
+        final Translation2d translation = new Translation2d(FIELD_LENGTH_2025 - FIELD_LENGTH_2024, FIELD_WIDTH_2025 - FIELD_WIDTH_2024);
+        ArrayList<PathPoint> shiftedPoints = new ArrayList<>();
+        for (PathPoint point : path.getAllPathPoints()) {
+            shiftedPoints.add(new PathPoint(point.position.plus(translation)));
+        }
+        
+        PathPlannerPath newPath = PathPlannerPath.fromPathPoints(shiftedPoints, path.getGlobalConstraints(), path.getGoalEndState());
+        return newPath;
     }
 
     public static final synchronized AutoManager getInstance() {
