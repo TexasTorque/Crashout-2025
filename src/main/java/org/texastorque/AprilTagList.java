@@ -13,13 +13,13 @@ public enum AprilTagList {
 	ID_1(1, new Pose3d(16.700198, 0.65532, 1.4859, new Rotation3d(0, 0, 126)),
 			Placement.CORAL_STATION,
 			new AlignPose2d(Relation.LEFT, new Pose2d(17.548249 - .575, 1.375, Rotation2d.fromDegrees(126))),
-			new AlignPose2d(Relation.CENTER, new Pose2d(17.548249 - 1.01, 1.05, Rotation2d.fromDegrees(126))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(16.37, 1.12, Rotation2d.fromDegrees(126))),
 			new AlignPose2d(Relation.RIGHT, new Pose2d(17.548249 - 1.6, .6, Rotation2d.fromDegrees(126)))
 	),
 	ID_2(2, new Pose3d(16.700198, 7.39448, 1.4859, new Rotation3d(0, 0, 234)),
 			Placement.CORAL_STATION,
 			new AlignPose2d(Relation.LEFT, new Pose2d(17.548249 - 1.6, 8.0518 - .6, Rotation2d.fromDegrees(234))),
-			new AlignPose2d(Relation.CENTER, new Pose2d(17.548249 - 1.01, 8.0518 - 1.05, Rotation2d.fromDegrees(234))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(16.35, 6.95, Rotation2d.fromDegrees(234))),
 			new AlignPose2d(Relation.RIGHT, new Pose2d(17.548249 - .575, 8.0518 - 1.375, Rotation2d.fromDegrees(234)))
 	),
 	ID_3(3, new Pose3d(11.55981, 8.05541, 1.30275, new Rotation3d(0, 0, 270)),
@@ -59,24 +59,24 @@ public enum AprilTagList {
 			Placement.REEF,
 			new AlignPose2d(Relation.LEFT, new Pose2d(11.82, 4.31, Rotation2d.fromDegrees(0))),
 			new AlignPose2d(Relation.CENTER, new Pose2d(11.82, 4.19, Rotation2d.fromDegrees(0))),
-			new AlignPose2d(Relation.RIGHT, new Pose2d(11.82, 4.00, Rotation2d.fromDegrees(0)))
+			new AlignPose2d(Relation.RIGHT, new Pose2d(11.82, 3.98, Rotation2d.fromDegrees(0)))
 	),
 	ID_11(11, new Pose3d(12.644158, 3.306318, 0.308202, new Rotation3d(0, 0, 240)),
 			Placement.REEF,
-			new AlignPose2d(Relation.LEFT, new Pose2d(12.45, 2.96, Rotation2d.fromDegrees(60))),
+			new AlignPose2d(Relation.LEFT, new Pose2d(12.17, 3.08, Rotation2d.fromDegrees(60))),
 			new AlignPose2d(Relation.CENTER, new Pose2d(12.28, 3.05, Rotation2d.fromDegrees(60))),
-			new AlignPose2d(Relation.RIGHT, new Pose2d(12.165, 3.13, Rotation2d.fromDegrees(60)))
+			new AlignPose2d(Relation.RIGHT, new Pose2d(12.46, 2.94, Rotation2d.fromDegrees(60)))
 	),
 	ID_12(12, new Pose3d(0.851154, 0.65532, 1.4859, new Rotation3d(0, 0, 54)),
 			Placement.CORAL_STATION,
 			new AlignPose2d(Relation.LEFT, new Pose2d(1.6, .6, Rotation2d.fromDegrees(54))),
-			new AlignPose2d(Relation.CENTER, new Pose2d(1.06, 1.13, Rotation2d.fromDegrees(54))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(1.12, 1.11, Rotation2d.fromDegrees(54))),
 			new AlignPose2d(Relation.RIGHT, new Pose2d(.575, 1.375, Rotation2d.fromDegrees(54)))
 	),
 	ID_13(13, new Pose3d(0.851154, 7.39448, 1.4859, new Rotation3d(0, 0, 306)),
 			Placement.CORAL_STATION,
 			new AlignPose2d(Relation.LEFT, new Pose2d(.575, 8.0518 - 1.375, Rotation2d.fromDegrees(306))),
-			new AlignPose2d(Relation.CENTER, new Pose2d(1.01, 8.0518 - 1.05, Rotation2d.fromDegrees(306))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(1.16, 6.91, Rotation2d.fromDegrees(306))),
 			new AlignPose2d(Relation.RIGHT, new Pose2d(1.6, 8.0518 - .6, Rotation2d.fromDegrees(306)))
 	),
 	ID_14(14, new Pose3d(8.274272, 6.137656, 1.867916, new Rotation3d(0, 30, 180)),

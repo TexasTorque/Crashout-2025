@@ -66,7 +66,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum CoralState implements TorqueState {
-        INTAKE(-4), SHOOT(3.5), OFF(-1);
+        INTAKE(-4), SHOOT(6), OFF(-1); // normal 3.5 volts
 
         private final double volts;
 
@@ -98,7 +98,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         coralRollers = new TorqueNEO(Ports.ROLLERS_CORAL)
             .inverted(true)
-            .currentLimit(8)
+            .currentLimit(10)
             .idleMode(IdleMode.kBrake)
             .apply();
 
