@@ -119,19 +119,20 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     @Override
     public final void update(final TorqueMode mode) {
-        if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN_TO_ANGLE)) {
-            inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(getHeading());
-            if (wantsState(State.ALIGN_TO_ANGLE)) {
-                SmartDashboard.putBoolean("Is Drivebase Aligned", isAligned());
+        // if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN_TO_ANGLE)) {
+        //     inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(getHeading());
+        //     if (wantsState(State.ALIGN_TO_ANGLE)) {
+        //         SmartDashboard.putBoolean("Is Drivebase Aligned", isAligned());
 
-                if (!isAligned() && !wantsState(State.FIELD_RELATIVE)) {
-                    inputSpeeds.omegaRadiansPerSecond = TorqueMath.constrain(alignPID.calculate(getHeading().getRadians(), alignSetpoint), 3);
-                } else if (isAligned()) {
-                    desiredState = State.FIELD_RELATIVE;
-                }
-            }
-        }
-
+        //         if (!isAligned() && !wantsState(State.FIELD_RELATIVE)) {
+        //             inputSpeeds.omegaRadiansPerSecond = TorqueMath.constrain(alignPID.calculate(getHeading().getRadians(), alignSetpoint), 3);
+        //         } else if (isAligned()) {
+        //             desiredState = State.FIELD_RELATIVE;
+        //         }
+        //     }
+        // }
+        inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(getHeading());
+        SmartDashboard.putString("Gyro", getHeading().toString());
         SmartDashboard.putString("Drivebase State", desiredState.toString());
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
