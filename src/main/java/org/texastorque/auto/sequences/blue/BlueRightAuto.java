@@ -31,7 +31,7 @@ public class BlueRightAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(new Pose2d(3.6, 2.6, Rotation2d.fromDegrees(60))).command());
+        addBlock(new QuickSwap(new Pose2d(3.63, 2.71, Rotation2d.fromDegrees(60))).command());
 
         // Drive close right to coral station right
         addBlock(new TorqueFollowPath("BLUE_CR_CSR", drivebase).withMarkers(

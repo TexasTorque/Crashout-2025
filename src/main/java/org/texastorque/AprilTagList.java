@@ -46,7 +46,7 @@ public enum AprilTagList {
 	ID_8(8, new Pose3d(13.474446, 4.746862, 0.308202, new Rotation3d(0, 0, 60)),
 			Placement.REEF,
 			new AlignPose2d(Relation.LEFT, new Pose2d(13.94, 4.97, Rotation2d.fromDegrees(240))),
-			new AlignPose2d(Relation.CENTER, new Pose2d(13.80, 5.04, Rotation2d.fromDegrees(240))),
+			new AlignPose2d(Relation.CENTER, new Pose2d(13.79, 5.025, Rotation2d.fromDegrees(240))),
 			new AlignPose2d(Relation.RIGHT, new Pose2d(13.64, 5.11, Rotation2d.fromDegrees(240)))
 	),
 	ID_9(9, new Pose3d(12.644158, 4.746862, 0.308202, new Rotation3d(0, 0, 120)),
