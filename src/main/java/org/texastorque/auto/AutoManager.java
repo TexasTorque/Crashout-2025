@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.texastorque.Subsystems;
-import org.texastorque.auto.sequences.blue.BlueCenterNet;
-import org.texastorque.auto.sequences.blue.BlueCenterProcessor;
-import org.texastorque.auto.sequences.blue.BlueLeftAuto;
-import org.texastorque.auto.sequences.blue.BlueRightAuto;
-import org.texastorque.auto.sequences.red.RedCenterNet;
-import org.texastorque.auto.sequences.red.RedCenterProcessor;
-import org.texastorque.auto.sequences.red.RedLeftAuto;
-import org.texastorque.auto.sequences.red.RedRightAuto;
+// import org.texastorque.auto.sequences.blue.BlueCenterNet;
+// import org.texastorque.auto.sequences.blue.BlueCenterProcessor;
+// import org.texastorque.auto.sequences.blue.BlueLeftAuto;
+// import org.texastorque.auto.sequences.blue.BlueRightAuto;
+// import org.texastorque.auto.sequences.red.RedCenterNet;
+// import org.texastorque.auto.sequences.red.RedCenterProcessor;
+// import org.texastorque.auto.sequences.red.RedLeftAuto;
+// import org.texastorque.auto.sequences.red.RedRightAuto;
 import org.texastorque.torquelib.auto.TorqueAutoManager;
 
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -30,15 +30,15 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadSequences() {
-        addSequence("BLUE LEFT -> 2 CORAL", new BlueLeftAuto());
-        addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new BlueCenterProcessor());
-        addSequence("BLUE CENTER -> 1 CORAL -> 2 ALGAE NET", new BlueCenterNet());
-        addSequence("BLUE RIGHT -> 2 CORAL", new BlueRightAuto());
+        // addSequence("BLUE LEFT -> 2 CORAL", new BlueLeftAuto());
+        // addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new BlueCenterProcessor());
+        // addSequence("BLUE CENTER -> 1 CORAL -> 2 ALGAE NET", new BlueCenterNet());
+        // addSequence("BLUE RIGHT -> 2 CORAL", new BlueRightAuto());
 
-        addSequence("RED LEFT -> 2 CORAL", new RedLeftAuto());
-        addSequence("RED CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new RedCenterProcessor());
-        addSequence("RED CENTER -> 1 CORAL -> 2 ALGAE NET", new RedCenterNet());
-        addSequence("RED RIGHT -> 2 CORAL", new RedRightAuto());
+        // addSequence("RED LEFT -> 2 CORAL", new RedLeftAuto());
+        // addSequence("RED CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new RedCenterProcessor());
+        // addSequence("RED CENTER -> 1 CORAL -> 2 ALGAE NET", new RedCenterNet());
+        // addSequence("RED RIGHT -> 2 CORAL", new RedRightAuto());
 
         // addSequence("TEST", new TestAuto());
     }

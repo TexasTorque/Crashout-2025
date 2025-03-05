@@ -1,11 +1,11 @@
 package org.texastorque;
 
-import org.texastorque.AlignPose2d.Relation;
-import org.texastorque.subsystems.Claw;
+// import org.texastorque.AlignPose2d.Relation;
+// import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
-import org.texastorque.subsystems.Elevator;
-import org.texastorque.subsystems.Claw.AlgaeState;
-import org.texastorque.subsystems.Climb;
+// import org.texastorque.subsystems.Elevator;
+// import org.texastorque.subsystems.Claw.AlgaeState;
+// import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
@@ -19,13 +19,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueClickSupplier slowInitial;
-    private final TorqueBoolSupplier resetGyro, align, slow, stow,
-            L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
-            algaeExtractionHigh, algaeExtractionLow, net, processor,
-            climbUp, climbDown, manualElevatorUp, manualElevatorDown,
-            intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
-            climbMode, manualClimbInitial, manualClimbUp, manualClimbDown;
+    // private final TorqueClickSupplier slowInitial;
+    private final TorqueBoolSupplier resetGyro;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -33,45 +28,45 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
-        intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
-        intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
+        // intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
+        // intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         
-        align = new TorqueBoolSupplier(driver::isRightTriggerDown);
+        // align = new TorqueBoolSupplier(driver::isRightTriggerDown);
 
-        stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
+        // stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
 
-        slowInitial = new TorqueClickSupplier(driver::isLeftTriggerDown);
-        slow = new TorqueBoolSupplier(driver::isLeftTriggerDown);
+        // slowInitial = new TorqueClickSupplier(driver::isLeftTriggerDown);
+        // slow = new TorqueBoolSupplier(driver::isLeftTriggerDown);
 
-        L1 = new TorqueBoolSupplier(operator::isAButtonDown);
-        L2 = new TorqueBoolSupplier(operator::isXButtonDown);
-        L3 = new TorqueBoolSupplier(operator::isBButtonDown);
-        L4 = new TorqueBoolSupplier(operator::isYButtonDown);
+        // L1 = new TorqueBoolSupplier(operator::isAButtonDown);
+        // L2 = new TorqueBoolSupplier(operator::isXButtonDown);
+        // L3 = new TorqueBoolSupplier(operator::isBButtonDown);
+        // L4 = new TorqueBoolSupplier(operator::isYButtonDown);
 
-        algaeExtractionHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
-        algaeExtractionLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
+        // algaeExtractionHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
+        // algaeExtractionLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
 
-        net = new TorqueBoolSupplier(operator::isLeftBumperDown);
-        processor = new TorqueBoolSupplier(operator::isLeftTriggerDown);
+        // net = new TorqueBoolSupplier(operator::isLeftBumperDown);
+        // processor = new TorqueBoolSupplier(operator::isLeftTriggerDown);
 
-        leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
-        rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
-        centerRelation = new TorqueBoolSupplier(operator::isDPADUpDown);
+        // leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
+        // rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
+        // centerRelation = new TorqueBoolSupplier(operator::isDPADUpDown);
 
-        climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND && !operator.isLeftStickClickDown());
-        climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
+        // climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND && !operator.isLeftStickClickDown());
+        // climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
 
-        climbMode = new TorqueBoolSupplier(driver::isDPADRightDown);
+        // climbMode = new TorqueBoolSupplier(driver::isDPADRightDown);
 
-        manualClimbInitial = new TorqueClickSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()) || (operator.getLeftYAxis() < -CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
-        manualClimbUp = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
-        manualClimbDown = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
+        // manualClimbInitial = new TorqueClickSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()) || (operator.getLeftYAxis() < -CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
+        // manualClimbUp = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
+        // manualClimbDown = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
 
-        manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
-        manualElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
+        // manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
+        // manualElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
 
-        outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
-        outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
+        // outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
+        // outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
     }
 
     @Override
@@ -81,29 +76,29 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateClimb();
 
         final double DELTA = 1;
-        manualElevatorUp.onTrue(() -> {
-            for (Elevator.State state : Elevator.State.values()) {
-                state.position = -DELTA + state.position;
-            }
-        });
-        manualElevatorDown.onTrue(() -> {
-            for (Elevator.State state : Elevator.State.values()) {
-                state.position = DELTA + state.position;
-            }
-        });
+        // manualElevatorUp.onTrue(() -> {
+        //     for (Elevator.State state : Elevator.State.values()) {
+        //         state.position = -DELTA + state.position;
+        //     }
+        // });
+        // manualElevatorDown.onTrue(() -> {
+        //     for (Elevator.State state : Elevator.State.values()) {
+        //         state.position = DELTA + state.position;
+        //     }
+        // });
     }
 
     public final void updateDrivebase() {
-        resetGyro.onTrue(() -> perception.resetHeading());
+        // resetGyro.onTrue(() -> perception.resetHeading());
 
-        leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
-        rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
-        centerRelation.onTrue(() -> drivebase.setRelation(Relation.CENTER));
+        // leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
+        // rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
+        // centerRelation.onTrue(() -> drivebase.setRelation(Relation.CENTER));
 
-        slowInitial.onTrue(() -> drivebase.startSlowMode());
-        slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
+        // slowInitial.onTrue(() -> drivebase.startSlowMode());
+        // slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
 
-        align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
+        // align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
 
         final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
                     ? DriverStation.getAlliance().get() == Alliance.Red
@@ -120,82 +115,82 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     }
 
     public final void updateSuperstructure() {
-        L1.onTrue(() -> {
-            elevator.setState(Elevator.State.SCORE_L1);
-            claw.setState(Claw.State.SCORE_L1);
-        });
-        L2.onTrue(() -> {
-            elevator.setState(Elevator.State.SCORE_L2);
-            claw.setState(Claw.State.MID_SCORE);
-        });
-        L3.onTrue(() -> {
-            elevator.setState(Elevator.State.SCORE_L3);
-            claw.setState(Claw.State.MID_SCORE);
-        });
-        L4.onTrue(() -> {
-            elevator.setState(Elevator.State.SCORE_L4);
-            claw.setState(Claw.State.SCORE_L4);
-        });
-        net.onTrue(() -> {
-            elevator.setState(Elevator.State.NET);
-            claw.setState(Claw.State.NET);
-        });
-        processor.onTrue(() -> {
-            elevator.setState(Elevator.State.PROCESSOR);
-            claw.setState(Claw.State.PROCESSOR);
-        });
-        algaeExtractionHigh.onTrue(() -> {
-            elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
-            claw.setState(Claw.State.ALGAE_EXTRACTION);
-            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
-        });
-        algaeExtractionLow.onTrue(() -> {
-            elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
-            claw.setState(Claw.State.ALGAE_EXTRACTION);
-            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
-        });
-        intakeCoral.onTrue(() -> {
-            elevator.setState(Elevator.State.CORAL_HP);
-            claw.setState(Claw.State.CORAL_HP);
-            claw.setCoralState(Claw.CoralState.INTAKE);
-            claw.coralSpike.reset();
-        });
-        intakeAlgae.onTrue(() -> {
-            claw.setAlgaeState(AlgaeState.INTAKE);
-        });
-        stow.onTrue(() -> {
-            elevator.setState(Elevator.State.STOW);
-            claw.setState(Claw.State.STOW);
-        });
-        outtakeCoral.onTrue(() -> {
-            claw.setCoralState(Claw.CoralState.SHOOT);
-            claw.coralSpike.reset();
-        });
-        outtakeAlgae.onTrue(() -> {
-            claw.setAlgaeState(Claw.AlgaeState.SHOOT);
-        });
-        climbMode.onTrue(() -> {
-            elevator.setState(Elevator.State.CLIMB);
-            claw.setState(Claw.State.CLIMB);
-        });
+        // L1.onTrue(() -> {
+        //     elevator.setState(Elevator.State.SCORE_L1);
+        //     claw.setState(Claw.State.SCORE_L1);
+        // });
+        // L2.onTrue(() -> {
+        //     elevator.setState(Elevator.State.SCORE_L2);
+        //     claw.setState(Claw.State.MID_SCORE);
+        // });
+        // L3.onTrue(() -> {
+        //     elevator.setState(Elevator.State.SCORE_L3);
+        //     claw.setState(Claw.State.MID_SCORE);
+        // });
+        // L4.onTrue(() -> {
+        //     elevator.setState(Elevator.State.SCORE_L4);
+        //     claw.setState(Claw.State.SCORE_L4);
+        // });
+        // net.onTrue(() -> {
+        //     elevator.setState(Elevator.State.NET);
+        //     claw.setState(Claw.State.NET);
+        // });
+        // processor.onTrue(() -> {
+        //     elevator.setState(Elevator.State.PROCESSOR);
+        //     claw.setState(Claw.State.PROCESSOR);
+        // });
+        // algaeExtractionHigh.onTrue(() -> {
+        //     elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
+        //     claw.setState(Claw.State.ALGAE_EXTRACTION);
+        //     claw.setAlgaeState(Claw.AlgaeState.INTAKE);
+        // });
+        // algaeExtractionLow.onTrue(() -> {
+        //     elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
+        //     claw.setState(Claw.State.ALGAE_EXTRACTION);
+        //     claw.setAlgaeState(Claw.AlgaeState.INTAKE);
+        // });
+        // intakeCoral.onTrue(() -> {
+        //     elevator.setState(Elevator.State.CORAL_HP);
+        //     claw.setState(Claw.State.CORAL_HP);
+        //     claw.setCoralState(Claw.CoralState.INTAKE);
+        //     claw.coralSpike.reset();
+        // });
+        // intakeAlgae.onTrue(() -> {
+        //     claw.setAlgaeState(AlgaeState.INTAKE);
+        // });
+        // stow.onTrue(() -> {
+        //     elevator.setState(Elevator.State.STOW);
+        //     claw.setState(Claw.State.STOW);
+        // });
+        // outtakeCoral.onTrue(() -> {
+        //     claw.setCoralState(Claw.CoralState.SHOOT);
+        //     claw.coralSpike.reset();
+        // });
+        // outtakeAlgae.onTrue(() -> {
+        //     claw.setAlgaeState(Claw.AlgaeState.SHOOT);
+        // });
+        // climbMode.onTrue(() -> {
+        //     elevator.setState(Elevator.State.CLIMB);
+        //     claw.setState(Claw.State.CLIMB);
+        // });
     }
 
     public final void updateClimb() {
-        climbUp.onTrue(() -> climb.setState(Climb.State.OUT));
-        climbDown.onTrue(() -> climb.setState(Climb.State.IN));
+        // climbUp.onTrue(() -> climb.setState(Climb.State.OUT));
+        // climbDown.onTrue(() -> climb.setState(Climb.State.IN));
 
-        final double DELTA = 10;
-        manualClimbInitial.onTrue(() -> {
-            Climb.State.MANUAL.position = climb.getClimbPosition();
-        });
-        manualClimbUp.onTrue(() -> {
-            climb.setState(Climb.State.MANUAL);
-            Climb.State.MANUAL.position = -DELTA + climb.getClimbPosition();
-        });
-        manualClimbDown.onTrue(() -> {
-            climb.setState(Climb.State.MANUAL);
-            Climb.State.MANUAL.position = DELTA + climb.getClimbPosition();
-        });
+        // final double DELTA = 10;
+        // manualClimbInitial.onTrue(() -> {
+        //     Climb.State.MANUAL.position = climb.getClimbPosition();
+        // });
+        // manualClimbUp.onTrue(() -> {
+        //     climb.setState(Climb.State.MANUAL);
+        //     Climb.State.MANUAL.position = -DELTA + climb.getClimbPosition();
+        // });
+        // manualClimbDown.onTrue(() -> {
+        //     climb.setState(Climb.State.MANUAL);
+        //     Climb.State.MANUAL.position = DELTA + climb.getClimbPosition();
+        // });
     }
 
     public final boolean isDebugMode() {
