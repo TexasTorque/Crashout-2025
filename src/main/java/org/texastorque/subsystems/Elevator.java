@@ -150,7 +150,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     public final boolean isNearState() {
-        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, 2);
+        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, 20);
     }
 
     public static final synchronized Elevator getInstance() {
