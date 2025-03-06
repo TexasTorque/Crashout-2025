@@ -1,7 +1,7 @@
 package org.texastorque.auto.sequences.red;
 
 import org.texastorque.Subsystems;
-import org.texastorque.auto.routines.QuickSwap;
+import org.texastorque.auto.routines.Quickswap;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.torquelib.auto.TorqueSequence;
@@ -29,7 +29,7 @@ public class RedCenterProcessor extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(new Pose2d(11.435, 3.957, Rotation2d.fromDegrees(0))).command());
+        addBlock(new Quickswap(new Pose2d(11.435, 3.957, Rotation2d.fromDegrees(0))).command());
 
         // Drive far to processor
         addBlock(new TorqueFollowPath("RED_FF_PSR", drivebase).withMarkers(

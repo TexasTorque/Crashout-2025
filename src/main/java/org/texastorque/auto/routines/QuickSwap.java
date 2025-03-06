@@ -10,9 +10,9 @@ import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import edu.wpi.first.math.geometry.Pose2d;
 
-public class QuickSwap extends TorqueSequence implements Subsystems {
+public class Quickswap extends TorqueSequence implements Subsystems {
 
-	public QuickSwap(final Pose2d backupPose) {
+	public Quickswap(final Pose2d backupPose) {
         // Algae extraction
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 

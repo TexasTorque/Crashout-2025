@@ -6,39 +6,33 @@
  */
 package org.texastorque.auto;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
 import org.texastorque.Subsystems;
 import org.texastorque.auto.sequences.blue.BlueCenterNet;
 import org.texastorque.auto.sequences.blue.BlueCenterProcessor;
-import org.texastorque.auto.sequences.blue.BlueLeftAuto;
-import org.texastorque.auto.sequences.blue.BlueRightAuto;
+import org.texastorque.auto.sequences.blue.BlueLeftQuickswapAuto;
+import org.texastorque.auto.sequences.blue.BlueRightL4Auto;
+import org.texastorque.auto.sequences.blue.BlueRightQuickswapAuto;
 import org.texastorque.auto.sequences.red.RedCenterNet;
 import org.texastorque.auto.sequences.red.RedCenterProcessor;
-import org.texastorque.auto.sequences.red.RedLeftAuto;
-import org.texastorque.auto.sequences.red.RedRightAuto;
+import org.texastorque.auto.sequences.red.RedLeftQuickswapAuto;
+import org.texastorque.auto.sequences.red.RedRightQuickswapAuto;
 import org.texastorque.torquelib.auto.TorqueAutoManager;
-
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPoint;
-
-import edu.wpi.first.math.geometry.Translation2d;
 
 public final class AutoManager extends TorqueAutoManager implements Subsystems {
     private static volatile AutoManager instance;
 
     @Override
     public final void loadSequences() {
-        addSequence("BLUE LEFT -> 2 CORAL", new BlueLeftAuto());
+        addSequence("BLUE LEFT -> 2 CORAL", new BlueLeftQuickswapAuto());
         addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new BlueCenterProcessor());
         addSequence("BLUE CENTER -> 1 CORAL -> 2 ALGAE NET", new BlueCenterNet());
-        addSequence("BLUE RIGHT -> 2 CORAL", new BlueRightAuto());
+        addSequence("BLUE RIGHT -> QUICKSWAP -> 2 CORAL", new BlueRightQuickswapAuto());
+        addSequence("BLUE RIGHT -> L4 -> 3 CORAL", new BlueRightL4Auto());
 
-        addSequence("RED LEFT -> 2 CORAL", new RedLeftAuto());
+        addSequence("RED LEFT -> 2 CORAL", new RedLeftQuickswapAuto());
         addSequence("RED CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new RedCenterProcessor());
         addSequence("RED CENTER -> 1 CORAL -> 2 ALGAE NET", new RedCenterNet());
-        addSequence("RED RIGHT -> 2 CORAL", new RedRightAuto());
+        addSequence("RED RIGHT -> 2 CORAL", new RedRightQuickswapAuto());
 
         // addSequence("TEST", new TestAuto());
     }
@@ -63,30 +57,6 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
         pathLoader.preloadPath("RED_RGT_CR");
         pathLoader.preloadPath("NA_NA");
         pathLoader.preloadPath("test");
-    }
-
-    public final PathPlannerPath getPath(final String pathName) {
-        final Optional<PathPlannerPath> pathOpt = pathLoader.getPathSafe(pathName);
-        if (pathOpt.isPresent()) {
-            return pathOpt.get();
-        }
-        System.out.println("Failed to load path " + pathName);
-        return pathLoader.getPathUnsafe("NA_NA");
-    }
-
-    public static final PathPlannerPath shift(final PathPlannerPath path) {
-        final double FIELD_LENGTH_2024 = 16.54;
-        final double FIELD_LENGTH_2025 = 17.548225;
-        final double FIELD_WIDTH_2024 = 8.21055;
-        final double FIELD_WIDTH_2025 = 8.0518;
-        final Translation2d translation = new Translation2d(FIELD_LENGTH_2025 - FIELD_LENGTH_2024, FIELD_WIDTH_2025 - FIELD_WIDTH_2024);
-        ArrayList<PathPoint> shiftedPoints = new ArrayList<>();
-        for (PathPoint point : path.getAllPathPoints()) {
-            shiftedPoints.add(new PathPoint(point.position.plus(translation)));
-        }
-        
-        PathPlannerPath newPath = PathPlannerPath.fromPathPoints(shiftedPoints, path.getGlobalConstraints(), path.getGoalEndState());
-        return newPath;
     }
 
     public static final synchronized AutoManager getInstance() {
