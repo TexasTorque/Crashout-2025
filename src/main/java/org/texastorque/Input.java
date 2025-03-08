@@ -1,6 +1,7 @@
 package org.texastorque;
 
-import org.texastorque.AlignPose2d.Relation;
+import org.texastorque.Field.AlignPosition.AlignableTarget;
+import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
@@ -96,9 +97,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     public final void updateDrivebase() {
         resetGyro.onTrue(() -> perception.resetHeading());
 
-        leftRelation.onTrue(() -> drivebase.setRelation(Relation.LEFT));
-        rightRelation.onTrue(() -> drivebase.setRelation(Relation.RIGHT));
-        centerRelation.onTrue(() -> drivebase.setRelation(Relation.CENTER));
+        leftRelation.onTrue(() -> perception.setRelation(Relation.LEFT));
+        rightRelation.onTrue(() -> perception.setRelation(Relation.RIGHT));
+        centerRelation.onTrue(() -> perception.setRelation(Relation.CENTER));
 
         slowInitial.onTrue(() -> drivebase.startSlowMode());
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
@@ -123,42 +124,51 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         L1.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L1);
             claw.setState(Claw.State.SCORE_L1);
+            perception.setDesiredAlignTarget(AlignableTarget.L1);
         });
         L2.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L2);
             claw.setState(Claw.State.MID_SCORE);
+            perception.setDesiredAlignTarget(AlignableTarget.L2);
         });
         L3.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L3);
             claw.setState(Claw.State.MID_SCORE);
+            perception.setDesiredAlignTarget(AlignableTarget.L3);
         });
         L4.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L4);
             claw.setState(Claw.State.SCORE_L4);
+            perception.setDesiredAlignTarget(AlignableTarget.L4);
         });
         net.onTrue(() -> {
             elevator.setState(Elevator.State.NET);
             claw.setState(Claw.State.NET);
+            perception.setDesiredAlignTarget(AlignableTarget.NET);
         });
         processor.onTrue(() -> {
             elevator.setState(Elevator.State.PROCESSOR);
             claw.setState(Claw.State.PROCESSOR);
+            perception.setDesiredAlignTarget(AlignableTarget.PROCESSOR);
         });
         algaeExtractionHigh.onTrue(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
             claw.setState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
+            perception.setDesiredAlignTarget(AlignableTarget.ALGAE_HIGH);
         });
         algaeExtractionLow.onTrue(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
             claw.setState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
+            perception.setDesiredAlignTarget(AlignableTarget.ALGAE_LOW);
         });
         intakeCoral.onTrue(() -> {
             elevator.setState(Elevator.State.CORAL_HP);
             claw.setState(Claw.State.CORAL_HP);
             claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
+            perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
         });
         intakeAlgae.onTrue(() -> {
             claw.setAlgaeState(AlgaeState.INTAKE);
@@ -166,6 +176,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         stow.onTrue(() -> {
             elevator.setState(Elevator.State.STOW);
             claw.setState(Claw.State.STOW);
+            perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
         outtakeCoral.onTrue(() -> {
             claw.setCoralState(Claw.CoralState.SHOOT);
@@ -177,6 +188,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         climbMode.onTrue(() -> {
             elevator.setState(Elevator.State.CLIMB);
             claw.setState(Claw.State.CLIMB);
+            perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
     }
 

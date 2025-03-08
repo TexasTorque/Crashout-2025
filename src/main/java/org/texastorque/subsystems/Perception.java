@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
-import org.texastorque.AlignPose2d;
-import org.texastorque.AlignPose2d.Placement;
-import org.texastorque.AlignPose2d.Relation;
-import org.texastorque.AprilTagList;
+import org.texastorque.Field.AlignPosition.Placement;
+import org.texastorque.Field.AlignPosition.Relation;
+import org.texastorque.Field.AlignPosition.AlignableTarget;
+import org.texastorque.Field.AprilTagList;
+import org.texastorque.Field;
 import org.texastorque.LimelightHelpers;
 import org.texastorque.LimelightHelpers.PoseEstimate;
 import org.texastorque.LimelightHelpers.RawFiducial;
@@ -56,6 +57,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	private final TorqueNavXGyro gyro = TorqueNavXGyro.getInstance();
 	private double gyro_simulated = 0;
+
+	private AlignableTarget desiredAlignTarget = AlignableTarget.NONE;
+	private Relation relation = Relation.NONE;
 
 	// Used to filter some noise directly out of the pose measurements.
 	private final TorqueRollingMedian filteredX, filteredY;
@@ -111,6 +115,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
 		Debug.log("Gyro Angle", getHeading().getDegrees());
+		Debug.log("Relation", relation.toString());
+		Debug.log("Align Target", desiredAlignTarget.toString());
 	}
 
 	@Override
@@ -228,25 +234,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return gyro.getHeadingCCW();
 	}
 
-	public Optional<Pose2d> getAlignPose(final Pose2d currentPose, final Relation relation) {
-		if (relation == null) return Optional.empty();
-		TorqueFieldZone currentZone = null;
-		for (TorqueFieldZone zone : zones) {
-			if (zone.contains(currentPose)) {
-				currentZone = zone;
-			}
-		}
-
-		if (currentZone == null) return Optional.empty();
-		final int id = currentZone.getID();
-
-		final AlignPose2d[] alignPoses = AprilTagList.values()[id - 1].alignPoses;
-		for (AlignPose2d alignPose : alignPoses) {
-			if (alignPose.getRelation() == relation) {
-				return Optional.of(alignPose.getPose());
-			}
-		}
-		return Optional.empty();
+	public Optional<Pose2d> getAlignPose() {
+		return Field.getInstance().getAlignPose(filteredPose, desiredAlignTarget, relation);
 	}
 
 	public void resetHeading(final double offset) {
@@ -270,6 +259,14 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public boolean seesTag() {
 		return LimelightHelpers.getTargetCount(LIMELIGHT_HIGH) > 0 || LimelightHelpers.getTargetCount(LIMELIGHT_LOW) > 0;
+	}
+
+	public void setDesiredAlignTarget(final AlignableTarget alignableTarget) {
+		this.desiredAlignTarget = alignableTarget;
+	}
+
+	public void setRelation(Relation relation) {
+	  	this.relation = relation;
 	}
 
 	public void setPose(final Pose2d pose) {

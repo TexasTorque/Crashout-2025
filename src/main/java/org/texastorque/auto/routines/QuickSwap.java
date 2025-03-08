@@ -1,6 +1,6 @@
 package org.texastorque.auto.routines;
 
-import org.texastorque.AlignPose2d.Relation;
+import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;

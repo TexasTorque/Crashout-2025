@@ -7,7 +7,7 @@ import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
-import org.texastorque.AlignPose2d.Relation;
+import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.auto.routines.Align;
 import org.texastorque.auto.routines.Quickswap;
 import org.texastorque.subsystems.Claw;
