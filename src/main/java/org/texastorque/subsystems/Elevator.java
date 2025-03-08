@@ -6,9 +6,10 @@ import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
-import org.texastorque.torquelib.motors.TorqueNEO;
+import org.texastorque.torquelib.motors.TorqueKraken;
 import org.texastorque.torquelib.util.TorqueMath;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj.Timer;
 public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implements Subsystems {
 
     private static volatile Elevator instance;
-    private final TorqueNEO elevatorLeft, elevatorRight;
+    private final TorqueKraken elevatorLeft, elevatorRight;
     private final ProfiledPIDController elevatorPID;
     public State pastState;
     private double pastStateTime;
@@ -53,12 +54,12 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         pastState = State.ZERO;
         pastStateTime = Timer.getFPGATimestamp();
 
-        elevatorLeft = new TorqueNEO(Ports.ELEVATOR_LEFT)
-            .idleMode(IdleMode.kBrake)
+        elevatorLeft = new TorqueKraken(Ports.ELEVATOR_LEFT)
+            .idleMode(NeutralModeValue.Brake)
             .apply();
         
-        elevatorRight = new TorqueNEO(Ports.ELEVATOR_RIGHT)
-            .idleMode(IdleMode.kBrake)
+        elevatorRight = new TorqueKraken(Ports.ELEVATOR_RIGHT)
+            .idleMode(NeutralModeValue.Brake)
             .apply();
         
         elevatorPID = new ProfiledPIDController(2, 0, 0,
