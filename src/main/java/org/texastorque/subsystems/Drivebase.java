@@ -77,8 +77,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
         
-        xController = new PIDController(3.5, 0, 0);
-        yController = new PIDController(3.5, 0, 0);
+        xController = new PIDController(2, 0, 0);
+        yController = new PIDController(2, 0, 0);
         omegaController = new PIDController(.15, 0, 0);
         omegaController.enableContinuousInput(0, 360);
     }
@@ -177,8 +177,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             setInputSpeeds(new TorqueSwerveSpeeds());
             return;
         }
-        final double MAX_ALIGN_VELOCITY = DriverStation.isTeleop() ? 1.5 : .5;
-        final double MAX_ALIGN_OMEGA_VELOCITY = DriverStation.isTeleop() ? 2 * Math.PI : Math.PI / 2;
+        final double MAX_ALIGN_VELOCITY = DriverStation.isTeleop() ? 1 : .5;
+        final double MAX_ALIGN_OMEGA_VELOCITY = DriverStation.isTeleop() ? Math.PI / 2 : Math.PI / 2;
 
         double xPower = xController.calculate(perception.getFilteredPose().getX(), pose.getX());
         double yPower = yController.calculate(perception.getFilteredPose().getY(), pose.getY());

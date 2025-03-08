@@ -2,7 +2,7 @@ package org.texastorque.auto.sequences.red;
 
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.auto.routines.Align;
-import org.texastorque.auto.routines.QuickSwap;
+import org.texastorque.auto.routines.Quickswap;
 import org.texastorque.Subsystems;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
@@ -29,7 +29,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueFollowPath("RED_CTR_FL", drivebase));
 
 		// Quickswap
-		addBlock(new QuickSwap(new Pose2d(12.171, 2.695, Rotation2d.fromDegrees(60))).command());
+		addBlock(new Quickswap(new Pose2d(12.171, 2.695, Rotation2d.fromDegrees(60))).command());
 
 		// Drive far left to net
 		addBlock(new TorqueFollowPath("RED_FL_NET", drivebase).withMarkers(

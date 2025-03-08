@@ -1,7 +1,7 @@
 package org.texastorque.auto.sequences.blue;
 
 import org.texastorque.Subsystems;
-import org.texastorque.auto.routines.QuickSwap;
+import org.texastorque.auto.routines.Quickswap;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.torquelib.auto.TorqueSequence;
@@ -29,7 +29,7 @@ public class BlueCenterProcessor extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(new Pose2d(6.06, 4.0, Rotation2d.fromDegrees(180))).command());
+        addBlock(new Quickswap(new Pose2d(6.06, 4.0, Rotation2d.fromDegrees(180))).command());
 
         // Drive far to processor
         addBlock(new TorqueFollowPath("BLUE_FF_PSR", drivebase).withMarkers(

@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueClickSupplier slowInitial, manualElevatorInitial;
+    private final TorqueClickSupplier slowInitial;
     private final TorqueBoolSupplier resetGyro, align, slow, stow,
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
@@ -68,7 +68,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         manualClimbUp = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
         manualClimbDown = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
 
-        manualElevatorInitial = new TorqueClickSupplier(() -> operator.getRightXAxis() > CONTROLLER_DEADBAND || operator.getRightYAxis() < -CONTROLLER_DEADBAND);
         manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
         manualElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
 
@@ -83,16 +82,15 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateClimb();
 
         final double DELTA = 1;
-        manualElevatorInitial.onTrue(() -> {
-            Elevator.State.MANUAL.position = elevator.getElevatorPosition();
-        });
         manualElevatorUp.onTrue(() -> {
-            elevator.setState(Elevator.State.MANUAL);
-            Elevator.State.MANUAL.position = -DELTA + elevator.getElevatorPosition();
+            for (Elevator.State state : Elevator.State.values()) {
+                state.position = -DELTA + state.position;
+            }
         });
         manualElevatorDown.onTrue(() -> {
-            elevator.setState(Elevator.State.MANUAL);
-            Elevator.State.MANUAL.position = DELTA + elevator.getElevatorPosition();
+            for (Elevator.State state : Elevator.State.values()) {
+                state.position = DELTA + state.position;
+            }
         });
     }
 

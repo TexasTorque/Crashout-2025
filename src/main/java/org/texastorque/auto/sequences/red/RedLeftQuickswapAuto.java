@@ -9,7 +9,7 @@ import org.texastorque.torquelib.auto.marker.Marker;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.auto.routines.Align;
-import org.texastorque.auto.routines.QuickSwap;
+import org.texastorque.auto.routines.Quickswap;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Elevator.State;
@@ -17,9 +17,9 @@ import org.texastorque.subsystems.Elevator.State;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class RedLeftAuto extends TorqueSequence implements Subsystems {
+public class RedLeftQuickswapAuto extends TorqueSequence implements Subsystems {
     
-    public RedLeftAuto() {
+    public RedLeftQuickswapAuto() {
         // Drive left to close left
         addBlock(new TorqueFollowPath("RED_LFT_CL", drivebase).withMarkers(
             new Marker(() -> {
@@ -31,7 +31,7 @@ public class RedLeftAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new QuickSwap(new Pose2d(13.944, 2.590, Rotation2d.fromDegrees(120))).command());
+        addBlock(new Quickswap(new Pose2d(13.944, 2.590, Rotation2d.fromDegrees(120))).command());
 
         // Drive close left to coral station left
         addBlock(new TorqueFollowPath("RED_CL_CSL", drivebase).withMarkers(

@@ -79,6 +79,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.field("Field", field);
 
 		createZones();
+
+		resetHeading(180);
 	}
 
 	final String LIMELIGHT_HIGH = "limelight-high";

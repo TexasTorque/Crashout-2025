@@ -132,7 +132,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             shoulder.setVolts(ff);
         } else {
             if (desiredState == State.SCORE_L4) {
-                if (elevator.isAtState() && elevator.getState() == Elevator.State.SCORE_L4) {
+                if (elevator.getElevatorPosition() > Elevator.State.SCORE_L3.position && elevator.getState() == Elevator.State.SCORE_L4) {
                     shoulder.setVolts(volts + ff);
                 } else {
                     shoulder.setVolts(ff);
@@ -187,7 +187,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             final double position = ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
 
             if (desiredState == State.SCORE_L4) {
-                if (elevator.isAtState() && elevator.getState() == Elevator.State.SCORE_L4) {
+                if (elevator.getElevatorPosition() > Elevator.State.SCORE_L3.position && elevator.getState() == Elevator.State.SCORE_L4) {
                     if (animationMultiplier > 1) return desiredState.angle;
                     return position;
                 }
