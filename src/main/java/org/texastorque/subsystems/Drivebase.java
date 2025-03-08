@@ -3,7 +3,6 @@ package org.texastorque.subsystems;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
-import org.texastorque.AlignPose2d.Relation;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
@@ -59,7 +58,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public TorqueSwerveSpeeds inputSpeeds;
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
-    private Relation relation = Relation.CENTER;
     private PIDController xController, yController, omegaController;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
@@ -121,7 +119,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public final void update(final TorqueMode mode) {
         Debug.log("Drivebase State", desiredState.toString());
         Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
-        Debug.log("Relation", relation.toString());
         Debug.log("Is Aligned", isAligned());
         Debug.log("In Zone", perception.getCurrentZone() != null);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
@@ -129,7 +126,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (alignPoseOverride != null && wantsState(State.ALIGN)) {
             runAlignment(alignPoseOverride);
         } else if (wantsState(State.ALIGN)) {
-            final Optional<Pose2d> alignPose = perception.getAlignPose(perception.getFilteredPose(), relation);
+            final Optional<Pose2d> alignPose = perception.getAlignPose();
             Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
             if (alignPose.isPresent()) {
                 Pose2d targetPose = alignPose.get();
@@ -197,7 +194,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public boolean isAligned() {
-        Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+        Optional<Pose2d> alignPose = perception.getAlignPose();
         final double TRANSLATION_TOLERANCE = .01;
         final double ROTATION_TOLERANCE = 1;
 
@@ -221,7 +218,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public boolean isNearAligned() {
-        Optional<Pose2d> alignPose = perception.getAlignPose(perception.getPose(), relation);
+        Optional<Pose2d> alignPose = perception.getAlignPose();
         final double TRANSLATION_TOLERANCE = .05;
         final double ROTATION_TOLERANCE = 2;
 
@@ -279,10 +276,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {
         this.inputSpeeds = inputSpeeds;
-    }
-
-    public void setRelation(final Relation relation) {
-      this.relation = relation;
     }
 
     public double getRadius() {

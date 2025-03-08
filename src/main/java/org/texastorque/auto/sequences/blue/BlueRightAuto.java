@@ -1,6 +1,6 @@
 package org.texastorque.auto.sequences.blue;
 
-import org.texastorque.AlignPose2d.Relation;
+import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.auto.routines.Align;
 import org.texastorque.auto.routines.QuickSwap;

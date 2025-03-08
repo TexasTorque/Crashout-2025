@@ -1,6 +1,6 @@
 package org.texastorque.auto.routines;
 
-import org.texastorque.AlignPose2d.Relation;
+import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.torquelib.auto.TorqueSequence;
@@ -13,7 +13,7 @@ public class Align extends TorqueSequence implements Subsystems {
 
 	public Align(final Relation relation, final double timeToAlign) {
         addBlock(new TorqueRun(() -> {
-            drivebase.setRelation(relation);
+            perception.setRelation(relation);
             drivebase.setState(Drivebase.State.ALIGN);
         }));
         addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isNearAligned()));
