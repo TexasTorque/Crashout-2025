@@ -45,7 +45,7 @@
     "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": "BLUE_RIGHT",
+  "folder": "BLUE_RIGHT_QUICKSWAP",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

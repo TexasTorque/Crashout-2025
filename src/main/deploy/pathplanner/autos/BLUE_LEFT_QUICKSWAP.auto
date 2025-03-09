@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BLUE_LFT_CL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BLUE_CL_CSL_SPIN"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BLUE_CSL_CL"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "BLUE",
+  "choreoAuto": false
+}

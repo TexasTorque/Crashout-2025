@@ -9,12 +9,15 @@ package org.texastorque.auto;
 import org.texastorque.Subsystems;
 import org.texastorque.auto.sequences.blue.BlueCenterNet;
 import org.texastorque.auto.sequences.blue.BlueCenterProcessor;
+import org.texastorque.auto.sequences.blue.BlueLeftL4Auto;
 import org.texastorque.auto.sequences.blue.BlueLeftQuickswapAuto;
 import org.texastorque.auto.sequences.blue.BlueRightL4Auto;
 import org.texastorque.auto.sequences.blue.BlueRightQuickswapAuto;
 import org.texastorque.auto.sequences.red.RedCenterNet;
 import org.texastorque.auto.sequences.red.RedCenterProcessor;
+import org.texastorque.auto.sequences.red.RedLeftL4Auto;
 import org.texastorque.auto.sequences.red.RedLeftQuickswapAuto;
+import org.texastorque.auto.sequences.red.RedRightL4Auto;
 import org.texastorque.auto.sequences.red.RedRightQuickswapAuto;
 import org.texastorque.torquelib.auto.TorqueAutoManager;
 
@@ -23,16 +26,19 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadSequences() {
-        addSequence("BLUE LEFT -> 2 CORAL", new BlueLeftQuickswapAuto());
+        addSequence("BLUE LEFT -> L3 -> 2 CORAL", new BlueLeftQuickswapAuto());
+        addSequence("BLUE LEFT -> L4 -> 3 CORAL", new BlueLeftL4Auto());
         addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new BlueCenterProcessor());
         addSequence("BLUE CENTER -> 1 CORAL -> 2 ALGAE NET", new BlueCenterNet());
-        addSequence("BLUE RIGHT -> QUICKSWAP -> 2 CORAL", new BlueRightQuickswapAuto());
         addSequence("BLUE RIGHT -> L4 -> 3 CORAL", new BlueRightL4Auto());
+        addSequence("BLUE RIGHT -> L3 -> 2 CORAL", new BlueRightQuickswapAuto());
 
-        addSequence("RED LEFT -> 2 CORAL", new RedLeftQuickswapAuto());
+        addSequence("RED LEFT -> L3 -> 2 CORAL", new RedLeftQuickswapAuto());
+        addSequence("RED LEFT -> L4 -> 3 CORAL", new RedLeftL4Auto());
         addSequence("RED CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new RedCenterProcessor());
         addSequence("RED CENTER -> 1 CORAL -> 2 ALGAE NET", new RedCenterNet());
-        addSequence("RED RIGHT -> 2 CORAL", new RedRightQuickswapAuto());
+        addSequence("RED RIGHT -> L4 -> 3 CORAL", new RedRightL4Auto());
+        addSequence("RED RIGHT -> L3 -> 2 CORAL", new RedRightQuickswapAuto());
 
         // addSequence("TEST", new TestAuto());
     }

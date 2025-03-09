@@ -5,12 +5,16 @@
   "pathFolders": [
     "BLUE_CENTER_NET",
     "BLUE_CENTER_PSR",
-    "BLUE_LEFT",
-    "BLUE_RIGHT",
+    "BLUE_LEFT_L4",
+    "BLUE_LEFT_QUICKSWAP",
+    "BLUE_RIGHT_L4",
+    "BLUE_RIGHT_QUICKSWAP",
+    "RED_LEFT_L4",
     "RED_CENTER_NET",
     "RED_CENTER_PSR",
-    "RED_LEFT",
-    "RED_RIGHT"
+    "RED_LEFT_QUICKSWAP",
+    "RED_RIGHT_L4",
+    "RED_RIGHT_QUICKSWAP"
   ],
   "autoFolders": [
     "BLUE",

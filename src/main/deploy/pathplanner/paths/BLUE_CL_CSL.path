@@ -28,12 +28,7 @@
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -50,7 +45,7 @@
     "rotation": -55.0
   },
   "reversed": false,
-  "folder": "BLUE_LEFT",
+  "folder": "BLUE_LEFT_L4",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -59.99999999999999
