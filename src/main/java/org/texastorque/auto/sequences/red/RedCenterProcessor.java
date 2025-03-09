@@ -11,9 +11,6 @@ import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-
 public class RedCenterProcessor extends TorqueSequence implements Subsystems {
     
     public RedCenterProcessor() {
@@ -29,7 +26,7 @@ public class RedCenterProcessor extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new Quickswap(new Pose2d(11.435, 3.957, Rotation2d.fromDegrees(0))).command());
+        addBlock(new Quickswap().command());
 
         // Drive far to processor
         addBlock(new TorqueFollowPath("RED_FF_PSR", drivebase).withMarkers(

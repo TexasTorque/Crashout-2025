@@ -1,7 +1,5 @@
 package org.texastorque.subsystems;
 
-import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
@@ -11,9 +9,14 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
+
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.util.PIDConstants;
+
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -58,7 +61,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public TorqueSwerveSpeeds inputSpeeds;
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
-    private PIDController xController, yController, omegaController;
+    private final PPHolonomicDriveController driveController;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
 
@@ -76,11 +79,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         swerveStates = new SwerveModuleState[4];
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
-        
-        xController = new PIDController(2, 0, 0);
-        yController = new PIDController(2, 0, 0);
-        omegaController = new PIDController(.15, 0, 0);
-        omegaController.enableContinuousInput(0, 360);
+
+        driveController = new PPHolonomicDriveController(
+                new PIDConstants(2.5, 0, 0),
+                new PIDConstants(2 * Math.PI, 0, 0),
+                getMaxPathingVelocity(), getRadius());
     }
 
     @Override
@@ -126,12 +129,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (alignPoseOverride != null && wantsState(State.ALIGN)) {
             runAlignment(alignPoseOverride);
         } else if (wantsState(State.ALIGN)) {
-            final Optional<Pose2d> alignPose = perception.getAlignPose();
-            Debug.log("Align Target Pose", alignPose.isPresent() ? alignPose.get().toString() : "None");
-            if (alignPose.isPresent()) {
-                Pose2d targetPose = alignPose.get();
-                
-                runAlignment(targetPose);
+            final Pose2d alignPose = perception.getAlignPose();
+            Debug.log("Align Target Pose", alignPose == null ? "None" : alignPose.toString());
+            if (alignPose != null) {
+                runAlignment(alignPose);
             }
         }
 
@@ -177,32 +178,30 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             setInputSpeeds(new TorqueSwerveSpeeds());
             return;
         }
-        final double MAX_ALIGN_VELOCITY = DriverStation.isTeleop() ? 1 : .5;
-        final double MAX_ALIGN_OMEGA_VELOCITY = DriverStation.isTeleop() ? Math.PI / 2 : Math.PI / 2;
 
-        double xPower = xController.calculate(perception.getFilteredPose().getX(), pose.getX());
-        double yPower = yController.calculate(perception.getFilteredPose().getY(), pose.getY());
-        double omegaPower = omegaController.calculate(perception.getFilteredPose().getRotation().getDegrees(), pose.getRotation().getDegrees());
+        PathPlannerTrajectory.State state = new PathPlannerTrajectory.State();
+        state.positionMeters = pose.getTranslation();
+        state.targetHolonomicRotation = pose.getRotation();
+        state.constraints = new PathConstraints(1, .25, 2 * Math.PI, 4 * Math.PI);
 
-        if (Math.abs(xPower) > MAX_ALIGN_VELOCITY) xPower = Math.signum(xPower) * MAX_ALIGN_VELOCITY;
-        if (Math.abs(yPower) > MAX_ALIGN_VELOCITY) yPower = Math.signum(yPower) * MAX_ALIGN_VELOCITY;
-        if (Math.abs(omegaPower) > MAX_ALIGN_OMEGA_VELOCITY) omegaPower = Math.signum(omegaPower) * MAX_ALIGN_OMEGA_VELOCITY;
-
-        inputSpeeds.vxMetersPerSecond = xPower;
-        inputSpeeds.vyMetersPerSecond = yPower;
-        inputSpeeds.omegaRadiansPerSecond = omegaPower;
+        inputSpeeds = TorqueSwerveSpeeds.fromChassisSpeeds(
+            ChassisSpeeds.fromRobotRelativeSpeeds(
+                driveController.calculateRobotRelativeSpeeds(new Pose2d(perception.getFilteredPose().getTranslation(), perception.getHeading()), state),
+                perception.getHeading()
+            )
+        );
     }
 
     public boolean isAligned() {
-        Optional<Pose2d> alignPose = perception.getAlignPose();
+        Pose2d alignPose = perception.getAlignPose();
         final double TRANSLATION_TOLERANCE = .01;
         final double ROTATION_TOLERANCE = 1;
 
-        if (alignPoseOverride != null) alignPose = Optional.of(alignPoseOverride);
-        if (alignPose.isEmpty()) return false;
-        final double distance = alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation());
+        if (alignPoseOverride != null) alignPose = alignPoseOverride;
+        if (alignPose == null) return false;
+        final double distance = alignPose.getTranslation().getDistance(perception.getPose().getTranslation());
         final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
-        final double rotation = (alignPose.get().getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
+        final double rotation = (alignPose.getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
         final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
 
         Debug.log("Rotation Aligned", rotationAligned);
@@ -218,15 +217,15 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public boolean isNearAligned() {
-        Optional<Pose2d> alignPose = perception.getAlignPose();
+        Pose2d alignPose = perception.getAlignPose();
         final double TRANSLATION_TOLERANCE = .05;
         final double ROTATION_TOLERANCE = 2;
 
-        if (alignPoseOverride != null) alignPose = Optional.of(alignPoseOverride);
-        if (alignPose.isEmpty()) return false;
-        final double distance = alignPose.get().getTranslation().getDistance(perception.getPose().getTranslation());
+        if (alignPoseOverride != null) alignPose = alignPoseOverride;
+        if (alignPose == null) return false;
+        final double distance = alignPose.getTranslation().getDistance(perception.getPose().getTranslation());
         final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
-        final double rotation = (alignPose.get().getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
+        final double rotation = (alignPose.getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
         final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
 
         Debug.log("Rotation Aligned", rotationAligned);
@@ -263,6 +262,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             fl.getPosition(), fr.getPosition(),
             bl.getPosition(), br.getPosition()
         };
+    }
+
+    public void resetAlign() {
+        driveController.reset(perception.getFilteredPose(), inputSpeeds);
     }
 
     public void startSlowMode() {

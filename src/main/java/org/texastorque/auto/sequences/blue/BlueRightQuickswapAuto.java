@@ -1,5 +1,6 @@
 package org.texastorque.auto.sequences.blue;
 
+import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.auto.routines.Align;
@@ -13,9 +14,6 @@ import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 
 public class BlueRightQuickswapAuto extends TorqueSequence implements Subsystems {
     
@@ -31,7 +29,7 @@ public class BlueRightQuickswapAuto extends TorqueSequence implements Subsystems
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new Quickswap(new Pose2d(3.63, 2.71, Rotation2d.fromDegrees(60))).command());
+        addBlock(new Quickswap().command());
 
         // Drive close right to coral station right
         addBlock(new TorqueFollowPath("BLUE_CR_CSR", drivebase).withMarkers(
@@ -48,7 +46,7 @@ public class BlueRightQuickswapAuto extends TorqueSequence implements Subsystems
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
 
         // Alignment
-        addBlock(new Align(Relation.CENTER, 1.2).command());
+        addBlock(new Align(Relation.CENTER, AlignableTarget.CORAL_STATION, 1.2).command());
 
         // Pickup coral from coral station
         addBlock(new TorqueWaitTime(1.5));
@@ -63,7 +61,7 @@ public class BlueRightQuickswapAuto extends TorqueSequence implements Subsystems
         ));
 
         // Alignment
-        addBlock(new Align(Relation.RIGHT, 2).command());
+        addBlock(new Align(Relation.RIGHT, AlignableTarget.L3, 2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));

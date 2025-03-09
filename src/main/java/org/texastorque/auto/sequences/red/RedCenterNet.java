@@ -1,5 +1,6 @@
 package org.texastorque.auto.sequences.red;
 
+import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.auto.routines.Align;
 import org.texastorque.auto.routines.Quickswap;
@@ -12,9 +13,6 @@ import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 
 public class RedCenterNet extends TorqueSequence implements Subsystems {
 
@@ -29,7 +27,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueFollowPath("RED_CTR_FL", drivebase));
 
 		// Quickswap
-		addBlock(new Quickswap(new Pose2d(12.171, 2.695, Rotation2d.fromDegrees(60))).command());
+		addBlock(new Quickswap().command());
 
 		// Drive far left to net
 		addBlock(new TorqueFollowPath("RED_FL_NET", drivebase).withMarkers(
@@ -57,7 +55,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-        addBlock(new Align(Relation.CENTER, 1.2).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.2).command());
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 

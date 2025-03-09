@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueClickSupplier slowInitial;
+    private final TorqueClickSupplier slowInitial, alignInitial;
     private final TorqueBoolSupplier resetGyro, align, slow, stow,
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
@@ -37,6 +37,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         
+        alignInitial = new TorqueClickSupplier(driver::isRightTriggerDown);
         align = new TorqueBoolSupplier(driver::isRightTriggerDown);
 
         stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
@@ -104,6 +105,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         slowInitial.onTrue(() -> drivebase.startSlowMode());
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
 
+        alignInitial.onTrue(() -> drivebase.resetAlign());
         align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
 
         final boolean isRedAlliance = DriverStation.getAlliance().isPresent()

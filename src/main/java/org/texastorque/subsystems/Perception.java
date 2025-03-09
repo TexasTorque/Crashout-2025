@@ -1,8 +1,6 @@
 package org.texastorque.subsystems;
 
 import java.util.ArrayList;
-import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.Field.AlignPosition.Placement;
 import org.texastorque.Field.AlignPosition.Relation;
@@ -234,7 +232,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return gyro.getHeadingCCW();
 	}
 
-	public Optional<Pose2d> getAlignPose() {
+	public Pose2d getAlignPose() {
 		return Field.getInstance().getAlignPose(filteredPose, desiredAlignTarget, relation);
 	}
 

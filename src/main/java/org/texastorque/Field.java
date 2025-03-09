@@ -1,7 +1,6 @@
 package org.texastorque;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import org.texastorque.Field.AlignPosition.Placement;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Field.AlignPosition.AlignableTarget;
@@ -115,21 +114,22 @@ public class Field implements Subsystems {
 	}
 
 	private final double BUMBPERS_AGAINST = 0.436;
-	private final double RIGHT_SIDE = .03525;
+	private final double RIGHT_SIDE = .034;
 	private final double LEFT_SIDE = .2975;
 
 	private ArrayList<AlignPosition> alignPositions = new ArrayList<>();
 	private AlignPosition leftL1 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L1, BUMBPERS_AGAINST, -LEFT_SIDE);
-    private AlignPosition leftL2 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L2, 1, -LEFT_SIDE);
+    private AlignPosition leftL2 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L2, BUMBPERS_AGAINST + .1, -LEFT_SIDE);
     private AlignPosition leftL3 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L3, BUMBPERS_AGAINST, -LEFT_SIDE);
-    private AlignPosition leftL4 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L4, 1, -LEFT_SIDE);
+    private AlignPosition leftL4 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L4, BUMBPERS_AGAINST + .1, -LEFT_SIDE - .05);
     private AlignPosition centerL1 = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.L1, BUMBPERS_AGAINST, 0);
-    private AlignPosition centerHigh = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_HIGH, BUMBPERS_AGAINST, 0);
-    private AlignPosition centerLow = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_LOW, BUMBPERS_AGAINST, 0);
+    private AlignPosition centerHigh = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_HIGH, BUMBPERS_AGAINST + .05, -.2);
+    private AlignPosition centerLow = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_LOW, BUMBPERS_AGAINST + .05, -.2);
+    private AlignPosition backup = new AlignPosition(Placement.REEF, Relation.NONE, AlignableTarget.NONE, 1, -.2);
     private AlignPosition rightL1 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L1, BUMBPERS_AGAINST, RIGHT_SIDE);
-    private AlignPosition rightL2 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L2, 1, RIGHT_SIDE);
+    private AlignPosition rightL2 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L2, BUMBPERS_AGAINST + .1, RIGHT_SIDE);
     private AlignPosition rightL3 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L3, BUMBPERS_AGAINST, RIGHT_SIDE);
-    private AlignPosition rightL4 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L4, 1, RIGHT_SIDE);
+    private AlignPosition rightL4 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L4, BUMBPERS_AGAINST + .1, RIGHT_SIDE - .05);
     private AlignPosition leftCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.LEFT, AlignableTarget.CORAL_STATION, BUMBPERS_AGAINST, -0.5);
     private AlignPosition centerCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.CENTER, AlignableTarget.CORAL_STATION, BUMBPERS_AGAINST, 0);
     private AlignPosition rightCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.RIGHT, AlignableTarget.CORAL_STATION, BUMBPERS_AGAINST, 0.5);
@@ -142,6 +142,7 @@ public class Field implements Subsystems {
 		alignPositions.add(centerL1);
 		alignPositions.add(centerHigh);
 		alignPositions.add(centerLow);
+		alignPositions.add(backup);
 		alignPositions.add(rightL1);
 		alignPositions.add(rightL2);
 		alignPositions.add(rightL3);
@@ -151,10 +152,10 @@ public class Field implements Subsystems {
 		alignPositions.add(rightCoralStation);
 	}
 
-	public Optional<Pose2d> getAlignPose(final Pose2d currentPose, final AlignableTarget alignableTarget, final Relation relation) {
+	public Pose2d getAlignPose(final Pose2d currentPose, final AlignableTarget alignableTarget, final Relation relation) {
 		TorqueFieldZone currentZone = perception.getCurrentZone();
 
-		if (currentZone == null || currentPose == null) return Optional.empty();
+		if (currentZone == null || currentPose == null) return null;
 
 		AlignPosition alignPosition = null;
 		for (AlignPosition pos : alignPositions) {
@@ -163,7 +164,7 @@ public class Field implements Subsystems {
 			}
 		}
 
-		if (alignPosition == null) return Optional.empty();
+		if (alignPosition == null) return null;
 
 		Pose2d tagPose = AprilTagList.values()[currentZone.getID() - 1].pose;
 
@@ -176,10 +177,10 @@ public class Field implements Subsystems {
 		Pose2d rightPosition = new Pose2d(
 			forwardPosition.getX() + alignPosition.getRight() * Math.cos(tagPose.getRotation().getRadians() + Math.toRadians(90)),
 			forwardPosition.getY() + alignPosition.getRight() * Math.sin(tagPose.getRotation().getRadians() + Math.toRadians(90)),
-			forwardPosition.getRotation().rotateBy(alignPosition.getPlacement() == Placement.CORAL_STATION ? new Rotation2d() : Rotation2d.fromDegrees(180))
+			forwardPosition.getRotation().rotateBy(alignPosition.getPlacement() == Placement.CORAL_STATION  || alignableTarget == AlignableTarget.L1 ? new Rotation2d() : Rotation2d.fromDegrees(180))
 		);
 		
-		return Optional.of(rightPosition);
+		return rightPosition;
 	}
 
 	public static synchronized final Field getInstance() {

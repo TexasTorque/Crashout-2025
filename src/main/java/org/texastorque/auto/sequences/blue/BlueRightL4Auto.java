@@ -1,5 +1,6 @@
 package org.texastorque.auto.sequences.blue;
 
+import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.auto.routines.Align;
@@ -27,7 +28,7 @@ public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
-        addBlock(new Align(Relation.LEFT, 2).command());
+        addBlock(new Align(Relation.LEFT, AlignableTarget.L4, 2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
@@ -45,7 +46,7 @@ public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
 
         // Alignment
-        addBlock(new Align(Relation.CENTER, 1.2).command());
+        addBlock(new Align(Relation.CENTER, AlignableTarget.CORAL_STATION, 1.2).command());
 
         // Pickup coral from coral station
         addBlock(new TorqueWaitTime(1.5));
@@ -60,7 +61,7 @@ public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
         ));
 
         // Alignment
-        addBlock(new Align(Relation.RIGHT, 2).command());
+        addBlock(new Align(Relation.RIGHT, AlignableTarget.L4, 2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));

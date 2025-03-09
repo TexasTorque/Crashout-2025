@@ -1,5 +1,6 @@
 package org.texastorque.auto.routines;
 
+import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.subsystems.Claw;
@@ -8,16 +9,15 @@ import org.texastorque.torquelib.auto.TorqueSequence;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
-import edu.wpi.first.math.geometry.Pose2d;
 
 public class Quickswap extends TorqueSequence implements Subsystems {
 
-	public Quickswap(final Pose2d backupPose) {
+	public Quickswap() {
         // Algae extraction
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-        addBlock(new Align(Relation.CENTER, 1).command());
+        addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1).command());
 
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
@@ -28,12 +28,16 @@ public class Quickswap extends TorqueSequence implements Subsystems {
         }));
 
         // Move back to avoid claw hitting reef poles
-        addBlock(new Align(backupPose, 1).command());
+        addBlock(new TorqueRun(() -> {
+            perception.setRelation(Relation.NONE);
+            perception.setDesiredAlignTarget(AlignableTarget.NONE);
+        }));
+        addBlock(new Align(() -> perception.getAlignPose(), 1).command());
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
-        addBlock(new Align(Relation.LEFT, 1.2).command());
+        addBlock(new Align(Relation.LEFT, AlignableTarget.L3, 1.2).command());
 
         // Coral placement & Algae Shot
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));

@@ -7,15 +7,13 @@ import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
+import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.auto.routines.Align;
 import org.texastorque.auto.routines.Quickswap;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Elevator.State;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 
 public class RedLeftQuickswapAuto extends TorqueSequence implements Subsystems {
     
@@ -31,7 +29,7 @@ public class RedLeftQuickswapAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new Quickswap(new Pose2d(13.944, 2.590, Rotation2d.fromDegrees(120))).command());
+        addBlock(new Quickswap().command());
 
         // Drive close left to coral station left
         addBlock(new TorqueFollowPath("RED_CL_CSL", drivebase).withMarkers(
@@ -46,7 +44,7 @@ public class RedLeftQuickswapAuto extends TorqueSequence implements Subsystems {
         ));
         
         // Alignment
-        addBlock(new Align(Relation.CENTER, 1.2).command());
+        addBlock(new Align(Relation.CENTER, AlignableTarget.CORAL_STATION, 1.2).command());
 
         // Pickup coral from coral station
         addBlock(new TorqueWaitTime(1.5));
@@ -61,7 +59,7 @@ public class RedLeftQuickswapAuto extends TorqueSequence implements Subsystems {
         ));
 
         // Alignment
-        addBlock(new Align(Relation.RIGHT, 2).command());
+        addBlock(new Align(Relation.RIGHT, AlignableTarget.L3, 2).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));

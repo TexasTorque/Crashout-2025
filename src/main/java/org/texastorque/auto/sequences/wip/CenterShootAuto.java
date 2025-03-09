@@ -10,9 +10,6 @@ import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-
 public class CenterShootAuto extends TorqueSequence implements Subsystems {
     
     public CenterShootAuto() {
@@ -28,7 +25,7 @@ public class CenterShootAuto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new Quickswap(new Pose2d(6.15, 4, Rotation2d.fromDegrees(180))).command());
+        addBlock(new Quickswap().command());
 
         // Move to processor state
         addBlock(new TorqueRun(() -> {
