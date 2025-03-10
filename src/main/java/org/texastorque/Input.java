@@ -10,17 +10,20 @@ import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
+import org.texastorque.torquelib.control.TorqueRequestableTimeout;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
-    private final TorqueClickSupplier slowInitial, alignInitial;
+    private final TorqueRequestableTimeout driverRumble, operatorRumble;
+    private final TorqueClickSupplier slowInitial, alignInitial, endgameClick;
     private final TorqueBoolSupplier resetGyro, align, slow, stow,
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
@@ -31,6 +34,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
         operator = new TorqueController(1, CONTROLLER_DEADBAND);
+
+        driverRumble = new TorqueRequestableTimeout();
+        operatorRumble = new TorqueRequestableTimeout();
+
+        endgameClick = new TorqueClickSupplier(() -> Timer.getMatchTime() < 30 && DriverStation.isTeleop());
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
@@ -81,6 +89,14 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         updateDrivebase();
         updateSuperstructure();
         updateClimb();
+
+        endgameClick.onTrue(() -> {
+            driverRumble.set(.5);
+            operatorRumble.set(.5);
+        });
+
+        driver.setRumble(driverRumble.get());
+        operator.setRumble(operatorRumble.get());
 
         final double DELTA = 1;
         manualElevatorUp.onTrue(() -> {
