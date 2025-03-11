@@ -29,7 +29,7 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
         addSequence("BLUE LEFT -> L3 -> 2 CORAL", new BlueLeftQuickswapAuto());
         addSequence("BLUE LEFT -> L4 -> 3 CORAL", new BlueLeftL4Auto());
         addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new BlueCenterProcessor());
-        addSequence("BLUE CENTER -> 1 CORAL -> 2 ALGAE NET", new BlueCenterNet());
+        addSequence("BLUE CENTER -> 1 CORAL -> 3 ALGAE NET", new BlueCenterNet());
         addSequence("BLUE RIGHT -> L4 -> 3 CORAL", new BlueRightL4Auto());
         addSequence("BLUE RIGHT -> L3 -> 2 CORAL", new BlueRightQuickswapAuto());
 

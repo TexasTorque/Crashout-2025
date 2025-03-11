@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.882,
-        "y": 5.445
+        "x": 7.318,
+        "y": 3.972410102739726
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.896789383561644,
-        "y": 4.828874143835616
+        "x": 7.047537671232876,
+        "y": 3.1009203767123292
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.130479452054795,
-        "y": 4.002461472602739
+        "x": 5.289041095890411,
+        "y": 2.469841609589041
       },
       "prevControl": {
-        "x": 6.566224315068494,
-        "y": 4.37810359589041
+        "x": 6.145505136986302,
+        "y": 1.7035316780821916
       },
       "nextControl": null,
       "isLocked": false,
@@ -41,8 +41,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 180.0
+    "velocity": 1.0,
+    "rotation": 119.99999999999999
   },
   "reversed": false,
   "folder": "BLUE_CENTER_NET",

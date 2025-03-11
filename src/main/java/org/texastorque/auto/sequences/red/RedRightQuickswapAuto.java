@@ -56,7 +56,7 @@ public class RedRightQuickswapAuto extends TorqueSequence implements Subsystems 
         addBlock(new TorqueFollowPath("RED_CSR_CR", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L3);
-                claw.setState(Claw.State.MID_SCORE);
+                claw.setState(Claw.State.SCORE_L3);
             }, .2)
         ));
 

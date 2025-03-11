@@ -186,8 +186,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         inputSpeeds = TorqueSwerveSpeeds.fromChassisSpeeds(
             ChassisSpeeds.fromRobotRelativeSpeeds(
-                driveController.calculateRobotRelativeSpeeds(new Pose2d(perception.getFilteredPose().getTranslation(), perception.getHeading()), state),
-                perception.getHeading()
+                driveController.calculateRobotRelativeSpeeds(new Pose2d(perception.getFilteredPose().getTranslation(), perception.getFilteredPose().getRotation()), state),
+                perception.getFilteredPose().getRotation()
             )
         );
     }

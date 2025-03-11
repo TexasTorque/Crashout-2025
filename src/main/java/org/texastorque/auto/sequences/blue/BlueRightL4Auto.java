@@ -4,6 +4,7 @@ import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.auto.routines.Align;
+import org.texastorque.auto.routines.Push;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Elevator.State;
@@ -17,6 +18,8 @@ import org.texastorque.torquelib.auto.marker.Marker;
 public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
     
     public BlueRightL4Auto() {
+        addBlock(new Push().command());
+
         // Drive right to close right
         addBlock(new TorqueFollowPath("BLUE_RGT_CR", drivebase).withMarkers(
             new Marker(() -> {

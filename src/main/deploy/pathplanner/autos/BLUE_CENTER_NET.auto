@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_CTR_FL"
+            "pathName": "BLUE_CTR_FR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_FL_NET"
+            "pathName": "BLUE_FR_FF"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_NET_FF"
+            "pathName": "BLUE_FF_FL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_FF_NET"
+            "pathName": "BLUE_FL_SHOT"
           }
         }
       ]
