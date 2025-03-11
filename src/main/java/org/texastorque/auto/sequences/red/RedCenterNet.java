@@ -14,31 +14,39 @@ import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public class RedCenterNet extends TorqueSequence implements Subsystems {
 
 	public RedCenterNet() {
+		// addBlock(new TorqueRun(() -> drivebase.setPose(new Pose2d(7.318, 3.972, Rotation2d.fromDegrees(180)))));
+
+		// addBlock(new Push().command());
+
 		// Elevator & claw setpoints
         addBlock(new TorqueRun(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
             claw.setState(Claw.State.ALGAE_EXTRACTION);
         }));
 
-        // Drive center to far left
-		addBlock(new TorqueFollowPath("RED_CTR_FL", drivebase));
+        // Drive center to far right
+		addBlock(new TorqueFollowPath("RED_CTR_FR", drivebase));
 
 		// Quickswap
-		addBlock(new Quickswap().command());
+		addBlock(new Quickswap(true).command());
 
-		// Drive far left to net
-		addBlock(new TorqueFollowPath("RED_FL_NET", drivebase).withMarkers(
+		// Drive shot setpoint to FF
+		addBlock(new TorqueFollowPath("RED_FR_FF", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 				claw.setState(Claw.State.NET);
-			}, .9)
+			}, .2)
 		));
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
+		// Shoot algae into net
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));
 		addBlock(new TorqueWaitTime(.5));
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
@@ -47,8 +55,6 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 			elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
 			claw.setState(Claw.State.ALGAE_EXTRACTION);
 		}));
-
-		addBlock(new TorqueFollowPath("RED_NET_FF", drivebase));
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
@@ -59,12 +65,13 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
-		addBlock(new TorqueFollowPath("RED_FF_NET", drivebase).withMarkers(
-			new Marker(() -> {
-				elevator.setState(Elevator.State.NET);
-				claw.setState(Claw.State.NET);
-			}, .9)
-		));
+		addBlock(new TorqueRun(() -> {
+			elevator.setState(Elevator.State.NET);
+			claw.setState(Claw.State.NET);
+		}));
+
+		// Alignment
+        addBlock(new Align(() -> new Pose2d(11.495, 4.017, Rotation2d.fromDegrees(60)), 1).command());
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
@@ -73,8 +80,37 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
 		addBlock(new TorqueRun(() -> {
-			elevator.setState(Elevator.State.STOW);
-			claw.setState(Claw.State.STOW);
+			elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
+			claw.setState(Claw.State.ALGAE_EXTRACTION);
+		}));
+
+		addBlock(new TorqueFollowPath("RED_FF_FL", drivebase));
+
+		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
+
+		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
+
+		// Alignment
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.2).command());
+
+		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
+
+		addBlock(new TorqueFollowPath("RED_FL_SHOT", drivebase).withMarkers(
+			new Marker(() -> {
+				elevator.setState(Elevator.State.NET);
+			claw.setState(Claw.State.NET);
+			}, .2)
+		));
+
+		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
+
+		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));
+		addBlock(new TorqueWaitTime(.5));
+		addBlock(new TorqueRun(() -> {
+			claw.setAlgaeState(Claw.AlgaeState.OFF);
+
+			elevator.setState(Elevator.State.CORAL_HP);
+			claw.setState(Claw.State.CORAL_HP);
 		}));
 	}
 }

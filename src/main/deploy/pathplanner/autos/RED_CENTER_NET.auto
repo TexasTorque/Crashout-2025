@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RED_CTR_FL"
+            "pathName": "RED_CTR_FR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_FL_NET"
+            "pathName": "RED_FR_FF"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_NET_FF"
+            "pathName": "RED_FF_FL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_FF_NET"
+            "pathName": "RED_FL_SHOT"
           }
         }
       ]
