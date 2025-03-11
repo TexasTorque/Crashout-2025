@@ -146,12 +146,12 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         L2.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L2);
-            claw.setState(Claw.State.MID_SCORE);
+            claw.setState(Claw.State.SCORE_L2);
             perception.setDesiredAlignTarget(AlignableTarget.L2);
         });
         L3.onTrue(() -> {
             elevator.setState(Elevator.State.SCORE_L3);
-            claw.setState(Claw.State.MID_SCORE);
+            claw.setState(Claw.State.SCORE_L3);
             perception.setDesiredAlignTarget(AlignableTarget.L3);
         });
         L4.onTrue(() -> {
