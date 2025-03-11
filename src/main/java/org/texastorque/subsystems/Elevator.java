@@ -22,7 +22,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final ProfiledPIDController elevatorPID;
     public State pastState;
     private double pastStateTime;
-    private final double ELEVATOR_FF = .1;
 
     public final double MAX_HEIGHT = 228;
     public final double SAFE_HEIGHT = 60;
@@ -30,17 +29,17 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         ZERO(0), // Not actually a setpoint!! Gets set to whatever we
                           // deployed at so the elevator doesn't try to go to the ZERO position @ startup
         MANUAL(0), // Also not a setpoint!! Gets set to whatever we manually control it to
-        STOW(61.2034),
-        SCORE_L1(61.2034),
-        SCORE_L2(35.4044),
-        SCORE_L3(88.6823),
-        SCORE_L4(206),
-        NET(204.144),
-        ALGAE_REMOVAL_LOW(134.3316),
-        ALGAE_REMOVAL_HIGH(185.2893),
-        PROCESSOR(61.1915),
-        CORAL_HP(90.5),
-        CLIMB(61.2034);
+        STOW(5),
+        SCORE_L1(5),
+        SCORE_L2(5),
+        SCORE_L3(30),
+        SCORE_L4(5),
+        NET(5),
+        ALGAE_REMOVAL_LOW(5),
+        ALGAE_REMOVAL_HIGH(5),
+        PROCESSOR(5),
+        CORAL_HP(5),
+        CLIMB(5);
 
         public double position;
 
@@ -56,14 +55,16 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
         elevatorLeft = new TorqueKraken(Ports.ELEVATOR_LEFT)
             .idleMode(NeutralModeValue.Brake)
+            .inverted(true)
             .apply();
         
         elevatorRight = new TorqueKraken(Ports.ELEVATOR_RIGHT)
             .idleMode(NeutralModeValue.Brake)
+            .inverted(true)
             .apply();
         
         elevatorPID = new ProfiledPIDController(2, 0, 0,
-                new TrapezoidProfile.Constraints(300, 80));
+                new TrapezoidProfile.Constraints(150, 40));
         
         elevatorPID.reset(getElevatorPosition());
     }
@@ -83,29 +84,36 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator At State", isAtState());
         Debug.log("Manual Position", Elevator.State.MANUAL.position);
 
-        final double ELEVATOR_MAX_VOLTS = 12;
+        Debug.log("Elevator Left Position", elevatorLeft.getPosition());
+        Debug.log("Elevator Right Position", elevatorRight.getPosition());
+
+        final double ELEVATOR_MAX_VOLTS = 4;
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
-        if (desiredState.position > SAFE_HEIGHT && getElevatorPosition() > SAFE_HEIGHT) {
-            elevatorLeft.setVolts(volts + ELEVATOR_FF);
-            elevatorRight.setVolts(volts + ELEVATOR_FF);
-        } else if (getElevatorPosition() > desiredState.position) {
-            if (claw.isAtState()) {
-                elevatorLeft.setVolts(volts + ELEVATOR_FF);
-                elevatorRight.setVolts(volts + ELEVATOR_FF);
-            } else {
-                elevatorLeft.setVolts(ELEVATOR_FF);
-                elevatorRight.setVolts(ELEVATOR_FF);
-            }
-        } else if (getElevatorPosition() < desiredState.position) {
-            elevatorLeft.setVolts(volts + ELEVATOR_FF);
-            elevatorRight.setVolts(volts + ELEVATOR_FF);
-        }
+        // if (desiredState.position > SAFE_HEIGHT && getElevatorPosition() > SAFE_HEIGHT) {
+        //     elevatorLeft.setVolts(volts + ELEVATOR_FF);
+        //     elevatorRight.setVolts(volts + ELEVATOR_FF);
+        // } else if (getElevatorPosition() > desiredState.position) {
+        //     if (claw.isAtState()) {
+        //         elevatorLeft.setVolts(volts + ELEVATOR_FF);
+        //         elevatorRight.setVolts(volts + ELEVATOR_FF);
+        //     } else {
+        //         elevatorLeft.setVolts(ELEVATOR_FF);
+        //         elevatorRight.setVolts(ELEVATOR_FF);
+        //     }
+        // } else if (getElevatorPosition() < desiredState.position) {
+        //     elevatorLeft.setVolts(volts + ELEVATOR_FF);
+        //     elevatorRight.setVolts(volts + ELEVATOR_FF);
+        // }
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(0);
             elevatorRight.setVolts(0);
+            elevatorPID.reset(getElevatorPosition());
+        } else {
+            elevatorLeft.setVolts(volts);
+            // elevatorRight.setVolts(volts);
         }
     }
 
@@ -147,11 +155,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     public final boolean isAtState() {
-        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, .25);
+        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, .1);
     }
 
     public final boolean isNearState() {
-        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, 20);
+        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, 1);
     }
 
     public static final synchronized Elevator getInstance() {

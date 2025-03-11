@@ -98,7 +98,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         driver.setRumble(driverRumble.get());
         operator.setRumble(operatorRumble.get());
 
-        final double DELTA = 1;
+        final double DELTA = .1;
         manualElevatorUp.onTrue(() -> {
             for (Elevator.State state : Elevator.State.values()) {
                 state.position = -DELTA + state.position;
