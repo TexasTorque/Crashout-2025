@@ -42,14 +42,14 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     private static volatile Drivebase instance;
 
-    public static final double WIDTH = Units.inchesToMeters(30),
+    public static final double WIDTH = Units.inchesToMeters(27),
             MAX_VELOCITY = TorqueSwerveModuleNEO.maxVelocity,
             MAX_ANGULAR_VELOCITY = 4 * Math.PI;
 
-    public final Translation2d LOC_FL = new Translation2d(WIDTH / 2, WIDTH / 2),
-            LOC_FR = new Translation2d(-WIDTH / 2, WIDTH / 2),
-            LOC_BL = new Translation2d(WIDTH / 2, -WIDTH / 2),
-            LOC_BR = new Translation2d(-WIDTH / 2, -WIDTH / 2);
+    public final Translation2d LOC_BL = new Translation2d(WIDTH / 2, WIDTH / 2),
+            LOC_FL = new Translation2d(-WIDTH / 2, WIDTH / 2),
+            LOC_BR = new Translation2d(WIDTH / 2, -WIDTH / 2),
+            LOC_FR = new Translation2d(-WIDTH / 2, -WIDTH / 2);
 
     private final TorqueSwerveModule fl, fr, bl, br;
 
