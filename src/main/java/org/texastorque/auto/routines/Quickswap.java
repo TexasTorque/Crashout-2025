@@ -21,7 +21,7 @@ public class Quickswap extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-        addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1).command());
+        addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, .75).command());
 
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 

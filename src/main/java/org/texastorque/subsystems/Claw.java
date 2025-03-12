@@ -30,16 +30,16 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     public static enum State implements TorqueState {
         ZERO(0),
-        STOW(26.2793),
-        SCORE_L1(11.5),
-        SCORE_L2(181.6699),
-        SCORE_L3(150),
-        SCORE_L4(180),
-        NET(141.6797),
-        ALGAE_EXTRACTION(292.1484),
-        PROCESSOR(69.9207),
-        CORAL_HP(15),
-        CLIMB(230);
+        STOW(41.2793),
+        SCORE_L1(5),
+        SCORE_L2(186.6699),
+        SCORE_L3(165),
+        SCORE_L4(200.0977),
+        NET(156.6797),
+        ALGAE_EXTRACTION(277.2656),
+        PROCESSOR(70.2832),
+        CORAL_HP(20),
+        CLIMB(215);
 
         private double angle;
 
@@ -91,7 +91,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             .apply();
 
         shoulderEncoder = new CANcoder(Ports.SHOULDER_ENCODER);
-        shoulderPID = new ProfiledPIDController(.5, 0, 0,
+        shoulderPID = new ProfiledPIDController(.3, 0, 0,
                 new TrapezoidProfile.Constraints(720, 720));
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
@@ -126,29 +126,13 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         final double SHOULDER_MAX_VOLTS = 12;
         double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.angle);
-        final double ff = .25 * Math.sin(Math.toRadians(getShoulderAngle())); // Will need tuning
+        final double ff = .1 * Math.sin(Math.toRadians(getShoulderAngle() + 15)); // Will need tuning
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
         if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
         } else {
-            if (desiredState == State.SCORE_L4) {
-                if (elevator.getElevatorPosition() > Elevator.State.SCORE_L3.position && elevator.getState() == Elevator.State.SCORE_L4) {
-                    shoulder.setVolts(volts + ff);
-                } else {
-                    shoulder.setVolts(ff);
-                }
-            } else if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
-                shoulder.setVolts(volts + ff);
-            } else if (elevator.getElevatorPosition() > elevator.getState().position) {
-                shoulder.setVolts(volts + ff);
-            } else if (elevator.getElevatorPosition() < elevator.getState().position) {
-                if (elevator.isAtState()) {
-                    shoulder.setVolts(volts + ff);
-                } else {
-                    shoulder.setVolts(ff);
-                }
-            }
+            shoulder.setVolts(volts + ff);
         }
 
         algaeRollers.setVolts(algaeState.getVolts());

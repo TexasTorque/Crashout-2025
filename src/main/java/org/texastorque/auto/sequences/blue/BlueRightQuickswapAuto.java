@@ -23,7 +23,10 @@ public class BlueRightQuickswapAuto extends TorqueSequence implements Subsystems
             new Marker(() -> {
                 elevator.setState(State.ALGAE_REMOVAL_LOW);
                 claw.setState(Claw.State.ALGAE_EXTRACTION);
-            }, .3)
+            }, .3),
+            new Marker(() -> {
+                claw.setAlgaeState(Claw.AlgaeState.INTAKE);
+            }, .8)
         ));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));

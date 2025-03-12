@@ -30,15 +30,15 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
                           // deployed at so the elevator doesn't try to go to the ZERO position @ startup
         MANUAL(0), // Also not a setpoint!! Gets set to whatever we manually control it to
         STOW(5),
-        SCORE_L1(5),
-        SCORE_L2(5),
-        SCORE_L3(30),
-        SCORE_L4(5),
-        NET(5),
-        ALGAE_REMOVAL_LOW(5),
-        ALGAE_REMOVAL_HIGH(5),
-        PROCESSOR(5),
-        CORAL_HP(5),
+        SCORE_L1(0.8044),
+        SCORE_L2(0.8044),
+        SCORE_L3(4.8713),
+        SCORE_L4(36.7693),
+        NET(36.7693),
+        ALGAE_REMOVAL_LOW(1.5771),
+        ALGAE_REMOVAL_HIGH(18.3303),
+        PROCESSOR(1.6765),
+        CORAL_HP(5.2134),
         CLIMB(5);
 
         public double position;
@@ -64,7 +64,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             .apply();
         
         elevatorPID = new ProfiledPIDController(2, 0, 0,
-                new TrapezoidProfile.Constraints(150, 40));
+                new TrapezoidProfile.Constraints(400, 150));
         
         elevatorPID.reset(getElevatorPosition());
     }
@@ -87,25 +87,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator Left Position", elevatorLeft.getPosition());
         Debug.log("Elevator Right Position", elevatorRight.getPosition());
 
-        final double ELEVATOR_MAX_VOLTS = 4;
+        final double ELEVATOR_MAX_VOLTS = 8;
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
-        // if (desiredState.position > SAFE_HEIGHT && getElevatorPosition() > SAFE_HEIGHT) {
-        //     elevatorLeft.setVolts(volts + ELEVATOR_FF);
-        //     elevatorRight.setVolts(volts + ELEVATOR_FF);
-        // } else if (getElevatorPosition() > desiredState.position) {
-        //     if (claw.isAtState()) {
-        //         elevatorLeft.setVolts(volts + ELEVATOR_FF);
-        //         elevatorRight.setVolts(volts + ELEVATOR_FF);
-        //     } else {
-        //         elevatorLeft.setVolts(ELEVATOR_FF);
-        //         elevatorRight.setVolts(ELEVATOR_FF);
-        //     }
-        // } else if (getElevatorPosition() < desiredState.position) {
-        //     elevatorLeft.setVolts(volts + ELEVATOR_FF);
-        //     elevatorRight.setVolts(volts + ELEVATOR_FF);
-        // }
+        Debug.log("Elevator Volts", volts);
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(0);
@@ -113,7 +99,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             elevatorPID.reset(getElevatorPosition());
         } else {
             elevatorLeft.setVolts(volts);
-            // elevatorRight.setVolts(volts);
+            elevatorRight.setVolts(volts);
         }
     }
 
