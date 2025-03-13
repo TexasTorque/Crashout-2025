@@ -32,7 +32,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         SCORE_L1(0.8044),
         SCORE_L2(0.8044),
         SCORE_L3(4.8713),
-        SCORE_L4(36.7693),
+        SCORE_L4(38.7693),
         NET(36.7693),
         ALGAE_REMOVAL_LOW(1.5771),
         ALGAE_REMOVAL_HIGH(18.3303),
@@ -129,7 +129,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     public final boolean isAtState() {
-        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, .1);
+        return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, .3);
     }
 
     public final boolean isNearState() {

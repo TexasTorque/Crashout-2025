@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.04,
+        "x": 6.75,
         "y": 4.048
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.446018835616439,
+        "x": 7.156018835616439,
         "y": 4.363077910958904
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BLUE_CENTER_NET_SHOT"
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": "BLUE_CENTER_NET",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 35.0
+    "rotation": -160.0
   },
   "useDefaultConstraints": true
 }

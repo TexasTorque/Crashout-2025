@@ -30,7 +30,7 @@ public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L4);
                 claw.setState(Claw.State.SCORE_L4);
-            }, .3)
+            }, .5)
         ));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));

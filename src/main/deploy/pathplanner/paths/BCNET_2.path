@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 6.04,
+        "x": 6.75,
         "y": 4.048
       },
       "prevControl": {
-        "x": 5.994923828335856,
+        "x": 6.704923828335856,
         "y": 3.3718441192074122
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BLUE_CENTER_NET_SHOT"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": -145.0
+    "rotation": -160.0
   },
   "reversed": false,
   "folder": "BLUE_CENTER_NET",

@@ -17,12 +17,17 @@ import org.texastorque.torquelib.auto.marker.Marker;
 public class RedLeftL4Auto extends TorqueSequence implements Subsystems {
     
     public RedLeftL4Auto() {
+        addBlock(new TorqueRun(() -> {
+            elevator.setState(Elevator.State.STOW);
+            claw.setState(Claw.State.STOW);
+        }));
+        
         // Drive left to close left
         addBlock(new TorqueFollowPath("RLL4_1", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L4);
                 claw.setState(Claw.State.SCORE_L4);
-            }, .3)
+            }, .5)
         ));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
@@ -49,7 +54,7 @@ public class RedLeftL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new Align(Relation.CENTER, AlignableTarget.CORAL_STATION, 1.2).command());
 
         // Pickup coral from coral station
-        addBlock(new TorqueWaitTime(1.5));
+        addBlock(new TorqueWaitTime(.5));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station left to close left

@@ -36,7 +36,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 		// Quickswap
 		addBlock(new Quickswap(true).command());
 
-		// Drive shot setpoint to FF
+		// Drive far right to far shot
 		addBlock(new TorqueFollowPath("RCNET_2", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
@@ -61,7 +61,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.2).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.5).command());
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
@@ -71,7 +71,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 		}));
 
 		// Alignment
-        addBlock(new Align(() -> new Pose2d(11.495, 4.017, Rotation2d.fromDegrees(60)), 1).command());
+        addBlock(new Align(() -> new Pose2d(10.750, 4.048, Rotation2d.fromDegrees(15)), 1).command());
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
@@ -91,7 +91,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.2).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.5).command());
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 

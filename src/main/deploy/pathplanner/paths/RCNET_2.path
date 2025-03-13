@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 11.6,
-        "y": 4.05
+        "x": 10.75,
+        "y": 4.048
       },
       "prevControl": {
-        "x": 11.494820205479451,
-        "y": 4.876412671232877
+        "x": 10.644820205479451,
+        "y": 4.874412671232877
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "RED_CENTER_NET_SHOT"
     }
   ],
   "rotationTargets": [],

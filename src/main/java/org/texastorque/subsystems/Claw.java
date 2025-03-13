@@ -34,7 +34,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         SCORE_L1(5),
         SCORE_L2(186.6699),
         SCORE_L3(165),
-        SCORE_L4(200.0977),
+        SCORE_L4(205.0977),
         NET(156.6797),
         ALGAE_EXTRACTION(277.2656),
         PROCESSOR(70.2832),

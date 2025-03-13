@@ -20,8 +20,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class BlueCenterNet extends TorqueSequence implements Subsystems {
 
 	public BlueCenterNet() {
-		// addBlock(new TorqueRun(() -> drivebase.setPose(new Pose2d(7.318, 3.972, Rotation2d.fromDegrees(180)))));
-
 		// addBlock(new Push().command());
 
 		// Elevator & claw setpoints
@@ -36,7 +34,7 @@ public class BlueCenterNet extends TorqueSequence implements Subsystems {
 		// Quickswap
 		addBlock(new Quickswap(true).command());
 
-		// Drive shot setpoint to FF
+		// Drive far right to far shot
 		addBlock(new TorqueFollowPath("BCNET_2", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
@@ -61,7 +59,7 @@ public class BlueCenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.2).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.5).command());
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
@@ -71,7 +69,7 @@ public class BlueCenterNet extends TorqueSequence implements Subsystems {
 		}));
 
 		// Alignment
-        addBlock(new Align(() -> new Pose2d(6.085, 4.033, Rotation2d.fromDegrees(216.123)), 1).command());
+        addBlock(new Align(() -> new Pose2d(6.750, 4.048, Rotation2d.fromDegrees(200)), 1.5).command());
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
@@ -91,7 +89,7 @@ public class BlueCenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.2).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.5).command());
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
