@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RED_RGT_CR"
+            "pathName": "RRL4_1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_CR_CSR"
+            "pathName": "RRL4_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_CSR_CR"
+            "pathName": "RRL4_3"
           }
         }
       ]

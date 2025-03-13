@@ -31,13 +31,13 @@ public class BlueCenterNet extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far right
-		addBlock(new TorqueFollowPath("BLUE_CTR_FR", drivebase));
+		addBlock(new TorqueFollowPath("BCNET_1", drivebase));
 
 		// Quickswap
 		addBlock(new Quickswap(true).command());
 
 		// Drive shot setpoint to FF
-		addBlock(new TorqueFollowPath("BLUE_FR_FF", drivebase).withMarkers(
+		addBlock(new TorqueFollowPath("BCNET_2", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 				claw.setState(Claw.State.NET);
@@ -84,7 +84,7 @@ public class BlueCenterNet extends TorqueSequence implements Subsystems {
 			claw.setState(Claw.State.ALGAE_EXTRACTION);
 		}));
 
-		addBlock(new TorqueFollowPath("BLUE_FF_FL", drivebase));
+		addBlock(new TorqueFollowPath("BCNET_3", drivebase));
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
@@ -95,7 +95,7 @@ public class BlueCenterNet extends TorqueSequence implements Subsystems {
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
-		addBlock(new TorqueFollowPath("BLUE_FL_SHOT", drivebase).withMarkers(
+		addBlock(new TorqueFollowPath("BCNET_4", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 			claw.setState(Claw.State.NET);

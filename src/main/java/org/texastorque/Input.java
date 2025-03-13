@@ -38,7 +38,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         driverRumble = new TorqueRequestableTimeout();
         operatorRumble = new TorqueRequestableTimeout();
 
-        endgameClick = new TorqueClickSupplier(() -> Timer.getMatchTime() < 30 && DriverStation.isTeleop());
+        endgameClick = new TorqueClickSupplier(() -> Timer.getMatchTime() < 30 && Timer.getMatchTime() > 28 && DriverStation.isTeleop());
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 

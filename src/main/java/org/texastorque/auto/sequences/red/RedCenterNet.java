@@ -31,13 +31,13 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far right
-		addBlock(new TorqueFollowPath("RED_CTR_FR", drivebase));
+		addBlock(new TorqueFollowPath("RCNET_1", drivebase));
 
 		// Quickswap
 		addBlock(new Quickswap(true).command());
 
 		// Drive shot setpoint to FF
-		addBlock(new TorqueFollowPath("RED_FR_FF", drivebase).withMarkers(
+		addBlock(new TorqueFollowPath("RCNET_2", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 				claw.setState(Claw.State.NET);
@@ -84,7 +84,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 			claw.setState(Claw.State.ALGAE_EXTRACTION);
 		}));
 
-		addBlock(new TorqueFollowPath("RED_FF_FL", drivebase));
+		addBlock(new TorqueFollowPath("RCNET_3", drivebase));
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
@@ -95,7 +95,7 @@ public class RedCenterNet extends TorqueSequence implements Subsystems {
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
-		addBlock(new TorqueFollowPath("RED_FL_SHOT", drivebase).withMarkers(
+		addBlock(new TorqueFollowPath("RCNET_4", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 			claw.setState(Claw.State.NET);

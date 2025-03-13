@@ -19,6 +19,7 @@ public class Align extends TorqueSequence implements Subsystems {
             perception.setRelation(relation);
             perception.setDesiredAlignTarget(alignableTarget);
             drivebase.setState(Drivebase.State.ALIGN);
+            drivebase.resetAlign();
         }));
         addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isNearAligned()));
         addBlock(new TorqueRun(() -> {
@@ -31,6 +32,7 @@ public class Align extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> {
             drivebase.setAlignPoseOverride(pose.get());
             drivebase.setState(Drivebase.State.ALIGN);
+            drivebase.resetAlign();
         }));
         addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isNearAligned()));
         addBlock(new TorqueRun(() -> {

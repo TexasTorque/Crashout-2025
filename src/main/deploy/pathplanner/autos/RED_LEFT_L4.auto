@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RED_LFT_CL"
+            "pathName": "RLL4_1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_CL_CSL"
+            "pathName": "RLL4_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_CSL_CL"
+            "pathName": "RLL4_3"
           }
         }
       ]

@@ -26,7 +26,7 @@ public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new Push().command());
 
         // Drive right to close right
-        addBlock(new TorqueFollowPath("BLUE_RGT_CR", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("BRL4_1", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L4);
                 claw.setState(Claw.State.SCORE_L4);
@@ -44,7 +44,7 @@ public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("BLUE_CR_CSR", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("BRL4_2", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(State.CORAL_HP);
                 claw.setState(Claw.State.CORAL_HP);
@@ -61,7 +61,7 @@ public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("BLUE_CSR_CR", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("BRL4_3", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L4);
                 claw.setState(Claw.State.SCORE_L4);
@@ -76,19 +76,19 @@ public class BlueRightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
-        // Move back to avoid claw hitting reef poles
-        addBlock(new TorqueRun(() -> {
-            perception.setRelation(Relation.NONE);
-            perception.setDesiredAlignTarget(AlignableTarget.NONE);
-        }));
-        addBlock(new Align(() -> perception.getAlignPose(), 1).command());
-
         // Move to algae setpoints
         addBlock(new TorqueRun(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
             claw.setState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         }));
+
+        // Move back to avoid claw hitting reef poles
+        addBlock(new TorqueRun(() -> {
+            perception.setRelation(Relation.NONE);
+            perception.setDesiredAlignTarget(AlignableTarget.NONE);
+        }));
+        addBlock(new Align(() -> perception.getAlignPose(), 1).command());
 
         // Alignment
         addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, .75).command());

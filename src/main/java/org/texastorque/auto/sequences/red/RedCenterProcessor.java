@@ -21,7 +21,7 @@ public class RedCenterProcessor extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far
-        addBlock(new TorqueFollowPath("RED_CTR_FF", drivebase));
+        addBlock(new TorqueFollowPath("RCPSR_1", drivebase));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
@@ -29,7 +29,7 @@ public class RedCenterProcessor extends TorqueSequence implements Subsystems {
         addBlock(new Quickswap().command());
 
         // Drive far to processor
-        addBlock(new TorqueFollowPath("RED_FF_PSR", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("RCPSR_2", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.PROCESSOR);
                 claw.setState(Claw.State.PROCESSOR);

@@ -23,8 +23,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public State pastState;
     private double pastStateTime;
 
-    public final double MAX_HEIGHT = 228;
-    public final double SAFE_HEIGHT = 60;
+    public final double MAX_HEIGHT = 40;
     public static enum State implements TorqueState {
         ZERO(0), // Not actually a setpoint!! Gets set to whatever we
                           // deployed at so the elevator doesn't try to go to the ZERO position @ startup
@@ -116,21 +115,10 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         if (RobotBase.isSimulation()) {
             final double timeToAnimate = Math.abs(desiredState.position - pastState.position) / 114;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
-            final double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+            double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+            if (animationMultiplier > 1) position = desiredState.position;
 
-            if (desiredState == State.SCORE_L4) {
-                if (animationMultiplier > 1) return desiredState.position;
-                return position;
-            } else if (desiredState.position > SAFE_HEIGHT && position > SAFE_HEIGHT) {
-                if (animationMultiplier > 1) return desiredState.position;
-                return position;
-            } else if (position > desiredState.position) {
-                if (claw.isAtState()) {
-                    if (animationMultiplier > 1) return desiredState.position;
-                    return position;
-                }
-            } else if (position < desiredState.position) {
-                if (animationMultiplier > 1) return desiredState.position;
+            if (desiredState != State.ZERO) {
                 return position;
             }
 

@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RED_CTR_FR"
+            "pathName": "RCNET_1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_FR_FF"
+            "pathName": "RCNET_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_FF_FL"
+            "pathName": "RCNET_3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RED_FL_SHOT"
+            "pathName": "RCNET_4"
           }
         }
       ]

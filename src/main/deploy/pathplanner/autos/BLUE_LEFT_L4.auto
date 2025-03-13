@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_LFT_CL"
+            "pathName": "BLL4_1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_CL_CSL"
+            "pathName": "BLL4_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_CSL_CL"
+            "pathName": "BLL4_3"
           }
         }
       ]

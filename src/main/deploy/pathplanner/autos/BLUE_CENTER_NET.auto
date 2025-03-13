@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_CTR_FR"
+            "pathName": "BCNET_1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_FR_FF"
+            "pathName": "BCNET_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_FF_FL"
+            "pathName": "BCNET_3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_FL_SHOT"
+            "pathName": "BCNET_4"
           }
         }
       ]

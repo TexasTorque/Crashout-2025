@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_RGT_CR"
+            "pathName": "BRL4_1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_CR_CSR"
+            "pathName": "BRL4_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BLUE_CSR_CR"
+            "pathName": "BRL4_3"
           }
         }
       ]

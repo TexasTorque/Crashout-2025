@@ -169,24 +169,11 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         if (RobotBase.isSimulation()) {
             final double timeToAnimate = Math.abs(desiredState.angle - pastState.angle) / 180;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
-            final double position = ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
+            double position = ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
+            if (animationMultiplier > 1) position = desiredState.angle;
 
-            if (desiredState == State.SCORE_L4) {
-                if (elevator.getElevatorPosition() > Elevator.State.SCORE_L3.position && elevator.getState() == Elevator.State.SCORE_L4) {
-                    if (animationMultiplier > 1) return desiredState.angle;
-                    return position;
-                }
-            } else if (elevator.getState().position > elevator.SAFE_HEIGHT && elevator.getElevatorPosition() > elevator.SAFE_HEIGHT) {
-                if (animationMultiplier > 1) return desiredState.angle;
+            if (desiredState != State.ZERO) {
                 return position;
-            } else if (elevator.getElevatorPosition() > elevator.getState().position) {
-                if (animationMultiplier > 1) return desiredState.angle;
-                return position;
-            } else if (elevator.getElevatorPosition() < elevator.getState().position) {
-                if (elevator.isAtState()) {
-                    if (animationMultiplier > 1) return desiredState.angle;
-                    return position;
-                }
             }
 
             pastStateTime = Timer.getFPGATimestamp();

@@ -21,7 +21,7 @@ public class BlueCenterProcessor extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far
-        addBlock(new TorqueFollowPath("BLUE_CTR_FF", drivebase));
+        addBlock(new TorqueFollowPath("BCPSR_1", drivebase));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
@@ -29,7 +29,7 @@ public class BlueCenterProcessor extends TorqueSequence implements Subsystems {
         addBlock(new Quickswap().command());
 
         // Drive far to processor
-        addBlock(new TorqueFollowPath("BLUE_FF_PSR", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("BCPSR_2", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.PROCESSOR);
                 claw.setState(Claw.State.PROCESSOR);

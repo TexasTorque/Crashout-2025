@@ -11,15 +11,16 @@ import org.texastorque.auto.routines.Push;
 import org.texastorque.auto.sequences.blue.BlueCenterNet;
 import org.texastorque.auto.sequences.blue.BlueCenterProcessor;
 import org.texastorque.auto.sequences.blue.BlueLeftL4Auto;
-import org.texastorque.auto.sequences.blue.BlueLeftQuickswapAuto;
+import org.texastorque.auto.sequences.blue.BlueLeftL3Auto;
 import org.texastorque.auto.sequences.blue.BlueRightL4Auto;
-import org.texastorque.auto.sequences.blue.BlueRightQuickswapAuto;
+import org.texastorque.auto.sequences.blue.BlueRightL3Auto;
 import org.texastorque.auto.sequences.red.RedCenterNet;
 import org.texastorque.auto.sequences.red.RedCenterProcessor;
 import org.texastorque.auto.sequences.red.RedLeftL4Auto;
-import org.texastorque.auto.sequences.red.RedLeftQuickswapAuto;
+import org.texastorque.auto.sequences.red.RedLeftL3Auto;
 import org.texastorque.auto.sequences.red.RedRightL4Auto;
-import org.texastorque.auto.sequences.red.RedRightQuickswapAuto;
+import org.texastorque.auto.sequences.wip.TestAuto;
+import org.texastorque.auto.sequences.red.RedRightL3Auto;
 import org.texastorque.torquelib.auto.TorqueAutoManager;
 
 public final class AutoManager extends TorqueAutoManager implements Subsystems {
@@ -27,45 +28,67 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadSequences() {
-        addSequence("BLUE LEFT -> L3 -> 2 CORAL", new BlueLeftQuickswapAuto());
-        addSequence("BLUE LEFT -> L4 -> 3 CORAL", new BlueLeftL4Auto());
-        addSequence("BLUE CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new BlueCenterProcessor());
-        addSequence("BLUE CENTER -> 1 CORAL -> 3 ALGAE NET", new BlueCenterNet());
-        addSequence("BLUE RIGHT -> L4 -> 3 CORAL", new BlueRightL4Auto());
-        addSequence("BLUE RIGHT -> L3 -> 2 CORAL", new BlueRightQuickswapAuto());
+        addSequence("BLUE LEFT L3", new BlueLeftL3Auto());
+        addSequence("BLUE LEFT L4", new BlueLeftL4Auto());
+        addSequence("BLUE CENTER PROCESSOR", new BlueCenterProcessor());
+        addSequence("BLUE CENTER NET", new BlueCenterNet());
+        addSequence("BLUE RIGHT L4", new BlueRightL4Auto());
+        addSequence("BLUE RIGHT L3", new BlueRightL3Auto());
 
-        addSequence("RED LEFT -> L3 -> 2 CORAL", new RedLeftQuickswapAuto());
-        addSequence("RED LEFT -> L4 -> 3 CORAL", new RedLeftL4Auto());
-        addSequence("RED CENTER -> 1 CORAL -> 1 ALGAE PROCESSOR", new RedCenterProcessor());
-        addSequence("RED CENTER -> 1 CORAL -> 3 ALGAE NET", new RedCenterNet());
-        addSequence("RED RIGHT -> L4 -> 3 CORAL", new RedRightL4Auto());
-        addSequence("RED RIGHT -> L3 -> 2 CORAL", new RedRightQuickswapAuto());
+        addSequence("RED LEFT L3", new RedLeftL3Auto());
+        addSequence("RED LEFT L4", new RedLeftL4Auto());
+        addSequence("RED CENTER PROCESSOR", new RedCenterProcessor());
+        addSequence("RED CENTER NET", new RedCenterNet());
+        addSequence("RED RIGHT L4", new RedRightL4Auto());
+        addSequence("RED RIGHT L3", new RedRightL3Auto());
 
         addSequence("PUSH", new Push());
 
-        // addSequence("TEST", new TestAuto());
+        addSequence("TEST", new TestAuto());
     }
 
     @Override
     public final void loadPaths() {
-        pathLoader.preloadPath("BLUE_CL_CSL");
-        pathLoader.preloadPath("BLUE_CR_CSR");
-        pathLoader.preloadPath("BLUE_CSL_CL");
-        pathLoader.preloadPath("BLUE_CSR_CR");
-        pathLoader.preloadPath("BLUE_CTR_FF");
-        pathLoader.preloadPath("BLUE_FF_PSR");
-        pathLoader.preloadPath("BLUE_LFT_CL");
-        pathLoader.preloadPath("BLUE_RGT_CR");
-        pathLoader.preloadPath("RED_CL_CSL");
-        pathLoader.preloadPath("RED_CR_CSR");
-        pathLoader.preloadPath("RED_CSL_CL");
-        pathLoader.preloadPath("RED_CSR_CR");
-        pathLoader.preloadPath("RED_CTR_FF");
-        pathLoader.preloadPath("RED_FF_PSR");
-        pathLoader.preloadPath("RED_LFT_CL");
-        pathLoader.preloadPath("RED_RGT_CR");
+        pathLoader.preloadPath("BCNET_1");
+        pathLoader.preloadPath("BCNET_2");
+        pathLoader.preloadPath("BCNET_3");
+        pathLoader.preloadPath("BCNET_4");
+        pathLoader.preloadPath("BCPSR_1");
+        pathLoader.preloadPath("BCPSR_2");
+        pathLoader.preloadPath("BCPSR_3");
+        pathLoader.preloadPath("BLL3_1");
+        pathLoader.preloadPath("BLL3_2");
+        pathLoader.preloadPath("BLL3_3");
+        pathLoader.preloadPath("BLL4_1");
+        pathLoader.preloadPath("BLL4_2");
+        pathLoader.preloadPath("BLL4_3");
+        pathLoader.preloadPath("BRL3_1");
+        pathLoader.preloadPath("BRL3_2");
+        pathLoader.preloadPath("BRL3_3");
+        pathLoader.preloadPath("BRL4_1");
+        pathLoader.preloadPath("BRL4_2");
+        pathLoader.preloadPath("BRL4_3");
         pathLoader.preloadPath("NA_NA");
-        pathLoader.preloadPath("test");
+        pathLoader.preloadPath("PUSH");
+        pathLoader.preloadPath("RCNET_1");
+        pathLoader.preloadPath("RCNET_2");
+        pathLoader.preloadPath("RCNET_3");
+        pathLoader.preloadPath("RCNET_4");
+        pathLoader.preloadPath("RCPSR_1");
+        pathLoader.preloadPath("RCPSR_2");
+        pathLoader.preloadPath("RCPSR_3");
+        pathLoader.preloadPath("RLL3_1");
+        pathLoader.preloadPath("RLL3_2");
+        pathLoader.preloadPath("RLL3_3");
+        pathLoader.preloadPath("RLL4_1");
+        pathLoader.preloadPath("RLL4_2");
+        pathLoader.preloadPath("RLL4_3");
+        pathLoader.preloadPath("RRL3_1");
+        pathLoader.preloadPath("RRL3_2");
+        pathLoader.preloadPath("RRL3_3");
+        pathLoader.preloadPath("RRL4_1");
+        pathLoader.preloadPath("RRL4_2");
+        pathLoader.preloadPath("RRL4_3");
     }
 
     public static final synchronized AutoManager getInstance() {

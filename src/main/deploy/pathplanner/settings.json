@@ -4,17 +4,17 @@
   "holonomicMode": true,
   "pathFolders": [
     "BLUE_CENTER_NET",
-    "BLUE_CENTER_PSR",
+    "BLUE_CENTER_PROCESSOR",
+    "BLUE_LEFT_L3",
     "BLUE_LEFT_L4",
-    "BLUE_LEFT_QUICKSWAP",
+    "BLUE_RIGHT_L3",
     "BLUE_RIGHT_L4",
-    "BLUE_RIGHT_QUICKSWAP",
-    "RED_LEFT_L4",
     "RED_CENTER_NET",
-    "RED_CENTER_PSR",
-    "RED_LEFT_QUICKSWAP",
-    "RED_RIGHT_L4",
-    "RED_RIGHT_QUICKSWAP"
+    "RED_CENTER_PROCESSOR",
+    "RED_LEFT_L3",
+    "RED_LEFT_L4",
+    "RED_RIGHT_L3",
+    "RED_RIGHT_L4"
   ],
   "autoFolders": [
     "BLUE",

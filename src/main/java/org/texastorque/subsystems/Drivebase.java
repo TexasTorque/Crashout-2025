@@ -186,8 +186,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         inputSpeeds = TorqueSwerveSpeeds.fromChassisSpeeds(
             ChassisSpeeds.fromRobotRelativeSpeeds(
-                driveController.calculateRobotRelativeSpeeds(new Pose2d(perception.getFilteredPose().getTranslation(), perception.getFilteredPose().getRotation()), state),
-                perception.getFilteredPose().getRotation()
+                driveController.calculateRobotRelativeSpeeds(new Pose2d(perception.getPose().getTranslation(), perception.getPose().getRotation()), state),
+                perception.getPose().getRotation()
             )
         );
     }
@@ -265,7 +265,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public void resetAlign() {
-        driveController.reset(perception.getFilteredPose(), inputSpeeds);
+        driveController.reset(perception.getPose(), inputSpeeds);
     }
 
     public void startSlowMode() {
