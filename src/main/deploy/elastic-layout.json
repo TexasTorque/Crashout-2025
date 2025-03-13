@@ -75,42 +75,16 @@
             }
           },
           {
-            "title": "FMSInfo",
+            "title": "Auto List",
             "x": 1024.0,
             "y": 640.0,
             "width": 384.0,
             "height": 128.0,
-            "type": "FMSInfo",
-            "properties": {
-              "topic": "/FMSInfo",
-              "period": 0.06
-            }
-          },
-          {
-            "title": "Auto List",
-            "x": 1024.0,
-            "y": 384.0,
-            "width": 384.0,
-            "height": 256.0,
             "type": "ComboBox Chooser",
             "properties": {
               "topic": "/SmartDashboard/Auto List",
               "period": 0.06,
               "sort_options": false
-            }
-          },
-          {
-            "title": "Swerve",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 384.0,
-            "height": 384.0,
-            "type": "SwerveDrive",
-            "properties": {
-              "topic": "/SmartDashboard/Swerve",
-              "period": 0.06,
-              "show_robot_rotation": true,
-              "rotation_unit": "Radians"
             }
           },
           {
@@ -175,6 +149,19 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
+            }
+          },
+          {
+            "title": "Climb Camera",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 640.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/Climb Camera",
+              "period": 0.06,
+              "rotation_turns": 3
             }
           }
         ]
@@ -705,6 +692,7 @@
             "properties": {
               "topic": "/Shuffleboard/Elevator/Elevator Volts",
               "period": 0.06,
+              "data_type": "double",
               "show_submit_button": false
             }
           }

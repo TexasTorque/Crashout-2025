@@ -64,7 +64,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             .apply();
         
         elevatorPID = new ProfiledPIDController(2, 0, 0,
-                new TrapezoidProfile.Constraints(400, 150));
+                new TrapezoidProfile.Constraints(400, 200));
         
         elevatorPID.reset(getElevatorPosition());
     }
@@ -87,7 +87,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator Left Position", elevatorLeft.getPosition());
         Debug.log("Elevator Right Position", elevatorRight.getPosition());
 
-        final double ELEVATOR_MAX_VOLTS = 8;
+        final double ELEVATOR_MAX_VOLTS = 10;
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredState.position);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
 
