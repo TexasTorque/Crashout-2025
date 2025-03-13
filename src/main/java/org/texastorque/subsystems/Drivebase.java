@@ -207,7 +207,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Rotation Aligned", rotationAligned);
         Debug.log("Translation Aligned", translationAligned);
 
-        if (translationAligned && rotationAligned) {
+        if (translationAligned && rotationAligned && desiredState == State.ALIGN) {
             if (DriverStation.isAutonomous()) {
                 setInputSpeeds(new TorqueSwerveSpeeds());
             }
@@ -231,7 +231,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Rotation Aligned", rotationAligned);
         Debug.log("Translation Aligned", translationAligned);
 
-        if (translationAligned && rotationAligned) {
+        if (translationAligned && rotationAligned && desiredState == State.ALIGN) {
             if (DriverStation.isAutonomous()) {
                 setInputSpeeds(new TorqueSwerveSpeeds());
             }
