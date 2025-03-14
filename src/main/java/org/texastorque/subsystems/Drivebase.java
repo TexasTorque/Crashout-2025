@@ -1,6 +1,7 @@
 package org.texastorque.subsystems;
 
 import org.littletonrobotics.junction.Logger;
+import org.texastorque.Field;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
@@ -8,6 +9,7 @@ import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDri
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
+import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -125,6 +127,24 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Is Aligned", isAligned());
         Debug.log("In Zone", perception.getCurrentZone() != null);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
+
+        if (perception.getCurrentZone() != null) {
+            final TorqueFieldZone zone = perception.getCurrentZone();
+            final Pose2d tagPose = Field.AprilTagList.values()[zone.getID() - 1].pose;
+            final Pose2d currentPose = perception.getPose();
+
+            final double dx = tagPose.getX() - currentPose.getX();
+            final double dy = tagPose.getY() - currentPose.getY();
+
+            final double forward = dx * Math.cos(tagPose.getRotation().getRadians()) + dy * Math.sin(tagPose.getRotation().getRadians());
+            final double right = -dx * Math.sin(tagPose.getRotation().getRadians()) + dy * Math.cos(tagPose.getRotation().getRadians());
+
+            Debug.log("AprilTag Forward Offset", -forward + "");
+            Debug.log("AprilTag Right Offset", -right + "");
+        } else {
+            Debug.log("AprilTag Forward Offset", "None");
+            Debug.log("AprilTag Right Offset", "None");
+        }
 
         if (alignPoseOverride != null && wantsState(State.ALIGN)) {
             runAlignment(alignPoseOverride);
