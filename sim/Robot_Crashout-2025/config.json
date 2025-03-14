@@ -16,28 +16,31 @@
       "resolution": [1280, 960],
       "position": [0.081837, -0.124453, 0.172148],
       "rotations": [{ "axis": "y", "degrees": -25}]
+    },
+    {
+      "name": "climb-cam",
+      "fov": 100,
+      "resolution": [1980, 1080],
+      "position": [-0.254429, 0.110423, 0.212230],
+      "rotations": [{ "axis": "z", "degrees": 180}, { "axis": "x", "degrees": 90}, { "axis": "y", "degrees": 50.727}]
     }
   ],
   "components": [
     {
       "zeroedRotations": [{"axis": "x", "degrees": 90}],
-      "zeroedPosition": [0.135, 0.1275, 0.15]
+      "zeroedPosition": [0, 0, -0.24]
     },
     {
       "zeroedRotations": [{"axis": "x", "degrees": 90}],
-      "zeroedPosition": [-0.0275, 0.135, -1.14]
+      "zeroedPosition": [0, 0, -0.2375]
+    },
+    {
+      "zeroedRotations": [{"axis": "x", "degrees": 90}, {"axis": "y", "degrees": 5}],
+      "zeroedPosition": [-0.1985, 0, -1.0215]
     },
     {
       "zeroedRotations": [{"axis": "x", "degrees": 90}],
-      "zeroedPosition": [0.123, 0.12, 0.3]
-    },
-    {
-      "zeroedRotations": [{"axis": "x", "degrees": 90}, {"axis": "y", "degrees": 117.5}],
-      "zeroedPosition": [-0.8905, 0, 0.5865]
-    },
-    {
-      "zeroedRotations": [{"axis": "x", "degrees": 90}, {"axis": "y", "degrees": 9}],
-      "zeroedPosition": [0.2775, 0, -0.2375]
+      "zeroedPosition": [0.311, 0, -0.19]
     }
   ]
 }
