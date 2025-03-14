@@ -23,13 +23,13 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueRequestableTimeout driverRumble, operatorRumble;
-    private final TorqueClickSupplier slowInitial, alignInitial, endgameClick;
+    private final TorqueClickSupplier slowInitial, alignInitial, endgameClick, manualElevatorInitial;
     private final TorqueBoolSupplier resetGyro, align, slow, stow,
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
-            climbMode, manualClimbInitial, manualClimbUp, manualClimbDown;
+            climbMode;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -73,10 +73,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         climbMode = new TorqueBoolSupplier(driver::isDPADRightDown);
 
-        manualClimbInitial = new TorqueClickSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()) || (operator.getLeftYAxis() < -CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
-        manualClimbUp = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
-        manualClimbDown = new TorqueBoolSupplier(() -> (operator.getLeftYAxis() > CONTROLLER_DEADBAND && operator.isLeftStickClickDown()));
-
+        manualElevatorInitial = new TorqueClickSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND || operator.getRightYAxis() < -CONTROLLER_DEADBAND);
         manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
         manualElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
 
@@ -99,15 +96,16 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         operator.setRumble(operatorRumble.get());
 
         final double DELTA = .1;
+        manualElevatorInitial.onTrue(() -> {
+            Elevator.State.MANUAL.position = elevator.getElevatorPosition();
+        });
         manualElevatorUp.onTrue(() -> {
-            for (Elevator.State state : Elevator.State.values()) {
-                state.position = -DELTA + state.position;
-            }
+            elevator.setState(Elevator.State.MANUAL);
+            Elevator.State.MANUAL.position = -DELTA + elevator.getElevatorPosition();
         });
         manualElevatorDown.onTrue(() -> {
-            for (Elevator.State state : Elevator.State.values()) {
-                state.position = DELTA + state.position;
-            }
+            elevator.setState(Elevator.State.MANUAL);
+            Elevator.State.MANUAL.position = DELTA + elevator.getElevatorPosition();
         });
     }
 
@@ -213,19 +211,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     public final void updateClimb() {
         climbUp.onTrue(() -> climb.setState(Climb.State.OUT));
         climbDown.onTrue(() -> climb.setState(Climb.State.IN));
-
-        final double DELTA = 10;
-        manualClimbInitial.onTrue(() -> {
-            Climb.State.MANUAL.position = climb.getClimbPosition();
-        });
-        manualClimbUp.onTrue(() -> {
-            climb.setState(Climb.State.MANUAL);
-            Climb.State.MANUAL.position = -DELTA + climb.getClimbPosition();
-        });
-        manualClimbDown.onTrue(() -> {
-            climb.setState(Climb.State.MANUAL);
-            Climb.State.MANUAL.position = DELTA + climb.getClimbPosition();
-        });
     }
 
     public final boolean isDebugMode() {
