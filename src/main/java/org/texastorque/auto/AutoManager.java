@@ -7,20 +7,8 @@
 package org.texastorque.auto;
 
 import org.texastorque.Subsystems;
-import org.texastorque.auto.routines.Push;
-import org.texastorque.auto.sequences.blue.BlueCenterNet;
-import org.texastorque.auto.sequences.blue.BlueCenterProcessor;
-import org.texastorque.auto.sequences.blue.BlueLeftL4Auto;
-import org.texastorque.auto.sequences.blue.BlueLeftL3Auto;
-import org.texastorque.auto.sequences.blue.BlueRightL4Auto;
-import org.texastorque.auto.sequences.blue.BlueRightL3Auto;
-import org.texastorque.auto.sequences.red.RedCenterNet;
-import org.texastorque.auto.sequences.red.RedCenterProcessor;
-import org.texastorque.auto.sequences.red.RedLeftL4Auto;
-import org.texastorque.auto.sequences.red.RedLeftL3Auto;
-import org.texastorque.auto.sequences.red.RedRightL4Auto;
-import org.texastorque.auto.sequences.wip.TestAuto;
-import org.texastorque.auto.sequences.red.RedRightL3Auto;
+import org.texastorque.auto.sequences.blue.*;
+import org.texastorque.auto.sequences.red.*;
 import org.texastorque.torquelib.auto.TorqueAutoManager;
 
 public final class AutoManager extends TorqueAutoManager implements Subsystems {
@@ -28,23 +16,23 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadSequences() {
-        addSequence("BLUE LEFT L3", new BlueLeftL3Auto());
+        // addSequence("BLUE LEFT L3", new BlueLeftL3Auto());
         addSequence("BLUE LEFT L4", new BlueLeftL4Auto());
-        addSequence("BLUE CENTER PROCESSOR", new BlueCenterProcessor());
+        // addSequence("BLUE CENTER PROCESSOR", new BlueCenterProcessor());
         addSequence("BLUE CENTER NET", new BlueCenterNet());
         addSequence("BLUE RIGHT L4", new BlueRightL4Auto());
-        addSequence("BLUE RIGHT L3", new BlueRightL3Auto());
+        // addSequence("BLUE RIGHT L3", new BlueRightL3Auto());
 
-        addSequence("RED LEFT L3", new RedLeftL3Auto());
+        // addSequence("RED LEFT L3", new RedLeftL3Auto());
         addSequence("RED LEFT L4", new RedLeftL4Auto());
-        addSequence("RED CENTER PROCESSOR", new RedCenterProcessor());
+        // addSequence("RED CENTER PROCESSOR", new RedCenterProcessor());
         addSequence("RED CENTER NET", new RedCenterNet());
         addSequence("RED RIGHT L4", new RedRightL4Auto());
-        addSequence("RED RIGHT L3", new RedRightL3Auto());
+        // addSequence("RED RIGHT L3", new RedRightL3Auto());
 
-        addSequence("PUSH", new Push());
+        // addSequence("PUSH", new Push());
 
-        addSequence("TEST", new TestAuto());
+        // addSequence("TEST", new TestAuto());
     }
 
     @Override
