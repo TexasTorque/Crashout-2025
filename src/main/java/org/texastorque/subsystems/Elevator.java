@@ -22,6 +22,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private final ProfiledPIDController elevatorPID;
     public State pastState;
     private double pastStateTime;
+    private final double ELEVATOR_FF = .35;
 
     public final double MAX_HEIGHT = 40;
     public static enum State implements TorqueState {
@@ -93,12 +94,12 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         Debug.log("Elevator Volts", volts);
 
         if (desiredState == State.ZERO) {
-            elevatorLeft.setVolts(0);
-            elevatorRight.setVolts(0);
+            elevatorLeft.setVolts(ELEVATOR_FF);
+            elevatorRight.setVolts(ELEVATOR_FF);
             elevatorPID.reset(getElevatorPosition());
         } else {
-            elevatorLeft.setVolts(volts);
-            elevatorRight.setVolts(volts);
+            elevatorLeft.setVolts(volts + ELEVATOR_FF);
+            elevatorRight.setVolts(volts + ELEVATOR_FF);
         }
     }
 

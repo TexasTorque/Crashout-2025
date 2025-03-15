@@ -4,6 +4,7 @@ import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.auto.routines.Align;
+import org.texastorque.auto.routines.Push;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Elevator.State;
@@ -21,6 +22,8 @@ public class RedLeftL4Auto extends TorqueSequence implements Subsystems {
             elevator.setState(Elevator.State.STOW);
             claw.setState(Claw.State.STOW);
         }));
+        
+        addBlock(new Push().command());
         
         // Drive left to close left
         addBlock(new TorqueFollowPath("RLL4_1", drivebase).withMarkers(
@@ -73,6 +76,13 @@ public class RedLeftL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
+        // Move back to avoid claw hitting reef poles
+        addBlock(new TorqueRun(() -> {
+            perception.setRelation(Relation.NONE);
+            perception.setDesiredAlignTarget(AlignableTarget.NONE);
+        }));
+        addBlock(new Align(() -> perception.getAlignPose(), 1).command());
+
         // Move to algae setpoints
         addBlock(new TorqueRun(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
@@ -80,12 +90,7 @@ public class RedLeftL4Auto extends TorqueSequence implements Subsystems {
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         }));
 
-        // Move back to avoid claw hitting reef poles
-        addBlock(new TorqueRun(() -> {
-            perception.setRelation(Relation.NONE);
-            perception.setDesiredAlignTarget(AlignableTarget.NONE);
-        }));
-        addBlock(new Align(() -> perception.getAlignPose(), 1).command());
+        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
         addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, .75).command());

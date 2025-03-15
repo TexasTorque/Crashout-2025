@@ -239,7 +239,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
                     ? DriverStation.getAlliance().get() == Alliance.Red
                     : false;
-		gyro.setOffsetCW(Rotation2d.fromDegrees((isRedAlliance ? 180 : 0) + offset));
+		gyro.setOffsetCCW(Rotation2d.fromDegrees((isRedAlliance ? 180 : 0) + offset));
 		setPose(new Pose2d(0, 0, getHeading()));
 	}
 	

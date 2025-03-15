@@ -73,6 +73,13 @@ public class RedRightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
+        // Move back to avoid claw hitting reef poles
+        addBlock(new TorqueRun(() -> {
+            perception.setRelation(Relation.NONE);
+            perception.setDesiredAlignTarget(AlignableTarget.NONE);
+        }));
+        addBlock(new Align(() -> perception.getAlignPose(), 1).command());
+
         // Move to algae setpoints
         addBlock(new TorqueRun(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
@@ -80,12 +87,7 @@ public class RedRightL4Auto extends TorqueSequence implements Subsystems {
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         }));
 
-        // Move back to avoid claw hitting reef poles
-        addBlock(new TorqueRun(() -> {
-            perception.setRelation(Relation.NONE);
-            perception.setDesiredAlignTarget(AlignableTarget.NONE);
-        }));
-        addBlock(new Align(() -> perception.getAlignPose(), 1).command());
+        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
         addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, .75).command());
