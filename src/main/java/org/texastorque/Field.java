@@ -113,37 +113,31 @@ public class Field implements Subsystems {
 		}
 	}
 
-	private final double BUMBPERS_AGAINST = 0.436;
-	private final double RIGHT_SIDE = -.02;
-	private final double LEFT_SIDE = .34;
+	// bumpers against .4118
+	// slit to slit is 0.2032m
+	// pole to pole is 0.328619002m
 
 	private ArrayList<AlignPosition> alignPositions = new ArrayList<>();
-	private AlignPosition leftL1 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L1, BUMBPERS_AGAINST, -LEFT_SIDE);
-    private AlignPosition leftL2 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L2, BUMBPERS_AGAINST + .1, -LEFT_SIDE);
-    private AlignPosition leftL3 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L3, BUMBPERS_AGAINST, -LEFT_SIDE);
-    private AlignPosition leftL4 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L4, BUMBPERS_AGAINST + .05, -LEFT_SIDE - .025);
-    private AlignPosition centerL1 = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.L1, BUMBPERS_AGAINST, 0);
-    private AlignPosition centerHigh = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_HIGH, BUMBPERS_AGAINST - .02, -.2);
-    private AlignPosition centerLow = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_LOW, BUMBPERS_AGAINST - .02, -.2);
+    private AlignPosition leftL2 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L2, .5304, .0154 - 0.328619002);
+    private AlignPosition leftL3 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L3, .4118, .0189 - 0.328619002);
+    private AlignPosition leftL4 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L4, .4720, .0189 - 0.328619002);
+    private AlignPosition centerHigh = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_HIGH, .4118, -.1334);
+    private AlignPosition centerLow = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_LOW, .4118, -.1334);
     private AlignPosition backup = new AlignPosition(Placement.REEF, Relation.NONE, AlignableTarget.NONE, .75, -.2);
-    private AlignPosition rightL1 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L1, BUMBPERS_AGAINST, RIGHT_SIDE);
-    private AlignPosition rightL2 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L2, BUMBPERS_AGAINST + .1, RIGHT_SIDE);
-    private AlignPosition rightL3 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L3, BUMBPERS_AGAINST, RIGHT_SIDE);
-    private AlignPosition rightL4 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L4, BUMBPERS_AGAINST + .05, RIGHT_SIDE + .05);
-    private AlignPosition leftCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.LEFT, AlignableTarget.CORAL_STATION, BUMBPERS_AGAINST, -0.5);
-    private AlignPosition centerCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.CENTER, AlignableTarget.CORAL_STATION, BUMBPERS_AGAINST, 0);
-    private AlignPosition rightCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.RIGHT, AlignableTarget.CORAL_STATION, BUMBPERS_AGAINST, 0.5);
+    private AlignPosition rightL2 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L2, .5304, .0154);
+    private AlignPosition rightL3 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L3, .4118, .0189);
+    private AlignPosition rightL4 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L4, .4720, .0189);
+    private AlignPosition leftCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.LEFT, AlignableTarget.CORAL_STATION, .509, .0127 - 0.2032 - 0.2032);
+    private AlignPosition centerCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.CENTER, AlignableTarget.CORAL_STATION, .509, .0127);
+    private AlignPosition rightCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.RIGHT, AlignableTarget.CORAL_STATION, .509, .0127 + 0.2032 + 0.2032);
 
 	public Field() {
-		alignPositions.add(leftL1);
 		alignPositions.add(leftL2);
 		alignPositions.add(leftL3);
 		alignPositions.add(leftL4);
-		alignPositions.add(centerL1);
 		alignPositions.add(centerHigh);
 		alignPositions.add(centerLow);
 		alignPositions.add(backup);
-		alignPositions.add(rightL1);
 		alignPositions.add(rightL2);
 		alignPositions.add(rightL3);
 		alignPositions.add(rightL4);

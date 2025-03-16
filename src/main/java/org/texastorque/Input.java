@@ -195,7 +195,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
         outtakeCoral.onTrue(() -> {
-            claw.setCoralState(Claw.CoralState.SHOOT);
+            if (claw.getState() == Claw.State.SCORE_L1) {
+                claw.setCoralState(Claw.CoralState.SHOOT_SLOW);
+            } else {
+                claw.setCoralState(Claw.CoralState.SHOOT);
+            }
             claw.coralSpike.reset();
         });
         outtakeAlgae.onTrue(() -> {
