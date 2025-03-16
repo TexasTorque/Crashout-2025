@@ -57,7 +57,8 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
         pathLoader.preloadPath("BRL4_2");
         pathLoader.preloadPath("BRL4_3");
         pathLoader.preloadPath("NA_NA");
-        pathLoader.preloadPath("PUSH");
+        pathLoader.preloadPath("RED_PUSH");
+        pathLoader.preloadPath("BLUE_PUSH");
         pathLoader.preloadPath("RCNET_1");
         pathLoader.preloadPath("RCNET_2");
         pathLoader.preloadPath("RCNET_3");
