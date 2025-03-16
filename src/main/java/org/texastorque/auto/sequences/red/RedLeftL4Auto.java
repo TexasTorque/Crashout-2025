@@ -4,7 +4,6 @@ import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
 import org.texastorque.auto.routines.Align;
-import org.texastorque.auto.routines.Push;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Elevator.State;
@@ -22,9 +21,7 @@ public class RedLeftL4Auto extends TorqueSequence implements Subsystems {
             elevator.setState(Elevator.State.STOW);
             claw.setState(Claw.State.STOW);
         }));
-        
-        addBlock(new Push().command());
-        
+                
         // Drive left to close left
         addBlock(new TorqueFollowPath("RLL4_1", drivebase).withMarkers(
             new Marker(() -> {

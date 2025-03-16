@@ -63,9 +63,9 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         if (claw.getState() != Claw.State.CLIMB) return;
 
         final double CLIMB_MAX_VOLTS_OUT = 12;
-        final double CLIMB_MAX_VOLTS_IN = 6;
+        final double CLIMB_MAX_VOLTS_IN = 8;
         double volts = climbPID.calculate(getClimbPosition(), desiredState.position);
-        if (volts > CLIMB_MAX_VOLTS_OUT) volts = 12;
+        if (volts > CLIMB_MAX_VOLTS_OUT) volts = CLIMB_MAX_VOLTS_OUT;
         if (volts < -CLIMB_MAX_VOLTS_IN) volts = -CLIMB_MAX_VOLTS_IN;
         
         climb.setVolts(volts);

@@ -66,7 +66,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private Pose2d filteredPose = new Pose2d();
 	
 	public Perception() {
-		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.118125, 0.77653 + 0.0254, -90, 45, 180);
+		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.118125, 0.77653 + 0.0254, -90, 45, 180); // which bum did this 😭
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_LOW, 0.0916686, 0.127, 0.164267, 0, 25, 0);
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
