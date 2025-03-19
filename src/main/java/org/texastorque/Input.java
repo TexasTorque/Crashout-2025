@@ -29,7 +29,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
-            climbMode;
+            climbMode, intakeCoralShift;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -43,6 +43,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
+        intakeCoralShift = new TorqueBoolSupplier(driver::isDPADUpDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         
         alignInitial = new TorqueClickSupplier(driver::isRightTriggerDown);
@@ -172,16 +173,25 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
             perception.setDesiredAlignTarget(AlignableTarget.ALGAE_HIGH);
+            perception.setRelation(Relation.CENTER);
         });
         algaeExtractionLow.onTrue(() -> {
             elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
             claw.setState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
             perception.setDesiredAlignTarget(AlignableTarget.ALGAE_LOW);
+            perception.setRelation(Relation.CENTER);
         });
         intakeCoral.onTrue(() -> {
             elevator.setState(Elevator.State.CORAL_HP);
             claw.setState(Claw.State.CORAL_HP);
+            claw.setCoralState(Claw.CoralState.INTAKE);
+            claw.coralSpike.reset();
+            perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
+        });
+        intakeCoralShift.onTrue(() -> {
+            elevator.setState(Elevator.State.CORAL_HP_SHIFT);
+            claw.setState(Claw.State.CORAL_HP_SHIFT);
             claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
             perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);

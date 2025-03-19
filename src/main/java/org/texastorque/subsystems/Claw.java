@@ -39,6 +39,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         ALGAE_EXTRACTION(277.2656),
         PROCESSOR(70.2832),
         CORAL_HP(20),
+        CORAL_HP_SHIFT(10),
         CLIMB(285);
 
         private double angle;
@@ -139,7 +140,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         if (coralState == CoralState.SHOOT || coralState == CoralState.SHOOT_SLOW) 
             coralSpike.reset();
-        if (coralState == CoralState.INTAKE && desiredState != State.CORAL_HP)
+        if (coralState == CoralState.INTAKE && !(desiredState == State.CORAL_HP || desiredState == State.CORAL_HP_SHIFT))
             coralState = CoralState.OFF;
         
         if (hasCoral() && (coralState != CoralState.SHOOT || coralState != CoralState.SHOOT_SLOW)) {

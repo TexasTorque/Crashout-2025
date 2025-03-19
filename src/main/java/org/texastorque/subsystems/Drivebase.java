@@ -11,6 +11,7 @@ import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
+import org.texastorque.torquelib.util.TorqueMath;
 
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
@@ -83,8 +84,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             swerveStates[i] = new SwerveModuleState();
 
         driveController = new PPHolonomicDriveController(
-                new PIDConstants(2.5, 0, 0),
-                new PIDConstants(2 * Math.PI, 0, 0),
+                new PIDConstants(6, 0, .2),
+                new PIDConstants(4 * Math.PI, 0, 0),
                 getMaxPathingVelocity(), getRadius());
     }
 
@@ -210,6 +211,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             )
         );
 
+        inputSpeeds.vxMetersPerSecond = TorqueMath.constrain(inputSpeeds.vxMetersPerSecond, .5);
+        inputSpeeds.vyMetersPerSecond = TorqueMath.constrain(inputSpeeds.vyMetersPerSecond, .5);
+        inputSpeeds.omegaRadiansPerSecond = TorqueMath.constrain(inputSpeeds.omegaRadiansPerSecond, .5);
+
+        Debug.log("Distance to Align", pose.getTranslation().getDistance(perception.getPose().getTranslation()));
         Logger.recordOutput("Desired Component Poses", perception.getDesiredComponentPoses());
         Logger.recordOutput("Align Target Pose", pose);
     }
