@@ -186,6 +186,19 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		};
 	}
 
+	public Pose3d[] getDesiredComponentPoses() {
+		final double elevatorPos = elevator.getState().position;
+		final double shoulderAngle = claw.getState().getAngle();
+		final double elevatorMultiplier = elevatorPos / elevator.MAX_HEIGHT;
+
+		return new Pose3d[] {
+			new Pose3d(0, 0, .5 * elevatorMultiplier, new Rotation3d()),
+			new Pose3d(0, 0, 1.05 * elevatorMultiplier, new Rotation3d()),
+			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0)),
+			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0))
+		};
+	}
+
 	public boolean containsID(final RawFiducial[] rawFiducials, final int id) {
 		for (RawFiducial fiducial : rawFiducials) {
 			if (fiducial.id == id) {

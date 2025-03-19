@@ -150,7 +150,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             runAlignment(alignPoseOverride);
         } else if (wantsState(State.ALIGN)) {
             final Pose2d alignPose = perception.getAlignPose();
-            Debug.log("Align Target Pose", alignPose == null ? "None" : alignPose.toString());
             if (alignPose != null) {
                 runAlignment(alignPose);
             }
@@ -210,6 +209,9 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
                 perception.getPose().getRotation()
             )
         );
+
+        Logger.recordOutput("Desired Component Poses", perception.getDesiredComponentPoses());
+        Logger.recordOutput("Align Target Pose", pose);
     }
 
     public boolean isAligned() {
