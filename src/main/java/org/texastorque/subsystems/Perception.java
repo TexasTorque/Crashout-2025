@@ -10,13 +10,14 @@ import org.texastorque.Field;
 import org.texastorque.LimelightHelpers;
 import org.texastorque.LimelightHelpers.PoseEstimate;
 import org.texastorque.LimelightHelpers.RawFiducial;
+import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueStatelessSubsystem;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.control.TorqueRollingMedian;
-import org.texastorque.torquelib.sensors.TorqueNavXGyro;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -29,9 +30,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
@@ -53,7 +52,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	 */
 	private static final Vector<N3> VISION_STDS = VecBuilder.fill(.1, .1, Units.degreesToRadians(1));
 
-	private final TorqueNavXGyro gyro = TorqueNavXGyro.getInstance();
+	private final Pigeon2 gyro = new Pigeon2(Ports.GYRO);
 	private double gyro_simulated = 0;
 
 	private AlignableTarget desiredAlignTarget = AlignableTarget.NONE;
@@ -66,7 +65,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private Pose2d filteredPose = new Pose2d();
 	
 	public Perception() {
-		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.118125, 0.77653 + 0.0254, -90, 45, 180); // which bum did this 😭
+		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.118125, 0.77653 + 0.0254, -90, 45, 180);
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_LOW, 0.0916686, 0.127, 0.164267, 0, 25, 0);
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
@@ -104,6 +103,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		updateVisualization();
 
 		Logger.recordOutput("Filtered Pose", getFilteredPose());
+		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
 		Debug.log("Gyro Angle", getHeading().getDegrees());
@@ -121,12 +121,12 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		LimelightHelpers.PoseEstimate visionEstimateLow = getVisionEstimate(LIMELIGHT_LOW);
 
 		final boolean shouldNotUseVision = drivebase.getState() == Drivebase.State.PATHING
-				|| gyro.getAngularVelocity().getRadians() > Math.PI;
+				|| gyro.getAngularVelocityYDevice().getValueAsDouble() > Math.PI;
 
 		if (shouldNotUseVision) return;
 
 		final boolean isHighInvalid = visionEstimateHigh == null
-				||visionEstimateHigh.avgTagDist > 6
+				|| visionEstimateHigh.avgTagDist > 6
 				|| visionEstimateHigh.tagCount == 0
 				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateHigh.rawFiducials.length > 2)
 				|| (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.REEF);
@@ -217,10 +217,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		if (RobotBase.isSimulation()) {
 			return Rotation2d.fromRadians(gyro_simulated);
 		}
-		if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-			return gyro.getHeadingCCW();
-		}
-		return gyro.getHeadingCCW();
+		Debug.log("Yaw", gyro.getYaw(true).getValueAsDouble());
+		return Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble());
 	}
 
 	public Pose2d getAlignPose() {
@@ -229,11 +227,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public void resetHeading(final double offset) {
 		gyro_simulated = 0;
-
-		final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
-                    ? DriverStation.getAlliance().get() == Alliance.Red
-                    : false;
-		gyro.setOffsetCCW(Rotation2d.fromDegrees((isRedAlliance ? 180 : 0) + offset));
+		gyro.reset();
 		setPose(new Pose2d(0, 0, getHeading()));
 	}
 	
