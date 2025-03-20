@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 import org.texastorque.Field;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
+import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDrivebase;
 import org.texastorque.torquelib.base.TorqueMode;
@@ -67,6 +68,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     private final PPHolonomicDriveController driveController;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
+
+    final double MAX_ALIGN_VELOCITY = 1;
+    final double MAX_ALIGN_OMEGA = 2 * Math.PI;
+    final double MAX_ALIGN_VELOCITY_SLOW = .5;
+    final double MAX_ALIGN_OMEGA_SLOW = Math.PI;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -202,7 +208,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         PathPlannerTrajectory.State state = new PathPlannerTrajectory.State();
         state.positionMeters = pose.getTranslation();
         state.targetHolonomicRotation = pose.getRotation();
-        state.constraints = new PathConstraints(1, .25, 2 * Math.PI, 4 * Math.PI);
+        state.constraints = new PathConstraints(MAX_ALIGN_VELOCITY, MAX_ALIGN_VELOCITY / 2, MAX_ALIGN_OMEGA, MAX_ALIGN_OMEGA / 2);
 
         inputSpeeds = TorqueSwerveSpeeds.fromChassisSpeeds(
             ChassisSpeeds.fromRobotRelativeSpeeds(
@@ -211,9 +217,15 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             )
         );
 
-        inputSpeeds.vxMetersPerSecond = TorqueMath.constrain(inputSpeeds.vxMetersPerSecond, .5);
-        inputSpeeds.vyMetersPerSecond = TorqueMath.constrain(inputSpeeds.vyMetersPerSecond, .5);
-        inputSpeeds.omegaRadiansPerSecond = TorqueMath.constrain(inputSpeeds.omegaRadiansPerSecond, .5);
+        if (perception.getDesiredAlignTarget() == AlignableTarget.L4) {
+            inputSpeeds.vxMetersPerSecond = TorqueMath.constrain(inputSpeeds.vxMetersPerSecond, MAX_ALIGN_VELOCITY_SLOW);
+            inputSpeeds.vyMetersPerSecond = TorqueMath.constrain(inputSpeeds.vyMetersPerSecond, MAX_ALIGN_VELOCITY_SLOW);
+            inputSpeeds.omegaRadiansPerSecond = TorqueMath.constrain(inputSpeeds.omegaRadiansPerSecond, MAX_ALIGN_OMEGA_SLOW);
+        } else {
+            inputSpeeds.vxMetersPerSecond = TorqueMath.constrain(inputSpeeds.vxMetersPerSecond, MAX_ALIGN_VELOCITY);
+            inputSpeeds.vyMetersPerSecond = TorqueMath.constrain(inputSpeeds.vyMetersPerSecond, MAX_ALIGN_VELOCITY);
+            inputSpeeds.omegaRadiansPerSecond = TorqueMath.constrain(inputSpeeds.omegaRadiansPerSecond, MAX_ALIGN_OMEGA);
+        }
 
         Debug.log("Distance to Align", pose.getTranslation().getDistance(perception.getPose().getTranslation()));
         Logger.recordOutput("Desired Component Poses", perception.getDesiredComponentPoses());

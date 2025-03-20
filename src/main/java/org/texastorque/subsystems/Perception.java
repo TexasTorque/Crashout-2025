@@ -238,6 +238,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return Field.getInstance().getAlignPose(filteredPose, desiredAlignTarget, relation);
 	}
 
+	public AlignableTarget getDesiredAlignTarget() {
+		return desiredAlignTarget;
+	}
+
 	public void resetHeading(final double offset) {
 		gyro_simulated = 0;
 		gyro.reset();
