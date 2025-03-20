@@ -3,23 +3,14 @@
   "robotLength": 0.715804,
   "holonomicMode": true,
   "pathFolders": [
-    "BLUE_CENTER_NET",
-    "BLUE_CENTER_PROCESSOR",
-    "BLUE_LEFT_L3",
-    "BLUE_LEFT_L4",
-    "BLUE_RIGHT_L3",
-    "BLUE_RIGHT_L4",
-    "RED_CENTER_NET",
-    "RED_CENTER_PROCESSOR",
-    "RED_LEFT_L3",
-    "RED_LEFT_L4",
-    "RED_RIGHT_L3",
-    "RED_RIGHT_L4"
+    "CENTER_NET",
+    "CENTER_PROCESSOR",
+    "LEFT_L3",
+    "LEFT_L4",
+    "RIGHT_L3",
+    "RIGHT_L4"
   ],
-  "autoFolders": [
-    "BLUE",
-    "RED"
-  ],
+  "autoFolders": [],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 2.0,
   "defaultMaxAngVel": 720.0,

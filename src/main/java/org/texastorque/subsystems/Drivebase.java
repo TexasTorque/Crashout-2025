@@ -14,10 +14,9 @@ import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
-import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
 
@@ -91,8 +90,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         driveController = new PPHolonomicDriveController(
                 new PIDConstants(6, 0, .2),
-                new PIDConstants(4 * Math.PI, 0, 0),
-                getMaxPathingVelocity(), getRadius());
+                new PIDConstants(4 * Math.PI, 0, 0)
+        );
     }
 
     @Override
@@ -205,10 +204,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             return;
         }
 
-        PathPlannerTrajectory.State state = new PathPlannerTrajectory.State();
-        state.positionMeters = pose.getTranslation();
-        state.targetHolonomicRotation = pose.getRotation();
-        state.constraints = new PathConstraints(MAX_ALIGN_VELOCITY, MAX_ALIGN_VELOCITY / 2, MAX_ALIGN_OMEGA, MAX_ALIGN_OMEGA / 2);
+        PathPlannerTrajectoryState state = new PathPlannerTrajectoryState();
+        state.pose = pose;
 
         inputSpeeds = TorqueSwerveSpeeds.fromChassisSpeeds(
             ChassisSpeeds.fromRobotRelativeSpeeds(
@@ -217,7 +214,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             )
         );
 
-        if (perception.getDesiredAlignTarget() == AlignableTarget.L4) {
+        if (perception.getDesiredAlignTarget() == AlignableTarget.L4 || DriverStation.isAutonomous()) {
             inputSpeeds.vxMetersPerSecond = TorqueMath.constrain(inputSpeeds.vxMetersPerSecond, MAX_ALIGN_VELOCITY_SLOW);
             inputSpeeds.vyMetersPerSecond = TorqueMath.constrain(inputSpeeds.vyMetersPerSecond, MAX_ALIGN_VELOCITY_SLOW);
             inputSpeeds.omegaRadiansPerSecond = TorqueMath.constrain(inputSpeeds.omegaRadiansPerSecond, MAX_ALIGN_OMEGA_SLOW);

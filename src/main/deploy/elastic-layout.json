@@ -10,14 +10,14 @@
           {
             "title": "limelight-high",
             "x": 0.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 384.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 256.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight-high",
               "period": 0.06,
-              "rotation_turns": 3
+              "rotation_turns": 0
             }
           },
           {
@@ -54,24 +54,6 @@
               "field_rotation": 0.0,
               "robot_color": 4294198070,
               "trajectory_color": 4294967295
-            }
-          },
-          {
-            "title": "Voltage",
-            "x": 0.0,
-            "y": 640.0,
-            "width": 384.0,
-            "height": 128.0,
-            "type": "Voltage View",
-            "properties": {
-              "topic": "/AdvantageKit/PowerDistribution/Voltage",
-              "period": 0.06,
-              "data_type": "double",
-              "min_value": 4.0,
-              "max_value": 13.0,
-              "divisions": 5,
-              "inverted": false,
-              "orientation": "horizontal"
             }
           },
           {
@@ -119,8 +101,8 @@
           },
           {
             "title": "Has Coral",
-            "x": 256.0,
-            "y": 128.0,
+            "x": 128.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -136,8 +118,8 @@
           },
           {
             "title": "Is Aligned",
-            "x": 256.0,
-            "y": 256.0,
+            "x": 0.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -162,6 +144,20 @@
               "topic": "/CameraPublisher/Climb Camera",
               "period": 0.06,
               "rotation_turns": 3
+            }
+          },
+          {
+            "title": "Gyro Angle",
+            "x": 0.0,
+            "y": 640.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Perception/Gyro Angle",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
             }
           }
         ]
@@ -318,6 +314,20 @@
               "period": 0.06,
               "sort_options": false
             }
+          },
+          {
+            "title": "Relation",
+            "x": 1280.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Perception/Relation",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
           }
         ]
       }
@@ -422,6 +432,37 @@
             "properties": {
               "topic": "/Shuffleboard/Drivebase/Align Target Pose",
               "period": 0.06,
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Translation Aligned",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Shuffleboard/Drivebase/Translation Aligned",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Distance to Align",
+            "x": 512.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Drivebase/Distance to Align",
+              "period": 0.06,
+              "data_type": "double",
               "show_submit_button": false
             }
           }
@@ -691,6 +732,20 @@
             "type": "Text Display",
             "properties": {
               "topic": "/Shuffleboard/Elevator/Elevator Volts",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Elevator Right Position",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Elevator/Elevator Right Position",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false

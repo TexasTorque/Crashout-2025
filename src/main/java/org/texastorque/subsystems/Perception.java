@@ -30,6 +30,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
@@ -65,7 +67,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private Pose2d filteredPose = new Pose2d();
 	
 	public Perception() {
-		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.150752, -0.118125, 0.77653 + 0.0254, -90, 45, 180);
+		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_LOW, 0.0916686, 0.127, 0.164267, 0, 25, 0);
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
@@ -142,9 +144,11 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		if (!isHighInvalid) {
 			poseEstimator.addVisionMeasurement(visionEstimateHigh.pose, visionEstimateHigh.timestampSeconds);
+			Logger.recordOutput("High Limelight Pose", visionEstimateHigh.pose);
 		}
 		if (!isLowInvalid) {
 			poseEstimator.addVisionMeasurement(visionEstimateLow.pose, visionEstimateLow.timestampSeconds);
+			Logger.recordOutput("Low Limelight Pose", visionEstimateLow.pose);
 		}
 	}
 
@@ -230,8 +234,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		if (RobotBase.isSimulation()) {
 			return Rotation2d.fromRadians(gyro_simulated);
 		}
-		Debug.log("Yaw", gyro.getYaw(true).getValueAsDouble());
-		return Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble());
+		return Rotation2d.fromDegrees((gyro.getYaw().getValueAsDouble() + (10 * 360)) % 360);
 	}
 
 	public Pose2d getAlignPose() {
@@ -244,12 +247,16 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public void resetHeading(final double offset) {
 		gyro_simulated = 0;
-		gyro.reset();
+		gyro.setYaw(offset);
 		setPose(new Pose2d(0, 0, getHeading()));
 	}
 	
 	public void resetHeading() {
-		resetHeading(0);
+		final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
+                    ? DriverStation.getAlliance().get() == Alliance.Red
+                    : false;
+		
+		resetHeading(isRedAlliance ? 180 : 0);
 	}
 
 	public void setCurrentTrajectory(final Trajectory trajectory) {
