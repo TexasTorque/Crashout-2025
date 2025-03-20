@@ -228,10 +228,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         climbDown.onTrue(() -> climb.setState(Climb.State.IN));
     }
 
-    public final boolean getStow() {
-        return stow.get();
-    }
-
     public final boolean isDebugMode() {
         return false;
     }

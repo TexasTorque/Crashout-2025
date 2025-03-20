@@ -3,7 +3,6 @@ package org.texastorque.subsystems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import org.texastorque.Input;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.base.TorqueMode;
@@ -11,6 +10,7 @@ import org.texastorque.torquelib.base.TorqueStatelessSubsystem;
 import org.texastorque.torquelib.util.TorqueUtil;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 
 
@@ -53,13 +53,27 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
         }
     }
 
+    public static class Rainbow extends LightAction {
+        private int rainbowFirstPixelHue = 0;
+
+        @Override
+        public void run(AddressableLEDBuffer buff) {
+            for (var i = 0; i < buff.getLength(); i++) {
+                final int hue = (rainbowFirstPixelHue + (i * 180 / buff.getLength())) % 180;
+                buff.setHSV(i, hue, 255, 128);
+            }
+            rainbowFirstPixelHue += 3;
+            rainbowFirstPixelHue %= 180;
+        }
+    }
+
     private static abstract class LightAction {
         public abstract void run(AddressableLEDBuffer buff);
     }
 
     private static volatile Lights instance;
 
-    private static final int LENGTH = 300;
+    private static final int LENGTH = 23;
 
     public static final synchronized Lights getInstance() {
         return instance == null ? instance = new Lights() : instance;
@@ -71,19 +85,16 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
     public static final double HERTZ = 15;
 
     private LightAction red = new Solid(() -> Color.kRed),
-
             blinkGreen = new Blink(() -> Color.kGreen, HERTZ),
-
             yellow = new Solid(() -> Color.kYellow),
-
-            purple = new Solid(() -> Color.kPurple);
+            orange = new Solid(() -> Color.kOrangeRed),
+            rainbow = new Rainbow();
 
     private Lights() {
         lights = new ArrayList<>();
         buff = new AddressableLEDBuffer(LENGTH);
 
-        createStrips(
-                Ports.LIGHTS);
+        createStrips(Ports.LIGHTS);
     }
 
 
@@ -116,20 +127,12 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
     }
 
     public final LightAction getColor(final TorqueMode mode) {
-        if (Input.getInstance().getStow()) { // Purple stow
-            return purple;
-        }
+        if (elevator.getState() == Elevator.State.CLIMB) return rainbow;
+        if (DriverStation.isDisabled()) return orange;
+        if (perception.seesTag()) return blinkGreen;
+        if (claw.hasCoral()) return yellow;
 
-        if (perception.seesTag()) { // Sees Tags Blink Green
-            return blinkGreen;
-        }
-
-        if (Subsystems.claw.hasCoral()){ // Yellow for Has Coral
-            return yellow;
-        }else{
-            return red; // Default is red
-        }
-
+        return red;
     }
 
     @Override
@@ -139,6 +142,5 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
     }
 
     @Override
-    public void clean(TorqueMode mode) {
-    }
+    public void clean(TorqueMode mode) {}
 }

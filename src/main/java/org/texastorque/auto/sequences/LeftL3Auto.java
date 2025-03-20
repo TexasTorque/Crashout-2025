@@ -19,7 +19,7 @@ public class LeftL3Auto extends TorqueSequence implements Subsystems {
     
     public LeftL3Auto() {
         // Drive left to close left
-        addBlock(new TorqueFollowPath("BLL3_1", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("LL3_1", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(State.ALGAE_REMOVAL_LOW);
                 claw.setState(Claw.State.ALGAE_EXTRACTION);
@@ -32,9 +32,9 @@ public class LeftL3Auto extends TorqueSequence implements Subsystems {
         addBlock(new Quickswap().command());
 
         // Drive close left to coral station left
-        addBlock(new TorqueFollowPath("BLL3_2", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("LL3_2", drivebase).withMarkers(
             new Marker(() -> {
-                claw.setAlgaeState(Claw.AlgaeState.SHOOT_SLOW);
+                claw.setAlgaeState(Claw.AlgaeState.SHOOT);
             }, .5),
             new Marker(() -> {
                 claw.setAlgaeState(Claw.AlgaeState.OFF);
@@ -51,7 +51,7 @@ public class LeftL3Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station left to close left
-        addBlock(new TorqueFollowPath("BLL3_3", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("LL3_3", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L3);
                 claw.setState(Claw.State.SCORE_L3);

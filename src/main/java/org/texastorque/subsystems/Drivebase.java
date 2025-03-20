@@ -214,7 +214,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             )
         );
 
-        if (perception.getDesiredAlignTarget() == AlignableTarget.L4 || DriverStation.isAutonomous()) {
+        if (perception.getDesiredAlignTarget() == AlignableTarget.L4) {
             inputSpeeds.vxMetersPerSecond = TorqueMath.constrain(inputSpeeds.vxMetersPerSecond, MAX_ALIGN_VELOCITY_SLOW);
             inputSpeeds.vyMetersPerSecond = TorqueMath.constrain(inputSpeeds.vyMetersPerSecond, MAX_ALIGN_VELOCITY_SLOW);
             inputSpeeds.omegaRadiansPerSecond = TorqueMath.constrain(inputSpeeds.omegaRadiansPerSecond, MAX_ALIGN_OMEGA_SLOW);

@@ -24,15 +24,15 @@ public class CenterProcessor extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far
-        addBlock(new TorqueFollowPath("BCPSR_1", drivebase));
+        addBlock(new TorqueFollowPath("CPSR_1", drivebase));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Quickswap
-        addBlock(new Quickswap(true).command());
+        addBlock(new Quickswap(true, Relation.LEFT).command());
 
         // Drive far to processor
-        addBlock(new TorqueFollowPath("BCPSR_2", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("CPSR_2", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.PROCESSOR);
                 claw.setState(Claw.State.PROCESSOR);
@@ -47,7 +47,7 @@ public class CenterProcessor extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
         
         // Drive processor to far right
-        addBlock(new TorqueFollowPath("BCPSR_3", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("CPSR_3", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
                 claw.setState(Claw.State.ALGAE_EXTRACTION);

@@ -65,6 +65,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private final Field2d field = new Field2d();
 	private ArrayList<TorqueFieldZone> zones;
 	private Pose2d filteredPose = new Pose2d();
+
+	private boolean isHighInvalid, isLowInvalid, shouldNotUseVision;
 	
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
@@ -122,18 +124,18 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		LimelightHelpers.PoseEstimate visionEstimateHigh = getVisionEstimate(LIMELIGHT_HIGH);
 		LimelightHelpers.PoseEstimate visionEstimateLow = getVisionEstimate(LIMELIGHT_LOW);
 
-		final boolean shouldNotUseVision = drivebase.getState() == Drivebase.State.PATHING
+		shouldNotUseVision = drivebase.getState() == Drivebase.State.PATHING
 				|| gyro.getAngularVelocityYDevice().getValueAsDouble() > Math.PI;
 
 		if (shouldNotUseVision) return;
 
-		final boolean isHighInvalid = visionEstimateHigh == null
+		isHighInvalid = visionEstimateHigh == null
 				|| visionEstimateHigh.avgTagDist > 6
 				|| visionEstimateHigh.tagCount == 0
 				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateHigh.rawFiducials.length > 2)
 				|| (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.REEF);
 		
-		final boolean isLowInvalid = visionEstimateLow == null
+		isLowInvalid = visionEstimateLow == null
 				|| visionEstimateLow.avgTagDist > 6
 				|| visionEstimateLow.tagCount == 0
 				|| (drivebase.getState() == Drivebase.State.ALIGN && visionEstimateLow.rawFiducials.length > 2)
@@ -265,7 +267,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	public boolean seesTag() {
-		return LimelightHelpers.getTargetCount(LIMELIGHT_HIGH) > 0 || LimelightHelpers.getTargetCount(LIMELIGHT_LOW) > 0;
+		return !shouldNotUseVision && (!isHighInvalid || !isLowInvalid);
 	}
 
 	public void setDesiredAlignTarget(final AlignableTarget alignableTarget) {

@@ -23,7 +23,7 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         }));
 
         // Drive right to close right
-        addBlock(new TorqueFollowPath("BRL4_1", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("RL4_1", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L4);
                 claw.setState(Claw.State.SCORE_L4);
@@ -41,7 +41,7 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive close right to coral station right
-        addBlock(new TorqueFollowPath("BRL4_2", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("RL4_2", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(State.CORAL_HP);
                 claw.setState(Claw.State.CORAL_HP);
@@ -58,7 +58,7 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station right to close right
-        addBlock(new TorqueFollowPath("BRL4_3", drivebase).withMarkers(
+        addBlock(new TorqueFollowPath("RL4_3", drivebase).withMarkers(
             new Marker(() -> {
                 elevator.setState(Elevator.State.SCORE_L4);
                 claw.setState(Claw.State.SCORE_L4);

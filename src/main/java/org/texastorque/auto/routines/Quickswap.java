@@ -13,10 +13,10 @@ import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 public class Quickswap extends TorqueSequence implements Subsystems {
 
     public Quickswap() {
-        this(false);
+        this(false, Relation.LEFT);
     }
 
-	public Quickswap(final boolean isL4) {
+	public Quickswap(final boolean isL4, final Relation relation) {
         // Algae extraction
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
@@ -41,7 +41,7 @@ public class Quickswap extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
-        addBlock(new Align(Relation.LEFT, isL4 ? AlignableTarget.L4 : AlignableTarget.L3, 1.2).command());
+        addBlock(new Align(relation, isL4 ? AlignableTarget.L4 : AlignableTarget.L3, 1.2).command());
 
         // Coral placement & Algae Shot
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));

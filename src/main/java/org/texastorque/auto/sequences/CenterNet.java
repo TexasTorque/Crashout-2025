@@ -29,32 +29,28 @@ public class CenterNet extends TorqueSequence implements Subsystems {
         }));
 
         // Drive center to far right
-		addBlock(new TorqueFollowPath("BCNET_1", drivebase));
+		addBlock(new TorqueFollowPath("CNET_1", drivebase));
 
 		// Quickswap
-		addBlock(new Quickswap(true).command());
+		addBlock(new Quickswap(true, Relation.RIGHT).command());
 
 		// Drive far right to far shot
-		addBlock(new TorqueFollowPath("BCNET_2", drivebase).withMarkers(
+		addBlock(new TorqueFollowPath("CNET_2", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 				claw.setState(Claw.State.NET);
-			}, .2)
+			}, .2),
+			new Marker(() -> {
+				claw.setAlgaeState(Claw.AlgaeState.SHOOT_FAST);
+			}, .8)
 		));
 
-		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
-
-		// Shoot algae into net
-		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));
-		addBlock(new TorqueWaitTime(.5));
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
 		addBlock(new TorqueRun(() -> {
 			elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
 			claw.setState(Claw.State.ALGAE_EXTRACTION);
 		}));
-
-		addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
@@ -73,7 +69,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
-		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));
+		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT_FAST)));
 		addBlock(new TorqueWaitTime(.5));
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
@@ -82,7 +78,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 			claw.setState(Claw.State.ALGAE_EXTRACTION);
 		}));
 
-		addBlock(new TorqueFollowPath("BCNET_3", drivebase));
+		addBlock(new TorqueFollowPath("CNET_3", drivebase));
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
@@ -93,16 +89,16 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
-		addBlock(new TorqueFollowPath("BCNET_4", drivebase).withMarkers(
+		addBlock(new TorqueFollowPath("CNET_4", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 			claw.setState(Claw.State.NET);
-			}, .2)
+			}, .2),
+			new Marker(() -> {
+				claw.setAlgaeState(Claw.AlgaeState.SHOOT_FAST);
+			}, .8)
 		));
 
-		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
-
-		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT)));
 		addBlock(new TorqueWaitTime(.5));
 		addBlock(new TorqueRun(() -> {
 			claw.setAlgaeState(Claw.AlgaeState.OFF);
