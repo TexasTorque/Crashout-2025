@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.75,
-        "y": 4.048
+        "x": 6.912750000000001,
+        "y": 4.317499999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.156018835616439,
-        "y": 4.363077910958904
+        "x": 7.3187688356164395,
+        "y": 4.632577910958903
       },
       "isLocked": false,
       "linkedName": "BLUE_CENTER_NET_SHOT"

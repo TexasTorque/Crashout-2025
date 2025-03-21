@@ -59,13 +59,14 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
-		addBlock(new TorqueRun(() -> {
-			elevator.setState(Elevator.State.NET);
-			claw.setState(Claw.State.NET);
-		}));
-
-		// Alignment
-        addBlock(new Align(() -> new Pose2d(6.750, 4.048, Rotation2d.fromDegrees(200)), 1.5).command());
+		// // Alignment
+        // addBlock(new Align(() -> new Pose2d(6.750, 4.048, Rotation2d.fromDegrees(200)), 1.5).command());
+		addBlock(new TorqueFollowPath("CNET_A", drivebase).withMarkers(
+			new Marker(() -> {
+				elevator.setState(Elevator.State.NET);
+				claw.setState(Claw.State.NET);
+			}, .2)
+		));
 
 		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
 
