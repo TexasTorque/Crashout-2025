@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.32,
-        "y": 5.07
+        "x": 5.314857954545454,
+        "y": 5.166747159090908
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.680616438356164,
-        "y": 5.235282534246576
+        "x": 5.886874999999999,
+        "y": 5.356590909090908
       },
       "isLocked": false,
       "linkedName": null
@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 6.890369318181818,
-        "y": 5.1966619318181815
+        "y": 4.73796875
       },
       "prevControl": {
-        "x": 6.544778564757162,
-        "y": 5.1966619318181815
+        "x": 6.192357954545455,
+        "y": 5.326292613636363
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BLUE_CENTER_NET_SHOT"
     }
   ],
   "rotationTargets": [],
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 180.0
+    "velocity": 0,
+    "rotation": -165.57922687248902
   },
   "reversed": false,
   "folder": "CENTER_NET",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": -117.29957221133279
   },
   "useDefaultConstraints": true
 }
