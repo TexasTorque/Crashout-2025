@@ -21,9 +21,7 @@ public class Quickswap extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-        addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1).command());
-
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
+        addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, .8).command());
 
         // Start moving subsystems while aligning
         addBlock(new TorqueRun(() -> {
@@ -38,6 +36,8 @@ public class Quickswap extends TorqueSequence implements Subsystems {
         }));
         addBlock(new Align(() -> perception.getAlignPose(), 1).command());
 
+        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
+
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
@@ -45,10 +45,7 @@ public class Quickswap extends TorqueSequence implements Subsystems {
 
         // Coral placement & Algae Shot
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 	}
-	
 }

@@ -11,6 +11,7 @@ import org.texastorque.torquelib.util.TorqueUtil;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
 
 
@@ -84,8 +85,8 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
 
     public static final double HERTZ = 15;
 
-    private LightAction red = new Solid(() -> Color.kRed),
-            blinkGreen = new Blink(() -> Color.kGreen, HERTZ),
+    private LightAction alliance = new Solid(() -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red ? Color.kRed : Color.kBlue),
+            green = new Solid(() -> Color.kGreen),
             yellow = new Solid(() -> Color.kYellow),
             orange = new Solid(() -> Color.kOrangeRed),
             rainbow = new Rainbow();
@@ -129,10 +130,10 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
     public final LightAction getColor(final TorqueMode mode) {
         if (elevator.getState() == Elevator.State.CLIMB) return rainbow;
         if (DriverStation.isDisabled()) return orange;
-        if (perception.seesTag()) return blinkGreen;
+        if (perception.seesTag()) return green;
         if (claw.hasCoral()) return yellow;
 
-        return red;
+        return alliance;
     }
 
     @Override

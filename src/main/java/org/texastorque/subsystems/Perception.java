@@ -96,7 +96,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		updateOdometryLocalization();
 		if (RobotBase.isReal()) updateVisionLocalization();
 
-		field.setRobotPose(poseEstimator.getEstimatedPosition());
+		field.setRobotPose(getPose());
 
 		filteredPose = new Pose2d(
                 filteredX.calculate(getPose().getX()),
@@ -291,7 +291,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	public Pose2d getPose() {
-		return poseEstimator.getEstimatedPosition();
+		return new Pose2d(poseEstimator.getEstimatedPosition().getX(), poseEstimator.getEstimatedPosition().getY(), getHeading());
 	}
 
 	public void createZones() {

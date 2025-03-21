@@ -33,47 +33,29 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadPaths() {
-        pathLoader.preloadPath("BCNET_1");
-        pathLoader.preloadPath("BCNET_2");
-        pathLoader.preloadPath("BCNET_3");
-        pathLoader.preloadPath("BCNET_4");
-        pathLoader.preloadPath("BCPSR_1");
-        pathLoader.preloadPath("BCPSR_2");
-        pathLoader.preloadPath("BCPSR_3");
-        pathLoader.preloadPath("BLL3_1");
-        pathLoader.preloadPath("BLL3_2");
-        pathLoader.preloadPath("BLL3_3");
-        pathLoader.preloadPath("BLL4_1");
-        pathLoader.preloadPath("BLL4_2");
-        pathLoader.preloadPath("BLL4_3");
-        pathLoader.preloadPath("BRL3_1");
-        pathLoader.preloadPath("BRL3_2");
-        pathLoader.preloadPath("BRL3_3");
-        pathLoader.preloadPath("BRL4_1");
-        pathLoader.preloadPath("BRL4_2");
-        pathLoader.preloadPath("BRL4_3");
+        pathLoader.preloadPath("CNET_1");
+        pathLoader.preloadPath("CNET_2");
+        pathLoader.preloadPath("CNET_A");
+        pathLoader.preloadPath("CNET_3");
+        pathLoader.preloadPath("CNET_4");
+        pathLoader.preloadPath("CPSR_1");
+        pathLoader.preloadPath("CPSR_2");
+        pathLoader.preloadPath("CPSR_3");
+        pathLoader.preloadPath("LL3_1");
+        pathLoader.preloadPath("LL3_2");
+        pathLoader.preloadPath("LL3_3");
+        pathLoader.preloadPath("LL4_1");
+        pathLoader.preloadPath("LL4_2");
+        pathLoader.preloadPath("LL4_3");
+        pathLoader.preloadPath("RL3_1");
+        pathLoader.preloadPath("RL3_2");
+        pathLoader.preloadPath("RL3_3");
+        pathLoader.preloadPath("RL4_1");
+        pathLoader.preloadPath("RL4_2");
+        pathLoader.preloadPath("RL4_3");
+        pathLoader.preloadPath("PUSH");
         pathLoader.preloadPath("NA_NA");
-        pathLoader.preloadPath("RED_PUSH");
-        pathLoader.preloadPath("BLUE_PUSH");
-        pathLoader.preloadPath("RCNET_1");
-        pathLoader.preloadPath("RCNET_2");
-        pathLoader.preloadPath("RCNET_3");
-        pathLoader.preloadPath("RCNET_4");
-        pathLoader.preloadPath("RCPSR_1");
-        pathLoader.preloadPath("RCPSR_2");
-        pathLoader.preloadPath("RCPSR_3");
-        pathLoader.preloadPath("RLL3_1");
-        pathLoader.preloadPath("RLL3_2");
-        pathLoader.preloadPath("RLL3_3");
-        pathLoader.preloadPath("RLL4_1");
-        pathLoader.preloadPath("RLL4_2");
-        pathLoader.preloadPath("RLL4_3");
-        pathLoader.preloadPath("RRL3_1");
-        pathLoader.preloadPath("RRL3_2");
-        pathLoader.preloadPath("RRL3_3");
-        pathLoader.preloadPath("RRL4_1");
-        pathLoader.preloadPath("RRL4_2");
-        pathLoader.preloadPath("RRL4_3");
+        pathLoader.preloadPath("test");
     }
 
     public static RobotConfig getRobotConfig() {

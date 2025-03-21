@@ -14,9 +14,6 @@ import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-
 public class CenterNet extends TorqueSequence implements Subsystems {
 
 	public CenterNet() {
@@ -55,23 +52,21 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.5).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.7).command());
 
-		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
-
-		// // Alignment
-        // addBlock(new Align(() -> new Pose2d(6.750, 4.048, Rotation2d.fromDegrees(200)), 1.5).command());
+		// Alignment
 		addBlock(new TorqueFollowPath("CNET_A", drivebase).withMarkers(
 			new Marker(() -> {
 				elevator.setState(Elevator.State.NET);
 				claw.setState(Claw.State.NET);
-			}, .2)
+				claw.setAlgaeState(Claw.AlgaeState.OFF);
+			}, .2),
+			new Marker(() -> {
+				claw.setAlgaeState(Claw.AlgaeState.SHOOT_FAST);
+			}, .8)
 		));
 
-		addBlock(new TorqueWaitUntil(() -> elevator.isAtState() && claw.isAtState()));
-
-		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.SHOOT_FAST)));
-		addBlock(new TorqueWaitTime(.5));
+		addBlock(new TorqueWaitTime(.1));
 		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
 
 		addBlock(new TorqueRun(() -> {
@@ -100,12 +95,12 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 			}, .8)
 		));
 
-		addBlock(new TorqueWaitTime(.5));
+		addBlock(new TorqueWaitTime(.1));
 		addBlock(new TorqueRun(() -> {
 			claw.setAlgaeState(Claw.AlgaeState.OFF);
 
-			elevator.setState(Elevator.State.CORAL_HP);
-			claw.setState(Claw.State.CORAL_HP);
+			elevator.setState(Elevator.State.STOW);
+			claw.setState(Claw.State.STOW);
 		}));
 	}
 }
