@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.202329545454546,
-        "y": 5.2963778409090905
+        "x": 6.181500000000001,
+        "y": 5.0195
       },
       "isLocked": false,
       "linkedName": "BLUE_CENTER_NET_SHOT"
     },
     {
       "anchor": {
-        "x": 5.215142045454546,
-        "y": 5.246519886363636
+        "x": 5.27,
+        "y": 5.02
       },
       "prevControl": {
-        "x": 5.82340909090909,
-        "y": 5.376150568181817
+        "x": 5.713499999999999,
+        "y": 4.980499999999999
       },
       "nextControl": null,
       "isLocked": false,
