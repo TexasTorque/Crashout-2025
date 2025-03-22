@@ -88,11 +88,11 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 			claw.setAlgaeState(AlgaeState.INTAKE);
 		}));
 
-		// Drive right side
+		// Drive far right side
 		addBlock(new TorqueFollowPath("CNET_5", drivebase));
 
 		// Alignment to pickup high algae
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.7).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 0.5).command());
 		
 		// Drive to center and shoot
 		addBlock(new TorqueFollowPath("CNET_6", drivebase).withMarkers(
