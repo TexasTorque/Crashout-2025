@@ -29,21 +29,24 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 		));
 
 		// Alignment and scoreee
-		addBlock(new Align(Relation.RIGHT, AlignableTarget.L4, 1.7).command());
+		addBlock(new Align(Relation.RIGHT, AlignableTarget.L4, 0.5).command()); // Alignt time is low as path drives close to align target
 		addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
+		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
+		addBlock(new TorqueWaitTime(0.5));
 
 		// Pick up low algae
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.7).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_LOW, 1.5).command());
 		addBlock(new TorqueRun(() -> {
 			elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
-			claw.setAlgaeState(AlgaeState.INTAKE);
 			claw.setState(Claw.State.ALGAE_EXTRACTION);
 		}));
+		addBlock(new TorqueWaitTime(0.5));
 
 
-		// Drive far right to center net
+		// Shoot algae
 		addBlock(new TorqueFollowPath("CNET_2", drivebase).withMarkers(
 			new Marker(() -> {
+				claw.setAlgaeState(Claw.AlgaeState.OFF);
 				elevator.setState(Elevator.State.NET);
 				claw.setState(Claw.State.NET);
 			}, .2),
@@ -52,28 +55,19 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 			}, .8)
 		));
 
-		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
-
+		// Reset to pickup
 		addBlock(new TorqueRun(() -> {
 			elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
 			claw.setState(Claw.State.ALGAE_EXTRACTION);
+			claw.setAlgaeState(AlgaeState.INTAKE);
 		}));
 
-		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Drive to far left
 		addBlock(new TorqueFollowPath("CNET_3", drivebase));
 
-		// Alignment
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.7).command());
-
 		// Pick up high algae
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.7).command());
-		addBlock(new TorqueRun(() -> {
-			elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
-			claw.setAlgaeState(AlgaeState.INTAKE);
-			claw.setState(Claw.State.ALGAE_EXTRACTION);
-		}));
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 0.8).command());
 
 		// Drive to center net and shoot
 		addBlock(new TorqueFollowPath("CNET_4", drivebase).withMarkers(
@@ -87,20 +81,19 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 			}, .8)
 		));
 
+		// Reset to pickup 
+		addBlock(new TorqueRun(() -> {
+			elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
+			claw.setState(Claw.State.ALGAE_EXTRACTION);
+			claw.setAlgaeState(AlgaeState.INTAKE);
+		}));
+
 		// Drive right side
 		addBlock(new TorqueFollowPath("CNET_5", drivebase));
 
-		// Alignment
+		// Alignment to pickup high algae
 		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.7).command());
-
-		// Pick up high algae
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.7).command());
-		addBlock(new TorqueRun(() -> {
-			elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
-			claw.setAlgaeState(AlgaeState.INTAKE);
-			claw.setState(Claw.State.ALGAE_EXTRACTION);
-		}));
-
+		
 		// Drive to center and shoot
 		addBlock(new TorqueFollowPath("CNET_6", drivebase).withMarkers(
 			new Marker(() -> {
@@ -112,7 +105,13 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 			}, .8)
 		));
 
-
+		// Go to stow at end
+		addBlock(new TorqueRun(() -> {
+			claw.setState(Claw.State.STOW);
+			elevator.setState(Elevator.State.STOW);
+			claw.setAlgaeState(Claw.AlgaeState.OFF);
+			claw.setCoralState(Claw.CoralState.OFF);
+		}));
 		
 	}
 }
