@@ -25,7 +25,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 			new Marker(() -> {
 				elevator.setState(Elevator.State.SCORE_L4);
 				claw.setState(Claw.State.SCORE_L4);
-			}, .2)
+			}, .4)
 		));
 
 		// Alignment and scoreee
