@@ -68,6 +68,7 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
         }
     }
 
+
     private static abstract class LightAction {
         public abstract void run(AddressableLEDBuffer buff);
     }
@@ -88,7 +89,7 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
     private LightAction alliance = new Solid(() -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red ? Color.kRed : Color.kBlue),
             green = new Solid(() -> Color.kGreen),
             yellow = new Solid(() -> Color.kYellow),
-            orange = new Solid(() -> Color.kOrangeRed),
+            white = new Solid(() -> Color.kWhite),
             rainbow = new Rainbow();
 
     private Lights() {
@@ -129,7 +130,7 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
 
     public final LightAction getColor(final TorqueMode mode) {
         if (elevator.getState() == Elevator.State.CLIMB) return rainbow;
-        if (DriverStation.isDisabled()) return orange;
+        if (DriverStation.isDisabled()) return white;
         if (perception.seesTag()) return green;
         if (claw.hasCoral()) return yellow;
 

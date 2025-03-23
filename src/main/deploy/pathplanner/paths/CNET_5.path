@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.162000000000001,
-        "y": 3.7617499999999997
+        "x": 5.4014999999999995,
+        "y": 2.2504999999999997
       },
       "isLocked": false,
       "linkedName": "BLUE_CENTER_NET_SHOT"
@@ -20,8 +20,8 @@
         "y": 2.86
       },
       "prevControl": {
-        "x": 5.78175,
-        "y": 3.362
+        "x": 5.23575,
+        "y": 2.279749999999999
       },
       "nextControl": null,
       "isLocked": false,
