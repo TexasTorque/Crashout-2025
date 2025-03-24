@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.528250000000001,
-        "y": 6.16025
+        "x": 5.920119863013699,
+        "y": 5.790517979452054
       },
       "isLocked": false,
       "linkedName": "BLUE_CENTER_NET_SHOT"
     },
     {
       "anchor": {
-        "x": 5.27,
-        "y": 5.02
+        "x": 5.349143835616438,
+        "y": 5.204516267123288
       },
       "prevControl": {
-        "x": 5.499,
-        "y": 5.448499999999999
+        "x": 5.818955479452056,
+        "y": 5.554315068493152
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": -124.33021719550322
+    "rotation": -119.99999999999999
   },
   "reversed": false,
   "folder": "CENTER_NET",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -165.57922687248902
+    "rotation": -165.0
   },
   "useDefaultConstraints": true
 }
