@@ -10,13 +10,12 @@ import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDri
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
+import org.texastorque.torquelib.control.TorqueDriveController;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
 
@@ -28,6 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -61,10 +61,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     private final TorqueSwerveModuleKraken fl, fr, bl, br;
 
-    public TorqueSwerveSpeeds inputSpeeds;
+    public TorqueSwerveSpeeds inputSpeeds, lastRealInputSpeeds;
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
-    private final PPHolonomicDriveController driveController;
+    private final TorqueDriveController alignController;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
 
@@ -88,9 +88,9 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
 
-        driveController = new PPHolonomicDriveController(
-                new PIDConstants(6, 0, .2),
-                new PIDConstants(4 * Math.PI, 0, 0)
+        alignController = new TorqueDriveController(
+            new PIDConstants(6, 0, .2), new TrapezoidProfile.Constraints(3, 1.8),
+            new PIDConstants(Math.PI * 2, 0, 0), new TrapezoidProfile.Constraints(Math.PI, Math.PI / 2)
         );
     }
 
@@ -204,15 +204,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             return;
         }
 
-        PathPlannerTrajectoryState state = new PathPlannerTrajectoryState();
-        state.pose = pose;
-
-        inputSpeeds = TorqueSwerveSpeeds.fromChassisSpeeds(
-            ChassisSpeeds.fromRobotRelativeSpeeds(
-                driveController.calculateRobotRelativeSpeeds(new Pose2d(perception.getPose().getTranslation(), perception.getPose().getRotation()), state),
-                perception.getPose().getRotation()
-            )
-        );
+        inputSpeeds = alignController.calculate(getPose(), pose);
 
         if (perception.getDesiredAlignTarget() == AlignableTarget.L4) {
             inputSpeeds.vxMetersPerSecond = TorqueMath.constrain(inputSpeeds.vxMetersPerSecond, MAX_ALIGN_VELOCITY_SLOW);
@@ -301,10 +293,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         };
     }
 
-    public void resetAlign() {
-        driveController.reset(perception.getPose(), inputSpeeds);
-    }
-
     public void startSlowMode() {
         setState(State.SLOW);
         slowStartTimestamp = Timer.getFPGATimestamp();
@@ -315,6 +303,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {
+        if (desiredState == State.PATHING && inputSpeeds != null) lastRealInputSpeeds = inputSpeeds;
+        if (desiredState == State.ALIGN) lastRealInputSpeeds = inputSpeeds;
         this.inputSpeeds = inputSpeeds;
     }
 
