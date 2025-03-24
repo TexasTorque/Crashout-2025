@@ -19,19 +19,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CNET_4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "CNET_3"
           }
         },
         {
           "type": "path",
           "data": {
+            "pathName": "CNET_4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "CNET_5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CNET_6"
           }
         }
       ]

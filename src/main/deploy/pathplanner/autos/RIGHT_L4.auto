@@ -21,6 +21,18 @@
           "data": {
             "pathName": "RL4_3"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RL4_4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RL4_5"
+          }
         }
       ]
     }
