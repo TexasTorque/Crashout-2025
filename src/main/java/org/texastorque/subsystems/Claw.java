@@ -28,6 +28,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private State pastState;
     private double pastStateTime;
 
+    private State selectedState;
+
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(41.2793),
@@ -86,6 +88,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         pastState = State.ZERO;
         pastStateTime = Timer.getFPGATimestamp();
 
+        selectedState = State.ZERO;
+
         shoulder = new TorqueNEO(Ports.SHOULDER)
             .idleMode(IdleMode.kBrake)
             .inverted(true)
@@ -112,6 +116,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     @Override
     public final void initialize(final TorqueMode mode) {
         State.ZERO.angle = getShoulderAngle();
+        setState(State.ZERO);
         shoulderPID.reset(getShoulderAngle());
     }
 
@@ -190,6 +195,14 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     public final boolean isNearState() {
         return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 20);
+    }
+
+    public void setSelectedState(State selectedState) {
+      	this.selectedState = selectedState;
+    }
+
+    public State getSelectedState() {
+      	return selectedState;
     }
 
     public boolean hasCoral() {
