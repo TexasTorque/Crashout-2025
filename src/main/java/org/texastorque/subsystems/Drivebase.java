@@ -90,7 +90,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         alignController = new TorqueDriveController(
             new PIDConstants(6, 0, .2), new TrapezoidProfile.Constraints(3, 1.8),
-            new PIDConstants(Math.PI * 2, 0, 0), new TrapezoidProfile.Constraints(Math.PI, Math.PI / 2)
+            new PIDConstants(Math.PI * 2, 0, 0), new TrapezoidProfile.Constraints(Math.PI, Math.PI)
         );
     }
 
@@ -306,6 +306,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (desiredState == State.PATHING && inputSpeeds != null) lastRealInputSpeeds = inputSpeeds;
         if (desiredState == State.ALIGN) lastRealInputSpeeds = inputSpeeds;
         this.inputSpeeds = inputSpeeds;
+    }
+
+    public TorqueDriveController getAlignController() {
+        return alignController;
     }
 
     public double getRadius() {
