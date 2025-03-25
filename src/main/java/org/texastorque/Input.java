@@ -49,7 +49,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         alignInitial = new TorqueClickSupplier(driver::isRightTriggerDown);
         align = new TorqueBoolSupplier(driver::isRightTriggerDown);
 
-        goToSelected = new TorqueBoolSupplier(driver::isRightBumperDown);
+        goToSelected = new TorqueBoolSupplier(driver::isAButtonDown);
 
         stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
 
@@ -114,6 +114,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         goToSelected.onTrue(() -> {
             elevator.setState(elevator.getSelectedState());
             claw.setState(claw.getSelectedState());
+            perception.setDesiredAlignTarget(AlignableTarget.of(elevator.getSelectedState()));
         });
     }
 

@@ -3,6 +3,7 @@ package org.texastorque;
 import java.util.ArrayList;
 import org.texastorque.Field.AlignPosition.Placement;
 import org.texastorque.Field.AlignPosition.Relation;
+import org.texastorque.subsystems.Elevator;
 import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 
@@ -76,6 +77,20 @@ public class Field implements Subsystems {
 			NET,
 			PROCESSOR,
 			NONE;
+
+			public static AlignableTarget of(final Elevator.State elevatorSelectedState) {
+				if (elevatorSelectedState == Elevator.State.SCORE_L1) return L1;
+				if (elevatorSelectedState == Elevator.State.SCORE_L2) return L2;
+				if (elevatorSelectedState == Elevator.State.SCORE_L3) return L3;
+				if (elevatorSelectedState == Elevator.State.SCORE_L4) return L4;
+				if (elevatorSelectedState == Elevator.State.ALGAE_REMOVAL_HIGH) return ALGAE_HIGH;
+				if (elevatorSelectedState == Elevator.State.ALGAE_REMOVAL_LOW) return ALGAE_LOW;
+				if (elevatorSelectedState == Elevator.State.CORAL_HP) return CORAL_STATION;
+				if (elevatorSelectedState == Elevator.State.CORAL_HP_SHIFT) return CORAL_STATION;
+				if (elevatorSelectedState == Elevator.State.NET) return NET;
+				if (elevatorSelectedState == Elevator.State.PROCESSOR) return PROCESSOR;
+				return NONE;
+			}
 		}
 		
 		private final Placement placement;
