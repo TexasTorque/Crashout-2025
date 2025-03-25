@@ -240,6 +240,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	public Pose2d getAlignPose() {
+		if (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.REEF) {
+			return Field.getInstance().getAlignPose(filteredPose, AlignableTarget.of(elevator.getSelectedState()), relation);
+		}
 		return Field.getInstance().getAlignPose(filteredPose, desiredAlignTarget, relation);
 	}
 

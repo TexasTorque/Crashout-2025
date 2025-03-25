@@ -29,7 +29,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
-            climbMode, intakeCoralShift;
+            climbMode, intakeCoralShift, goToSelected;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -48,6 +48,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         
         alignInitial = new TorqueClickSupplier(driver::isRightTriggerDown);
         align = new TorqueBoolSupplier(driver::isRightTriggerDown);
+
+        goToSelected = new TorqueBoolSupplier(driver::isAButtonDown);
 
         stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
 
@@ -108,6 +110,12 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             elevator.setState(Elevator.State.MANUAL);
             Elevator.State.MANUAL.position = DELTA + elevator.getElevatorPosition();
         });
+
+        goToSelected.onTrue(() -> {
+            elevator.setState(elevator.getSelectedState());
+            claw.setState(claw.getSelectedState());
+            perception.setDesiredAlignTarget(AlignableTarget.of(elevator.getSelectedState()));
+        });
     }
 
     public final void updateDrivebase() {
@@ -144,18 +152,18 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             perception.setDesiredAlignTarget(AlignableTarget.L1);
         });
         L2.onTrue(() -> {
-            elevator.setState(Elevator.State.SCORE_L2);
-            claw.setState(Claw.State.SCORE_L2);
+            elevator.setSelectedState(Elevator.State.SCORE_L2);
+            claw.setSelectedState(Claw.State.SCORE_L2);
             perception.setDesiredAlignTarget(AlignableTarget.L2);
         });
         L3.onTrue(() -> {
-            elevator.setState(Elevator.State.SCORE_L3);
-            claw.setState(Claw.State.SCORE_L3);
+            elevator.setSelectedState(Elevator.State.SCORE_L3);
+            claw.setSelectedState(Claw.State.SCORE_L3);
             perception.setDesiredAlignTarget(AlignableTarget.L3);
         });
         L4.onTrue(() -> {
-            elevator.setState(Elevator.State.SCORE_L4);
-            claw.setState(Claw.State.SCORE_L4);
+            elevator.setSelectedState(Elevator.State.SCORE_L4);
+            claw.setSelectedState(Claw.State.SCORE_L4);
             perception.setDesiredAlignTarget(AlignableTarget.L4);
         });
         net.onTrue(() -> {
@@ -169,15 +177,15 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             perception.setDesiredAlignTarget(AlignableTarget.PROCESSOR);
         });
         algaeExtractionHigh.onTrue(() -> {
-            elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
-            claw.setState(Claw.State.ALGAE_EXTRACTION);
+            elevator.setSelectedState(Elevator.State.ALGAE_REMOVAL_HIGH);
+            claw.setSelectedState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
             perception.setDesiredAlignTarget(AlignableTarget.ALGAE_HIGH);
             perception.setRelation(Relation.CENTER);
         });
         algaeExtractionLow.onTrue(() -> {
-            elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
-            claw.setState(Claw.State.ALGAE_EXTRACTION);
+            elevator.setSelectedState(Elevator.State.ALGAE_REMOVAL_LOW);
+            claw.setSelectedState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
             perception.setDesiredAlignTarget(AlignableTarget.ALGAE_LOW);
             perception.setRelation(Relation.CENTER);

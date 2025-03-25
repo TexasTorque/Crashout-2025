@@ -24,6 +24,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private double pastStateTime;
     private final double ELEVATOR_FF = .35;
 
+    private State selectedState;
+
     public final double MAX_HEIGHT = 40;
     public static enum State implements TorqueState {
         ZERO(0), // Not actually a setpoint!! Gets set to whatever we
@@ -53,6 +55,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         super(State.ZERO);
         pastState = State.ZERO;
         pastStateTime = Timer.getFPGATimestamp();
+
+        selectedState = State.ZERO;
 
         elevatorLeft = new TorqueKraken(Ports.ELEVATOR_LEFT)
             .idleMode(NeutralModeValue.Brake)
@@ -136,6 +140,14 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public final boolean isNearState() {
         return TorqueMath.toleranced(getElevatorPosition(), desiredState.position, 1);
+    }
+
+    public void setSelectedState(State selectedState) {
+      this.selectedState = selectedState;
+    }
+
+    public State getSelectedState() {
+      return selectedState;
     }
 
     public static final synchronized Elevator getInstance() {
