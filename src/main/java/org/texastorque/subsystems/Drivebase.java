@@ -218,7 +218,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         Debug.log("Distance to Align", pose.getTranslation().getDistance(perception.getPose().getTranslation()));
         Logger.recordOutput("Desired Component Poses", perception.getDesiredComponentPoses());
-        Logger.recordOutput("Align Target Pose", pose);
     }
 
     public boolean isAligned() {
@@ -306,6 +305,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         if (desiredState == State.PATHING && inputSpeeds != null) lastRealInputSpeeds = inputSpeeds;
         if (desiredState == State.ALIGN) lastRealInputSpeeds = inputSpeeds;
         this.inputSpeeds = inputSpeeds;
+    }
+
+    public Pose2d getAlignOverride() {
+        return alignPoseOverride;
     }
 
     public TorqueDriveController getAlignController() {

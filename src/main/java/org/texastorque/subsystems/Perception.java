@@ -236,11 +236,11 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		if (RobotBase.isSimulation()) {
 			return Rotation2d.fromRadians(gyro_simulated);
 		}
-		return Rotation2d.fromDegrees((gyro.getYaw().getValueAsDouble() + (10 * 360)) % 360);
+		return Rotation2d.fromDegrees((gyro.getYaw().getValueAsDouble() + (100 * 360)) % 360);
 	}
 
 	public Pose2d getAlignPose() {
-		if (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.REEF) {
+		if (getCurrentZone() != null && AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.REEF && !DriverStation.isAutonomous() && drivebase.getAlignOverride() == null) {
 			return Field.getInstance().getAlignPose(filteredPose, AlignableTarget.of(elevator.getSelectedState()), relation);
 		}
 		return Field.getInstance().getAlignPose(filteredPose, desiredAlignTarget, relation);

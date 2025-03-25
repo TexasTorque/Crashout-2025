@@ -38,7 +38,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         SCORE_L4(38.7693),
         NET(36.7693),
         ALGAE_REMOVAL_LOW(1.5771),
-        ALGAE_REMOVAL_HIGH(18.3303),
+        ALGAE_REMOVAL_HIGH(17.2666),
         PROCESSOR(1.6765),
         CORAL_HP(7.0032),
         CORAL_HP_SHIFT(2.5832),

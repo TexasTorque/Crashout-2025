@@ -21,22 +21,22 @@ public class Quickswap extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
 
 		// Alignment
-        addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, .8).command());
-
-        // Start moving subsystems while aligning
-        addBlock(new TorqueRun(() -> {
-            elevator.setState(isL4 ? Elevator.State.SCORE_L4 : Elevator.State.SCORE_L3);
-            claw.setState(isL4 ? Claw.State.SCORE_L4 : Claw.State.SCORE_L3);
-        }));
+        addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, .7).command());
 
         // Move back to avoid claw hitting reef poles
         addBlock(new TorqueRun(() -> {
             perception.setRelation(Relation.NONE);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         }));
-        addBlock(new Align(() -> perception.getAlignPose(), 1).command());
+        addBlock(new Align(() -> perception.getAlignPose(), .7).command());
 
         addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
+
+        // Start moving subsystems while aligning
+        addBlock(new TorqueRun(() -> {
+            elevator.setState(isL4 ? Elevator.State.SCORE_L4 : Elevator.State.SCORE_L3);
+            claw.setState(isL4 ? Claw.State.SCORE_L4 : Claw.State.SCORE_L3);
+        }));
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 

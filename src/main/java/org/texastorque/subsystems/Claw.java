@@ -56,7 +56,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum AlgaeState implements TorqueState {
-        INTAKE(-10), SHOOT(5), SHOOT_FAST(12), OFF(0);
+        INTAKE(-10), SHOOT(5), SHOOT_SEMI_FAST(8), SHOOT_FAST(12), OFF(0);
 
         private final double volts;
 
@@ -137,8 +137,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
+            shoulderPID.reset(getShoulderAngle());
             Debug.log("Shoulder Volts", ff);
-
         } else {
             shoulder.setVolts(volts + ff);
             Debug.log("Shoulder Volts", volts + ff);
