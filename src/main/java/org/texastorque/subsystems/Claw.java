@@ -97,7 +97,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         shoulderEncoder = new CANcoder(Ports.SHOULDER_ENCODER);
         shoulderPID = new ProfiledPIDController(.2, 0, 0,
-                new TrapezoidProfile.Constraints(720, 720));
+                new TrapezoidProfile.Constraints(2000, 1000));
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
             .apply();
@@ -132,13 +132,16 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         final double SHOULDER_MAX_VOLTS = 12;
         double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.angle);
-        final double ff = .1 * Math.sin(Math.toRadians(getShoulderAngle() + 15)); // Will need tuning
+        final double ff = .6 * Math.sin(Math.toRadians(getShoulderAngle() + 15));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
         if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
+            Debug.log("Shoulder Volts", ff);
+
         } else {
             shoulder.setVolts(volts + ff);
+            Debug.log("Shoulder Volts", volts + ff);
         }
 
         algaeRollers.setVolts(algaeState.getVolts());
@@ -156,7 +159,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         }
 
         Debug.log("Coral Volts", coralState.getVolts());
-        Debug.log("Claw Volts", volts);
     }
 
 	@Override
