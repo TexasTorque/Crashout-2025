@@ -46,8 +46,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeCoralShift = new TorqueBoolSupplier(driver::isDPADUpDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         
-        alignInitial = new TorqueClickSupplier(driver::isRightTriggerDown);
-        align = new TorqueBoolSupplier(driver::isRightTriggerDown);
+        alignInitial = new TorqueClickSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null);
+        align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null);
 
         goToSelected = new TorqueBoolSupplier(driver::isAButtonDown);
 
@@ -128,7 +128,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         slowInitial.onTrue(() -> drivebase.startSlowMode());
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
 
-        alignInitial.onTrue(() -> drivebase.resetAlign());
+        alignInitial.onTrue(() -> drivebase.getAlignController().reset());
         align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
 
         final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
