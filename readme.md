@@ -8,7 +8,8 @@ Codebase for [Texas Torque](https://texastorque.org)'s 2025 competition robot.
 - Perception: vision processing with 2x limelight 3g & localization.
 - Elevator: custom three stage elevator.
 - Claw: shoulder with algae and coral endeffector in one.
-- Climb: deep climber with a neo vortex
+- Climb: deep climber with a single neo.
+- Lights: led strip for driver signaling.
 
 ## Contributors
 
