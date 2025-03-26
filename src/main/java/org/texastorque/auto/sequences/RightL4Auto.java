@@ -133,5 +133,13 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         //     perception.setDesiredAlignTarget(AlignableTarget.NONE);
         // }));
         // addBlock(new Align(() -> perception.getAlignPose(), 1).command());
+
+        
+		// Go to stow at end
+		addBlock(new TorqueRun(() -> {
+			claw.setState(Claw.State.STOW);
+			elevator.setState(Elevator.State.STOW);
+			claw.setAlgaeState(Claw.AlgaeState.OFF);
+		}));
     }
 }
