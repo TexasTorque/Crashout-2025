@@ -90,6 +90,7 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
             green = new Solid(() -> Color.kGreen),
             yellow = new Solid(() -> Color.kYellow),
             white = new Solid(() -> Color.kWhite),
+            blinkGreen = new Blink(() -> Color.kGreen, HERTZ),
             rainbow = new Rainbow();
 
     private Lights() {
@@ -129,6 +130,7 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
     }
 
     public final LightAction getColor(final TorqueMode mode) {
+        if (drivebase.getState() == Drivebase.State.ALIGN) return blinkGreen;
         if (elevator.getState() == Elevator.State.CLIMB) return rainbow;
         if (DriverStation.isDisabled()) return white;
         if (perception.seesTag()) return green;

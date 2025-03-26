@@ -33,7 +33,7 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
-        addBlock(new Align(Relation.LEFT, AlignableTarget.L4, 2).command());
+        addBlock(new Align(Relation.LEFT, AlignableTarget.L4, 1).command());
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
@@ -48,13 +48,14 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
             }, .2)
         ));
 
+
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
 
         // Alignment
         addBlock(new Align(Relation.CENTER, AlignableTarget.CORAL_STATION, 1.2).command());
 
         // Pickup coral from coral station
-        addBlock(new TorqueWaitTime(.5));
+        addBlock(new TorqueWaitUntil(() -> claw.hasCoral()));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station right to close right
@@ -87,7 +88,7 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         addBlock(new Align(Relation.CENTER, AlignableTarget.CORAL_STATION, 1.2).command());
 
         // Pickup coral from coral station
-        addBlock(new TorqueWaitTime(.5));
+        addBlock(new TorqueWaitUntil(() -> claw.hasCoral()));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
         // Drive coral station right to close right

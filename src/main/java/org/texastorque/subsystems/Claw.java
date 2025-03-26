@@ -42,7 +42,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         PROCESSOR(70.2832),
         CORAL_HP(20),
         CORAL_HP_SHIFT(10),
-        CLIMB(285);
+        CLIMB(305);
 
         private double angle;
 

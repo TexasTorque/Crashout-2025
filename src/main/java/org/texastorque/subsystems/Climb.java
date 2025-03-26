@@ -26,7 +26,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     public static enum State implements TorqueState {
         STOWED(0),
         MANUAL(0), // Not a setpoint! Acts as a manual control
-        OUT(278.7414),
+        OUT(285.8833),
         IN(112);
 
         public double position;
