@@ -292,6 +292,13 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         };
     }
 
+    public SwerveModuleState[] getModuleStates() {
+        return new SwerveModuleState[] {
+            fl.getState(), fr.getState(),
+            bl.getState(), br.getState()
+        };
+    }
+
     public void startSlowMode() {
         setState(State.SLOW);
         slowStartTimestamp = Timer.getFPGATimestamp();
