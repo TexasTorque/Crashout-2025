@@ -27,15 +27,16 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         // Drive right to close right
         addBlock(new TorqueFollowPath("RL4_1", drivebase).withMarkers(
             new Marker(() -> {
-                elevator.setState(Elevator.State.SCORE_L4);
+                elevator.setState(State.SCORE_L4); 
                 claw.setState(Claw.State.SCORE_L4);
-            }, .5)
+            }, 0.9)
         ));
-
-        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Alignment
         addBlock(new Align(Relation.LEFT, AlignableTarget.L4, 1).command());
+
+        // Wait
+        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
@@ -50,6 +51,7 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
             }, .2)
         ));
 
+        // Intake mf
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.INTAKE)));
 
         // Alignment
@@ -66,13 +68,16 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         // Drive coral station right to close right
         addBlock(new TorqueFollowPath("RL4_3", drivebase).withMarkers(
             new Marker(() -> {
-                elevator.setState(Elevator.State.SCORE_L4);
+                elevator.setState(State.SCORE_L4); 
                 claw.setState(Claw.State.SCORE_L4);
-            }, .2)
+            }, 0.9)
         ));
 
         // Alignment
         addBlock(new Align(Relation.RIGHT, AlignableTarget.L4, 2).command());
+
+        // Wait
+        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
@@ -103,13 +108,16 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         // Drive coral station right to close right
         addBlock(new TorqueFollowPath("RL4_5", drivebase).withMarkers(
             new Marker(() -> {
-                elevator.setState(Elevator.State.SCORE_L4);
+                elevator.setState(State.SCORE_L4); 
                 claw.setState(Claw.State.SCORE_L4);
-            }, .2)
+            }, 0.9)
         ));
 
         // Alignment
         addBlock(new Align(Relation.LEFT, AlignableTarget.L4, 2).command());
+
+        // Wait
+        addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
         // Coral placement
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
