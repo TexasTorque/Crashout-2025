@@ -177,18 +177,20 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             perception.setDesiredAlignTarget(AlignableTarget.PROCESSOR);
         });
         algaeExtractionHigh.onTrue(() -> {
+            elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
             elevator.setSelectedState(Elevator.State.ALGAE_REMOVAL_HIGH);
-            claw.setSelectedState(Claw.State.ALGAE_EXTRACTION);
-            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
             perception.setDesiredAlignTarget(AlignableTarget.ALGAE_HIGH);
             perception.setRelation(Relation.CENTER);
+            claw.setState(Claw.State.ALGAE_EXTRACTION);
+            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
         algaeExtractionLow.onTrue(() -> {
+            elevator.setState(Elevator.State.ALGAE_REMOVAL_LOW);
             elevator.setSelectedState(Elevator.State.ALGAE_REMOVAL_LOW);
-            claw.setSelectedState(Claw.State.ALGAE_EXTRACTION);
-            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
             perception.setDesiredAlignTarget(AlignableTarget.ALGAE_LOW);
             perception.setRelation(Relation.CENTER);
+            claw.setState(Claw.State.ALGAE_EXTRACTION);
+            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
         intakeCoral.onTrue(() -> {
             elevator.setState(Elevator.State.CORAL_HP);

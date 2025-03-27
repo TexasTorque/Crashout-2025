@@ -143,11 +143,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     public void setSelectedState(State selectedState) {
-      this.selectedState = selectedState;
+      	this.selectedState = selectedState;
     }
 
     public State getSelectedState() {
-      return selectedState;
+      	return selectedState;
     }
 
     public static final synchronized Elevator getInstance() {

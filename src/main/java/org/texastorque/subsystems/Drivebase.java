@@ -15,6 +15,7 @@ import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
+import com.ctre.phoenix6.hardware.CANrange;
 import com.pathplanner.lib.config.PIDConstants;
 
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
@@ -47,6 +48,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             this.parent = parent == null ? this : parent;
         }
     }
+
+    private CANrange canRange;
 
     private static volatile Drivebase instance;
 
@@ -89,9 +92,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             swerveStates[i] = new SwerveModuleState();
 
         alignController = new TorqueDriveController(
-            new PIDConstants(6, 0, .2), new TrapezoidProfile.Constraints(3, 1.8),
+            new PIDConstants(6, 0, .2), new TrapezoidProfile.Constraints(100, 100),
             new PIDConstants(Math.PI * 2, 0, 0), new TrapezoidProfile.Constraints(Math.PI, Math.PI)
         );
+
+        canRange = new CANrange(Ports.CAN_RANGE);
     }
 
     @Override
@@ -129,11 +134,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Drivebase State", desiredState.toString());
-        Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
         Debug.log("Is Aligned", isAligned());
         Debug.log("In Zone", perception.getCurrentZone() != null);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
-
+        // canRange.getDistance().getValueAsDouble();
         if (perception.getCurrentZone() != null) {
             final TorqueFieldZone zone = perception.getCurrentZone();
             final Pose2d tagPose = Field.AprilTagList.values()[zone.getID() - 1].pose;
@@ -189,6 +193,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
 
         Logger.recordOutput("Swerve States", swerveStates);
+        Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
     }
 
     @Override
