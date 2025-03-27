@@ -129,7 +129,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Drivebase State", desiredState.toString());
-        Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
         Debug.log("Is Aligned", isAligned());
         Debug.log("In Zone", perception.getCurrentZone() != null);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
@@ -189,6 +188,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
 
         Logger.recordOutput("Swerve States", swerveStates);
+        Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
     }
 
     @Override
