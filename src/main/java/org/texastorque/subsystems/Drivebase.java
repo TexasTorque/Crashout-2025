@@ -92,7 +92,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             swerveStates[i] = new SwerveModuleState();
 
         alignController = new TorqueDriveController(
-            new PIDConstants(6, 0, .2), new TrapezoidProfile.Constraints(100, 100),
+            new PIDConstants(20
+            , 0, .2), new TrapezoidProfile.Constraints(100, 100),
             new PIDConstants(Math.PI * 2, 0, 0), new TrapezoidProfile.Constraints(Math.PI, Math.PI)
         );
 
