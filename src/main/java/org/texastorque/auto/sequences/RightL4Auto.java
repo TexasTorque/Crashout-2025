@@ -45,14 +45,14 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         // addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         // addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
-        addBlock(new DriveScoreCoral("RL4_1", Relation.LEFT, AlignableTarget.L4, 2, 
+        addBlock(new DriveScoreCoral("RL4_1", Relation.LEFT, AlignableTarget.L4, 1, 
             new Marker(() -> {
                 elevator.setState(State.SCORE_L4); 
                 claw.setState(Claw.State.SCORE_L4);
             }, 0.9)
         ).command());
         
-        addBlock(new DrivePickupCoral("RL4_2", 2, 
+        addBlock(new DrivePickupCoral("RL4_2", 1, 
             new Marker(() -> {
                 elevator.setState(State.CORAL_HP);
                 claw.setState(Claw.State.CORAL_HP);
@@ -89,7 +89,7 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         //     }, 0.9)
         // ));
 
-        addBlock(new DriveScoreCoral("RL4_3", Relation.LEFT, AlignableTarget.L4, 2, 
+        addBlock(new DriveScoreCoral("RL4_3", Relation.RIGHT, AlignableTarget.L4, 1, 
             new Marker(() -> {
                 elevator.setState(State.SCORE_L4); 
                 claw.setState(Claw.State.SCORE_L4);
@@ -144,7 +144,7 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         // addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         // addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 
-        addBlock(new DriveScoreCoral("RL4_5", Relation.LEFT, AlignableTarget.L4, 2, 
+        addBlock(new DriveScoreCoral("RL4_5", Relation.LEFT, AlignableTarget.L4, 1, 
             new Marker(() -> {
                 elevator.setState(State.SCORE_L4); 
                 claw.setState(Claw.State.SCORE_L4);
