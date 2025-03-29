@@ -25,7 +25,6 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
 
     public static enum State implements TorqueState {
         STOWED(0),
-        MANUAL(0), // Not a setpoint! Acts as a manual control
         OUT(285.8833),
         IN(112);
 
@@ -60,15 +59,17 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         Debug.log("Climb State", desiredState.toString());
         Debug.log("Climb Position", getClimbPosition());
 
-        if (claw.getState() != Claw.State.CLIMB) return;
-
-        final double CLIMB_MAX_VOLTS_OUT = 12;
-        final double CLIMB_MAX_VOLTS_IN = 8;
-        double volts = climbPID.calculate(getClimbPosition(), desiredState.position);
-        if (volts > CLIMB_MAX_VOLTS_OUT) volts = CLIMB_MAX_VOLTS_OUT;
-        if (volts < -CLIMB_MAX_VOLTS_IN) volts = -CLIMB_MAX_VOLTS_IN;
-        
-        climb.setVolts(volts);
+        if (claw.getState() != Claw.State.CLIMB) {
+            climb.setVolts(0);
+        } else {
+            final double CLIMB_MAX_VOLTS_OUT = 12;
+            final double CLIMB_MAX_VOLTS_IN = 8;
+            double volts = climbPID.calculate(getClimbPosition(), desiredState.position);
+            if (volts > CLIMB_MAX_VOLTS_OUT) volts = CLIMB_MAX_VOLTS_OUT;
+            if (volts < -CLIMB_MAX_VOLTS_IN) volts = -CLIMB_MAX_VOLTS_IN;
+            
+            climb.setVolts(volts);
+        }
     }
 
     @Override
@@ -91,6 +92,10 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         }
 
         return climb.getPosition();
+    }
+
+    public boolean isSafe() {
+        return getClimbPosition() > 200;
     }
 
     public static final synchronized Climb getInstance() {

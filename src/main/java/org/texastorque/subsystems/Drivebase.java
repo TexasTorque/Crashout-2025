@@ -10,15 +10,13 @@ import org.texastorque.torquelib.auto.commands.TorqueFollowPath.TorquePathingDri
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
-import org.texastorque.torquelib.control.TorqueDriveController;
+import org.texastorque.torquelib.control.TorqueAlignController;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
-
-import com.ctre.phoenix6.hardware.CANrange;
-import com.pathplanner.lib.config.PIDConstants;
-
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
+
+import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -67,12 +65,12 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public double HPSpeed;
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
-    private final TorqueDriveController alignController;
+    private final TorqueAlignController alignController;
     private final PIDController headingLockPID;
     private final PIDController CoralStationPID;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
-    private double lastRotationTarget;
+    public double lastRotationTarget;
 
     final double MAX_ALIGN_VELOCITY = 1;
     final double MAX_ALIGN_OMEGA = 2 * Math.PI;
@@ -96,7 +94,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         for (int i = 0; i < swerveStates.length; i++)
             swerveStates[i] = new SwerveModuleState();
 
-        alignController = new TorqueDriveController(
+        alignController = new TorqueAlignController(
             new PIDConstants(10.75, 0, 0),
             new PIDConstants(Math.PI * 2, 0, 0)
         );
@@ -369,7 +367,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         return alignPoseOverride;
     }
 
-    public TorqueDriveController getAlignController() {
+    public TorqueAlignController getAlignController() {
         return alignController;
     }
 

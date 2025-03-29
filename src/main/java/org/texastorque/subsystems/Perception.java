@@ -74,6 +74,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	private boolean isHighInvalid, isLowInvalid, shouldNotUseVision;
 	public boolean useDistance;
+
+	private TorqueRollingMedian filteredHPDistance;
 	
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
@@ -83,6 +85,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		filteredX = new TorqueRollingMedian(15);
 		filteredY = new TorqueRollingMedian(15);
+
+		filteredHPDistance = new TorqueRollingMedian(15);
 
 		Debug.field("Field", field);
 
@@ -125,7 +129,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
-		Debug.log("CANrange Distance", canRange.getDistance().getValueAsDouble());
+		Debug.log("CANrange Distance", getHPDistance());
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Relation", relation.toString());
 		Debug.log("Align Target", desiredAlignTarget.toString());
@@ -222,6 +226,16 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		};
 	}
 
+	public boolean inCoralStationZone() {
+		if (getCurrentZone() == null) return false;
+		return AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.CORAL_STATION;
+	}
+
+	public boolean inReefZone() {
+		if (getCurrentZone() == null) return false;
+		return AprilTagList.values()[getCurrentZone().getID() - 1].placement == Placement.REEF;
+	}
+
 	public boolean containsID(final RawFiducial[] rawFiducials, final int id) {
 		for (RawFiducial fiducial : rawFiducials) {
 			if (fiducial.id == id) {
@@ -277,6 +291,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
                     ? DriverStation.getAlliance().get() == Alliance.Red
                     : false;
+
+		drivebase.lastRotationTarget = isRedAlliance ? 180 : 0;
 		
 		resetHeading(isRedAlliance ? 180 : 0);
 	}
@@ -309,7 +325,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public double getHPDistance() { 
 		if (RobotBase.isSimulation())
 			return Math.sqrt(Math.pow(currentTagPose.getX() - getPose().getX(), 2) + Math.pow(currentTagPose.getY() - getPose().getY(), 2));
-		return canRange.getDistance().getValueAsDouble();
+		return filteredHPDistance.calculate(canRange.getDistance().getValueAsDouble());
 	}
 
 	public Pose2d getFilteredPose() {

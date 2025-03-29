@@ -32,16 +32,16 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     public static enum State implements TorqueState {
         ZERO(0),
-        STOW(41.2793),
-        SCORE_L1(5),
-        SCORE_L2(186.6699),
-        SCORE_L3(165),
-        SCORE_L4(205.0977),
-        NET(156.6797),
-        ALGAE_EXTRACTION(277.2656),
-        PROCESSOR(70.2832),
-        CORAL_HP(0), // Not a real state! Uses regression for claw angle
-        CLIMB(305);
+        STOW(51.2793),
+        SCORE_L1(15),
+        SCORE_L2(196.6699),
+        SCORE_L3(175),
+        SCORE_L4(215.0977),
+        NET(166.6797),
+        ALGAE_EXTRACTION(287.2656),
+        PROCESSOR(80.2832),
+        CORAL_HP(20), // Not a real state! Uses regression for claw angle
+        CLIMB(270);
 
         private double angle;
 
@@ -131,12 +131,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         final double SHOULDER_MAX_VOLTS = 12;
         double desiredAngle = desiredState.angle;
-        if (desiredState == State.CORAL_HP) {
+        if (desiredState == State.CORAL_HP && perception.inCoralStationZone()) {
             desiredAngle = getCoralStationAngle();
         }
 
         double volts = shoulderPID.calculate(getShoulderAngle(), desiredAngle);
-        final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 15));
+        final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 25));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
         if (desiredState == State.ZERO) {
@@ -144,8 +144,14 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             shoulderPID.reset(getShoulderAngle());
             Debug.log("Shoulder Volts", ff);
         } else {
-            shoulder.setVolts(volts + ff);
-            Debug.log("Shoulder Volts", volts + ff);
+            if (desiredState == State.CLIMB && !climb.isSafe()) {
+                shoulder.setVolts(ff);
+                shoulderPID.reset(getShoulderAngle());
+                Debug.log("Shoulder Volts", ff);
+            } else {
+                shoulder.setVolts(volts + ff);
+                Debug.log("Shoulder Volts", volts + ff);
+            }
         }
 
         algaeRollers.setVolts(algaeState.getVolts());
@@ -179,9 +185,9 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public double getCoralStationAngle() {
-        double angle = -92.59259 * perception.getHPDistance() + 31.11111;
-        if (angle > 20) angle = 20;
-        if (angle < 10) angle = 10;
+        double angle = -92.59259 * perception.getHPDistance() + 41.11111;
+        if (angle > 30) angle = 30;
+        if (angle < 20) angle = 20;
         return angle;
     }
 
