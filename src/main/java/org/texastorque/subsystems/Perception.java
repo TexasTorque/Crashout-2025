@@ -1,6 +1,7 @@
 package org.texastorque.subsystems;
 
 import java.util.ArrayList;
+
 import org.littletonrobotics.junction.Logger;
 import org.texastorque.Field.AlignPosition.Placement;
 import org.texastorque.Field.AlignPosition.Relation;
@@ -17,6 +18,8 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueStatelessSubsystem;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.control.TorqueRollingMedian;
+
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.VecBuilder;
@@ -57,6 +60,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private final Pigeon2 gyro = new Pigeon2(Ports.GYRO);
 	private double gyro_simulated = 0;
 
+	private final CANrange canrange = new CANrange(Ports.CANRANGE);
+
 	private AlignableTarget desiredAlignTarget = AlignableTarget.NONE;
 	private Relation relation = Relation.NONE;
 
@@ -65,8 +70,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private final Field2d field = new Field2d();
 	private ArrayList<TorqueFieldZone> zones;
 	private Pose2d filteredPose = new Pose2d();
+	public Pose2d currentTagPose;
 
 	private boolean isHighInvalid, isLowInvalid, shouldNotUseVision;
+	public boolean useDistance;
 	
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
@@ -104,6 +111,12 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
                 getHeading()
 		);
 
+		useDistance = getCurrentZone() != null && (getCurrentZone().getID() == 1 || getCurrentZone().getID() == 2 || getCurrentZone().getID() == 12 || getCurrentZone().getID() == 13);
+
+		if (getCurrentZone() != null) {
+			currentTagPose = AprilTagList.values()[getCurrentZone().getID()-1].pose;
+		}
+
 		updateVisualization();
 
 		Logger.recordOutput("Filtered Pose", getFilteredPose());
@@ -113,6 +126,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Relation", relation.toString());
 		Debug.log("Align Target", desiredAlignTarget.toString());
+		Debug.log("Current Tag ID", getCurrentZone() != null ? currentTagPose.getRotation().toString() : "none");
 	}
 
 	@Override
@@ -287,6 +301,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	private PoseEstimate getVisionEstimate(final String limelightName) {
 		return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+	}
+
+	public double getHPDistance() {  
+		return Math.sqrt(Math.pow(currentTagPose.getX() - getPose().getX(), 2) + Math.pow(currentTagPose.getY() - getPose().getY(), 2));
 	}
 
 	public Pose2d getFilteredPose() {

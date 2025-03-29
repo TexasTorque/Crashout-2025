@@ -15,11 +15,11 @@ import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
-import com.ctre.phoenix6.hardware.CANrange;
 import com.pathplanner.lib.config.PIDConstants;
 
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -40,7 +40,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         ROBOT_RELATIVE(null),
         ALIGN(FIELD_RELATIVE),
         SLOW(FIELD_RELATIVE),
-        PATHING(null);
+        PATHING(null),
+        HP_ALIGN(FIELD_RELATIVE);
 
         public final State parent;
 
@@ -48,8 +49,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             this.parent = parent == null ? this : parent;
         }
     }
-
-    private CANrange canRange;
 
     private static volatile Drivebase instance;
 
@@ -65,16 +64,22 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     private final TorqueSwerveModuleKraken fl, fr, bl, br;
 
     public TorqueSwerveSpeeds inputSpeeds, lastRealInputSpeeds;
+    public double HPSpeed;
     public final SwerveDriveKinematics kinematics;
     private SwerveModuleState[] swerveStates;
     private final TorqueDriveController alignController;
+    private final PIDController headingLockPID;
+    private final PIDController CoralStationPID;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
+    private double lastRotationTarget;
 
     final double MAX_ALIGN_VELOCITY = 1;
     final double MAX_ALIGN_OMEGA = 2 * Math.PI;
     final double MAX_ALIGN_VELOCITY_SLOW = .5;
     final double MAX_ALIGN_OMEGA_SLOW = Math.PI;
+
+    final double IDEAL_HP_DISTANCE = 10;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -97,7 +102,10 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             new PIDConstants(Math.PI * 2, 0, 0), new TrapezoidProfile.Constraints(Math.PI, Math.PI)
         );
 
-        canRange = new CANrange(Ports.CAN_RANGE);
+        headingLockPID = new PIDController(.08, 0, 0);
+        headingLockPID.enableContinuousInput(0, 360);
+
+        CoralStationPID = new PIDController(0.5, 0, 0);
     }
 
     @Override
@@ -130,6 +138,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
                     "Robot Angle", () -> perception.getHeading().getRadians(), null);
             }
         );
+
+        lastRotationTarget = getPose().getRotation().getDegrees();
     }
 
     @Override
@@ -138,7 +148,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Debug.log("Is Aligned", isAligned());
         Debug.log("In Zone", perception.getCurrentZone() != null);
         Logger.recordOutput("Gyro Angle", perception.getHeading());
-        // canRange.getDistance().getValueAsDouble();
+
         if (perception.getCurrentZone() != null) {
             final TorqueFieldZone zone = perception.getCurrentZone();
             final Pose2d tagPose = Field.AprilTagList.values()[zone.getID() - 1].pose;
@@ -163,6 +173,21 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             final Pose2d alignPose = perception.getAlignPose();
             if (alignPose != null) {
                 runAlignment(alignPose);
+            }
+        }
+
+        if (!inputSpeeds.hasRotationalVelocity() && mode.isTeleop() && desiredState != State.ALIGN) {
+            inputSpeeds.omegaRadiansPerSecond = headingLockPID.calculate(perception.getHeading().getDegrees(), lastRotationTarget);
+        }
+
+        if (inputSpeeds.hasRotationalVelocity()) {
+            lastRotationTarget = getPose().getRotation().getDegrees();
+        }
+
+        if (wantsState(State.HP_ALIGN)) {
+            if (perception.getCurrentZone() != null) { 
+                final Rotation2d alignTarget = perception.currentTagPose.getRotation(); // Rotate to face the coral station
+                runHPAlignment(perception.getCurrentZone(), alignTarget); 
             }
         }
 
@@ -272,6 +297,27 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             return true;
         }
         return false;
+    }
+
+    public void runHPAlignment(final TorqueFieldZone zone, Rotation2d target) {
+        if (isAtHP()) {
+            setInputSpeeds(new TorqueSwerveSpeeds());
+            return;
+        }
+
+        HPSpeed = CoralStationPID.calculate(perception.getHPDistance(), 0);
+        headingLockPID.calculate(perception.getHeading().getDegrees(), target.getDegrees());
+
+        Debug.log("align target pose", target.getDegrees());
+
+        inputSpeeds.omegaRadiansPerSecond = headingLockPID.calculate(perception.getHeading().getDegrees(), target.getDegrees()); // Rotate to face the coral station
+        inputSpeeds.vxMetersPerSecond = HPSpeed;
+    }
+
+    public boolean isAtHP() {;
+        final double HP_DISTANCE_TOLERANCE = 0.1;
+
+        return perception.getHPDistance() < HP_DISTANCE_TOLERANCE;
     }
 
     public double getSlowMultiplier() {
