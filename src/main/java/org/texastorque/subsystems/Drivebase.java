@@ -28,7 +28,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -97,15 +96,15 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             swerveStates[i] = new SwerveModuleState();
 
         alignController = new TorqueDriveController(
-            new PIDConstants(20
-            , 0, .2), new TrapezoidProfile.Constraints(100, 100),
-            new PIDConstants(Math.PI * 2, 0, 0), new TrapezoidProfile.Constraints(Math.PI, Math.PI)
+            new PIDConstants(10.75, 0, 0),
+            new PIDConstants(Math.PI * 2, 0, 0)
         );
 
         headingLockPID = new PIDController(.08, 0, 0);
         headingLockPID.enableContinuousInput(0, 360);
 
         CoralStationPID = new PIDController(0.5, 0, 0);
+        canRange = new CANrange(Ports.CAN_RANGE);
     }
 
     @Override
@@ -253,7 +252,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     public boolean isAligned() {
         Pose2d alignPose = perception.getAlignPose();
-        final double TRANSLATION_TOLERANCE = .01;
+        final double TRANSLATION_TOLERANCE = .005;
         final double ROTATION_TOLERANCE = 1;
 
         if (alignPoseOverride != null) alignPose = alignPoseOverride;
