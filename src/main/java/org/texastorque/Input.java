@@ -24,7 +24,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueRequestableTimeout driverRumble, operatorRumble;
     private final TorqueClickSupplier slowInitial, endgameClick, manualElevatorInitial;
-    private final TorqueBoolSupplier resetGyro, align, slow, stow,
+    private final TorqueBoolSupplier resetGyro, align, alignToHP, slow, stow,
+
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
@@ -45,8 +46,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         intakeCoralShift = new TorqueBoolSupplier(driver::isDPADUpDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
-        
-        align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null);
+        alignToHP = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.useDistance);
+        align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null && !alignToHP.get());
 
         goToSelected = new TorqueBoolSupplier(driver::isAButtonDown);
 
@@ -128,6 +129,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
 
         align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
+
+        alignToHP.onTrue(() -> drivebase.setState(Drivebase.State.HP_ALIGN));
 
         final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
                     ? DriverStation.getAlliance().get() == Alliance.Red
