@@ -15,16 +15,30 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class Align extends TorqueSequence implements Subsystems {
 
 	public Align(final Relation relation, final AlignableTarget alignableTarget, final double timeToAlign) {
-        addBlock(new TorqueRun(() -> {
-            perception.setRelation(relation);
-            perception.setDesiredAlignTarget(alignableTarget);
-            drivebase.setState(Drivebase.State.ALIGN);
-        }));
-        addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isAligned()));
-        addBlock(new TorqueRun(() -> {
-            drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
-            drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
-        }));
+
+        if (alignableTarget == AlignableTarget.CORAL_STATION) {
+            addBlock(new TorqueRun(() -> {
+                perception.setRelation(relation);
+                perception.setDesiredAlignTarget(alignableTarget);
+                drivebase.setState(Drivebase.State.HP_ALIGN);
+            }));
+            addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> claw.hasCoral()));
+            addBlock(new TorqueRun(() -> {
+                drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
+                drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
+            }));
+        } else {
+            addBlock(new TorqueRun(() -> {
+                perception.setRelation(relation);
+                perception.setDesiredAlignTarget(alignableTarget);
+                drivebase.setState(Drivebase.State.ALIGN);
+            }));
+            addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isAligned()));
+            addBlock(new TorqueRun(() -> {
+                drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
+                drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
+            }));
+        }
 	}
 
 	public Align(final Supplier<Pose2d> pose, final double timeToAlign) {

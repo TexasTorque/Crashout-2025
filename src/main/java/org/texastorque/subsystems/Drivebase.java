@@ -15,6 +15,7 @@ import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
+import com.ctre.phoenix6.hardware.CANrange;
 import com.pathplanner.lib.config.PIDConstants;
 
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
@@ -78,7 +79,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     final double MAX_ALIGN_VELOCITY_SLOW = .5;
     final double MAX_ALIGN_OMEGA_SLOW = Math.PI;
 
-    final double IDEAL_HP_DISTANCE = 10;
+    final double IDEAL_HP_DISTANCE = .05;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -103,8 +104,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         headingLockPID = new PIDController(.08, 0, 0);
         headingLockPID.enableContinuousInput(0, 360);
 
-        CoralStationPID = new PIDController(0.5, 0, 0);
-        canRange = new CANrange(Ports.CAN_RANGE);
+        CoralStationPID = new PIDController(2.5, 0, 0);
     }
 
     @Override
@@ -184,9 +184,8 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
 
         if (wantsState(State.HP_ALIGN)) {
-            if (perception.getCurrentZone() != null) { 
-                final Rotation2d alignTarget = perception.currentTagPose.getRotation(); // Rotate to face the coral station
-                runHPAlignment(perception.getCurrentZone(), alignTarget); 
+            if (perception.getCurrentZone() != null) {
+                runHPAlignment(); 
             }
         }
 
@@ -298,14 +297,15 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         return false;
     }
 
-    public void runHPAlignment(final TorqueFieldZone zone, Rotation2d target) {
+    public void runHPAlignment() {
         if (isAtHP()) {
             setInputSpeeds(new TorqueSwerveSpeeds());
             return;
         }
 
-        HPSpeed = CoralStationPID.calculate(perception.getHPDistance(), 0);
-        headingLockPID.calculate(perception.getHeading().getDegrees(), target.getDegrees());
+        final Rotation2d target = perception.currentTagPose.getRotation();
+
+        HPSpeed = CoralStationPID.calculate(perception.getHPDistance(), IDEAL_HP_DISTANCE);
 
         Debug.log("align target pose", target.getDegrees());
 
@@ -314,9 +314,9 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     public boolean isAtHP() {;
-        final double HP_DISTANCE_TOLERANCE = 0.1;
+        final double HP_DISTANCE_TOLERANCE = 0.01;
 
-        return perception.getHPDistance() < HP_DISTANCE_TOLERANCE;
+        return perception.getHPDistance() - IDEAL_HP_DISTANCE < HP_DISTANCE_TOLERANCE;
     }
 
     public double getSlowMultiplier() {

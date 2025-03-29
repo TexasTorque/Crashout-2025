@@ -24,5 +24,5 @@ public final class Ports {
 
     public static final int LIGHTS = 9;
 
-    public static final int CANRANGE = 22;
+    public static final int CAN_RANGE = 22;
 }

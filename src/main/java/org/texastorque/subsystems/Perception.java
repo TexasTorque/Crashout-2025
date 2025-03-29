@@ -60,7 +60,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private final Pigeon2 gyro = new Pigeon2(Ports.GYRO);
 	private double gyro_simulated = 0;
 
-	private final CANrange canrange = new CANrange(Ports.CANRANGE);
+	private final CANrange canRange;
 
 	private AlignableTarget desiredAlignTarget = AlignableTarget.NONE;
 	private Relation relation = Relation.NONE;
@@ -87,6 +87,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.field("Field", field);
 
 		createZones();
+
+		canRange = new CANrange(Ports.CAN_RANGE);
 	}
 
 	final String LIMELIGHT_HIGH = "limelight-high";
@@ -303,8 +305,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
 	}
 
-	public double getHPDistance() {  
-		return Math.sqrt(Math.pow(currentTagPose.getX() - getPose().getX(), 2) + Math.pow(currentTagPose.getY() - getPose().getY(), 2));
+	public double getHPDistance() { 
+		if (RobotBase.isSimulation())
+			return Math.sqrt(Math.pow(currentTagPose.getX() - getPose().getX(), 2) + Math.pow(currentTagPose.getY() - getPose().getY(), 2));
+		return canRange.getDistance().getValueAsDouble();
 	}
 
 	public Pose2d getFilteredPose() {
