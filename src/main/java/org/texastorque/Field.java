@@ -87,7 +87,6 @@ public class Field implements Subsystems {
 				if (elevatorSelectedState == Elevator.State.ALGAE_REMOVAL_HIGH) return ALGAE_HIGH;
 				if (elevatorSelectedState == Elevator.State.ALGAE_REMOVAL_LOW) return ALGAE_LOW;
 				if (elevatorSelectedState == Elevator.State.CORAL_HP) return CORAL_STATION;
-				if (elevatorSelectedState == Elevator.State.CORAL_HP_SHIFT) return CORAL_STATION;
 				if (elevatorSelectedState == Elevator.State.NET) return NET;
 				if (elevatorSelectedState == Elevator.State.PROCESSOR) return PROCESSOR;
 				return NONE;

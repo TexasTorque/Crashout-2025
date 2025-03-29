@@ -125,6 +125,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
+		Debug.log("CANrange Distance", canRange.getDistance().getValueAsDouble());
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Relation", relation.toString());
 		Debug.log("Align Target", desiredAlignTarget.toString());

@@ -40,8 +40,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         NET(156.6797),
         ALGAE_EXTRACTION(277.2656),
         PROCESSOR(70.2832),
-        CORAL_HP(20),
-        CORAL_HP_SHIFT(10),
+        CORAL_HP(0), // Not a real state! Uses regression for claw angle
         CLIMB(305);
 
         private double angle;
@@ -131,7 +130,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Algae State", algaeState.toString());
 
         final double SHOULDER_MAX_VOLTS = 12;
-        double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.angle);
+        double desiredAngle = desiredState.angle;
+        if (desiredState == State.CORAL_HP) {
+            desiredAngle = getCoralStationAngle();
+        }
+
+        double volts = shoulderPID.calculate(getShoulderAngle(), desiredAngle);
         final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 15));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
@@ -148,7 +152,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         if (coralState == CoralState.SHOOT || coralState == CoralState.SHOOT_SLOW) 
             coralSpike.reset();
-        if (coralState == CoralState.INTAKE && !(desiredState == State.CORAL_HP || desiredState == State.CORAL_HP_SHIFT))
+        if (coralState == CoralState.INTAKE && desiredState != State.CORAL_HP)
             coralState = CoralState.OFF;
         
         if (hasCoral() && (coralState != CoralState.SHOOT || coralState != CoralState.SHOOT_SLOW)) {
@@ -172,6 +176,13 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public void onStateChange(final State lastState) {
         pastStateTime = Timer.getFPGATimestamp();
         pastState = lastState;
+    }
+
+    public double getCoralStationAngle() {
+        double angle = -92.59259 * perception.getHPDistance() + 31.11111;
+        if (angle > 20) angle = 20;
+        if (angle < 10) angle = 10;
+        return angle;
     }
 
     public final double getShoulderAngle() {

@@ -30,7 +30,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
-            climbMode, intakeCoralShift, goToSelected;
+            climbMode, goToSelected;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -44,7 +44,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
-        intakeCoralShift = new TorqueBoolSupplier(driver::isDPADUpDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         alignToHP = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.useDistance);
         align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null && !alignToHP.get());
@@ -196,13 +195,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeCoral.onTrue(() -> {
             elevator.setState(Elevator.State.CORAL_HP);
             claw.setState(Claw.State.CORAL_HP);
-            claw.setCoralState(Claw.CoralState.INTAKE);
-            claw.coralSpike.reset();
-            perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
-        });
-        intakeCoralShift.onTrue(() -> {
-            elevator.setState(Elevator.State.CORAL_HP_SHIFT);
-            claw.setState(Claw.State.CORAL_HP_SHIFT);
             claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
             perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
