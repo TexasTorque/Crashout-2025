@@ -1,8 +1,8 @@
 /**
- * Copyright 2023 Texas Torque.
+ * Copyright 2025 Texas Torque.
  *
- * This file is part of Bravo/Charlie/Takeoff-2024, which is not licensed for distribution.
- * For more details, see ./license.txt or write <jus@justusl.com>.
+ * This file is part of Bravo/Charlie/Crashout-2025, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <davey.adams.three@gmail.com>.
  */
 package org.texastorque.auto;
 
