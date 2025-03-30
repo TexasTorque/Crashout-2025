@@ -40,7 +40,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         NET(166.6797),
         ALGAE_EXTRACTION(287.2656),
         PROCESSOR(80.2832),
-        CORAL_HP(20), // Not a real state! Uses regression for claw angle
+        REGRESSION_CORAL_HP(20), // Not a real state! Uses regression for claw angle
+        CORAL_HP(20),
         CLIMB(270);
 
         private double angle;
@@ -131,7 +132,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         final double SHOULDER_MAX_VOLTS = 12;
         double desiredAngle = desiredState.angle;
-        if (desiredState == State.CORAL_HP && perception.inCoralStationZone()) {
+        if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
             desiredAngle = getCoralStationAngle();
         }
 
@@ -158,7 +159,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         if (coralState == CoralState.SHOOT || coralState == CoralState.SHOOT_SLOW) 
             coralSpike.reset();
-        if (coralState == CoralState.INTAKE && desiredState != State.CORAL_HP)
+        if (coralState == CoralState.INTAKE && desiredState != State.REGRESSION_CORAL_HP)
             coralState = CoralState.OFF;
         
         if (hasCoral() && (coralState != CoralState.SHOOT || coralState != CoralState.SHOOT_SLOW)) {

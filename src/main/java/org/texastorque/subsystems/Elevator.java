@@ -40,7 +40,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         ALGAE_REMOVAL_LOW(1.5771),
         ALGAE_REMOVAL_HIGH(17.2666),
         PROCESSOR(1.6765),
-        CORAL_HP(0.8832), // Not a setpoint! Uses regression for elevator height
+        REGRESSION_CORAL_HP(0.8832), // Not a setpoint! Uses regression for elevator height
+        CORAL_HP(0.8832),
         CLIMB(0.8044);
 
         public double position;
@@ -93,7 +94,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
         final double ELEVATOR_MAX_VOLTS = 10;
         double desiredPosition = desiredState.position;
-        if (desiredState == State.CORAL_HP && perception.inCoralStationZone()) {
+        if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
             desiredPosition = getCoralStationHeight();
         }
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredPosition);
