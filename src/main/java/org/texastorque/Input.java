@@ -17,6 +17,7 @@ import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
 import org.texastorque.torquelib.control.TorqueRequestableTimeout;
+import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
@@ -34,8 +35,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
-            intakeCoral, crashOut, intakeAlgae, outtakeCoral, outtakeAlgae,
+            intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
             climbMode, goToSelected;
+    private final TorqueToggleSupplier crashOut;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -48,8 +50,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
+        crashOut = new TorqueToggleSupplier(driver::isDPADUpDown);
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
-        crashOut = new TorqueBoolSupplier(driver::isDPADUpDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         alignToHP = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.useDistance);
         align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null && !alignToHP.get());
@@ -198,20 +200,24 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
-        intakeCoral.onTrue(() -> {
-            elevator.setState(Elevator.State.CORAL_HP);
-            claw.setState(Claw.State.REGRESSION_CORAL_HP);
-            claw.setCoralState(Claw.CoralState.INTAKE);
-            claw.coralSpike.reset();
-            perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
-        });
-        crashOut.onTrue(() -> {
-            elevator.setState(Elevator.State.CORAL_HP);
-            claw.setState(Claw.State.CORAL_HP);
-            claw.setCoralState(Claw.CoralState.INTAKE);
-            claw.coralSpike.reset();
-            perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
-        });
+        if (!crashOut.get()) {
+            intakeCoral.onTrue(() -> {
+                elevator.setState(Elevator.State.REGRESSION_CORAL_HP);
+                claw.setState(Claw.State.REGRESSION_CORAL_HP);
+                claw.setCoralState(Claw.CoralState.INTAKE);
+                claw.coralSpike.reset();
+                perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
+            });
+        }
+        else {
+            intakeCoral.onTrue(() -> {
+                elevator.setState(Elevator.State.CORAL_HP);
+                claw.setState(Claw.State.CORAL_HP);
+                claw.setCoralState(Claw.CoralState.INTAKE);
+                claw.coralSpike.reset();
+                perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
+            });
+        }
         intakeAlgae.onTrue(() -> {
             claw.setAlgaeState(AlgaeState.INTAKE);
         });
