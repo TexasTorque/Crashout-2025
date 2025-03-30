@@ -19,7 +19,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     private static volatile Climb instance;
     private final TorqueNEO climb;
     private final PIDController climbPID;
-    
+
     public State pastState;
     private double pastStateTime;
 
@@ -95,7 +95,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     }
 
     public boolean isSafe() {
-        return getClimbPosition() > 200;
+        return getClimbPosition() > 250;
     }
 
     public static final synchronized Climb getInstance() {

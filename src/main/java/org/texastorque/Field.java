@@ -127,9 +127,9 @@ public class Field implements Subsystems {
 		}
 	}
 
-	// bumpers against .4118
-	// slit to slit is 0.2032m
-	// pole to pole is 0.328619002m
+	// Bumpers against .4118
+	// Slit to slit is 0.2032m
+	// Pole to pole is 0.328619002m
 
 	private ArrayList<AlignPosition> alignPositions = new ArrayList<>();
     private AlignPosition leftL2 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L2, .5304, .0154 - 0.328619002);

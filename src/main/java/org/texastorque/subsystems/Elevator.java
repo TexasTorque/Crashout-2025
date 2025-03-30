@@ -20,13 +20,12 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     private static volatile Elevator instance;
     private final TorqueKraken elevatorLeft, elevatorRight;
     private final ProfiledPIDController elevatorPID;
+    private final double ELEVATOR_FF = .35;
+    public final double MAX_HEIGHT = 40;
+    private State selectedState;
     public State pastState;
     private double pastStateTime;
-    private final double ELEVATOR_FF = .35;
 
-    private State selectedState;
-
-    public final double MAX_HEIGHT = 40;
     public static enum State implements TorqueState {
         ZERO(0), // Not actually a setpoint!! Gets set to whatever we
                           // deployed at so the elevator doesn't try to go to the ZERO position @ startup
@@ -40,7 +39,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         ALGAE_REMOVAL_LOW(1.5771),
         ALGAE_REMOVAL_HIGH(17.2666),
         PROCESSOR(1.6765),
-        CORAL_HP(0.8832), // Not a setpoint! Uses regression for elevator height
+        CORAL_HP(0.8832), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CLIMB(0.8044);
 
         public double position;
@@ -82,15 +81,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     @Override
     public final void update(final TorqueMode mode) {
-        Debug.log("Elevator Position", getElevatorPosition());
-        Debug.log("Elevator State", desiredState.toString());
-        Debug.log("Elevator Setpoint", desiredState.position);
-        Debug.log("Elevator At State", isAtState());
-        Debug.log("Manual Position", Elevator.State.MANUAL.position);
-
-        Debug.log("Elevator Left Position", elevatorLeft.getPosition());
-        Debug.log("Elevator Right Position", elevatorRight.getPosition());
-
         final double ELEVATOR_MAX_VOLTS = 10;
         double desiredPosition = desiredState.position;
         if (desiredState == State.CORAL_HP && perception.inCoralStationZone()) {
@@ -98,8 +88,6 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         }
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredPosition);
         if (Math.abs(volts) > ELEVATOR_MAX_VOLTS) volts = Math.signum(volts) * ELEVATOR_MAX_VOLTS;
-
-        Debug.log("Elevator Volts", volts);
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(ELEVATOR_FF);
@@ -109,6 +97,15 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             elevatorLeft.setVolts(volts + ELEVATOR_FF);
             elevatorRight.setVolts(volts + ELEVATOR_FF);
         }
+
+        Debug.log("Elevator Volts", volts + ELEVATOR_FF);
+        Debug.log("Elevator Position", getElevatorPosition());
+        Debug.log("Elevator State", desiredState.toString());
+        Debug.log("Elevator Setpoint", desiredState.position);
+        Debug.log("Elevator At State", isAtState());
+        Debug.log("Manual Position", Elevator.State.MANUAL.position);
+        Debug.log("Elevator Left Position", elevatorLeft.getPosition());
+        Debug.log("Elevator Right Position", elevatorRight.getPosition());
     }
 
     @Override

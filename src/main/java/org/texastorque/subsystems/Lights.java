@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
 
-
 public final class Lights extends TorqueStatelessSubsystem implements Subsystems {
 
     public static class Solid extends LightAction {
@@ -68,23 +67,15 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
         }
     }
 
-
     private static abstract class LightAction {
         public abstract void run(AddressableLEDBuffer buff);
     }
 
     private static volatile Lights instance;
-
-    private static final int LENGTH = 23;
-
-    public static final synchronized Lights getInstance() {
-        return instance == null ? instance = new Lights() : instance;
-    }
-
     private final List<AddressableLED> lights;
     private final AddressableLEDBuffer buff;
-
-    public static final double HERTZ = 15;
+    private final double HERTZ = 15;
+    private final int LENGTH = 23;
 
     private LightAction alliance = new Solid(() -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red ? Color.kRed : Color.kBlue),
             green = new Solid(() -> Color.kGreen),
@@ -100,7 +91,6 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
         createStrips(Ports.LIGHTS);
     }
 
-
     private void createStrips(int... ports) {
         for (int i = 0; i < buff.getLength(); i++) {
             buff.setLED(i, Color.kRed);
@@ -114,7 +104,6 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
 
         setData(buff);
     }
-
 
     private void setData(final AddressableLEDBuffer buff) {
         for (final AddressableLED strip : lights) {
@@ -147,4 +136,8 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
 
     @Override
     public void clean(TorqueMode mode) {}
+
+    public static final synchronized Lights getInstance() {
+        return instance == null ? instance = new Lights() : instance;
+    }
 }

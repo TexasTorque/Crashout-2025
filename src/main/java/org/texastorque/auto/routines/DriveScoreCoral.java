@@ -27,6 +27,5 @@ public class DriveScoreCoral extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
-
 	}
 }

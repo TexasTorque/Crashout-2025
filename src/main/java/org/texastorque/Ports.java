@@ -15,14 +15,13 @@ public final class Ports {
     public static final int SHOULDER = 15;
     public static final int SHOULDER_ENCODER = 18;
 
-    public static final int ROLLERS_CORAL = 17;
     public static final int ROLLERS_ALGAE = 16;
+    public static final int ROLLERS_CORAL = 17;
 
     public static final int CLIMB = 20;
 
     public static final int GYRO = 21;
+    public static final int CAN_RANGE = 22;
 
     public static final int LIGHTS = 9;
-
-    public static final int CAN_RANGE = 22;
 }

@@ -11,13 +11,13 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.control.TorqueAlignController;
-import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 import org.texastorque.torquelib.swerve.TorqueSwerveModuleKraken;
 
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,7 +29,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> implements Subsystems, TorquePathingDrivebase {
 
@@ -49,29 +48,24 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     }
 
     private static volatile Drivebase instance;
-
-    public static final double WIDTH = 0.417581911,
-            MAX_VELOCITY = TorqueSwerveModuleKraken.maxVelocity,
-            MAX_ANGULAR_VELOCITY = 4 * Math.PI;
-
-    public static final Translation2d LOC_FL = new Translation2d(WIDTH / 2, WIDTH / 2),
-            LOC_FR = new Translation2d(WIDTH / 2, -WIDTH / 2),
-            LOC_BL = new Translation2d(-WIDTH / 2, WIDTH / 2),
-            LOC_BR = new Translation2d(-WIDTH / 2, -WIDTH / 2);
-
     private final TorqueSwerveModuleKraken fl, fr, bl, br;
-
-    public TorqueSwerveSpeeds inputSpeeds, lastRealInputSpeeds;
-    public double HPSpeed;
     public final SwerveDriveKinematics kinematics;
-    private SwerveModuleState[] swerveStates;
     private final TorqueAlignController alignController;
     private final PIDController headingLockPID;
-    private final PIDController CoralStationPID;
+    private final PIDController coralStationPID;
+    public TorqueSwerveSpeeds inputSpeeds;
+    private SwerveModuleState[] swerveStates;
     private double slowStartTimestamp;
     private Pose2d alignPoseOverride;
     public double lastRotationTarget;
 
+    public static final double WIDTH = 0.417581911,
+            MAX_VELOCITY = TorqueSwerveModuleKraken.maxVelocity,
+            MAX_ANGULAR_VELOCITY = 4 * Math.PI;
+    public static final Translation2d LOC_FL = new Translation2d(WIDTH / 2, WIDTH / 2),
+            LOC_FR = new Translation2d(WIDTH / 2, -WIDTH / 2),
+            LOC_BL = new Translation2d(-WIDTH / 2, WIDTH / 2),
+            LOC_BR = new Translation2d(-WIDTH / 2, -WIDTH / 2);
     final double MAX_ALIGN_VELOCITY = 1;
     final double MAX_ALIGN_OMEGA = 2 * Math.PI;
     final double MAX_ALIGN_VELOCITY_SLOW = .5;
@@ -102,7 +96,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         headingLockPID = new PIDController(.08, 0, 0);
         headingLockPID.enableContinuousInput(0, 360);
 
-        CoralStationPID = new PIDController(2.5, 0, 0);
+        coralStationPID = new PIDController(2.5, 0, 0);
     }
 
     @Override
@@ -112,58 +106,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             setState(State.FIELD_RELATIVE);
         }
 
-        SmartDashboard.putData("Swerve",
-            builder -> {
-                builder.setSmartDashboardType("SwerveDrive");
-                builder.addDoubleProperty(
-                    "Front Left Angle", () -> fl.getPosition().angle.getRadians(), null);
-                builder.addDoubleProperty(
-                    "Front Left Velocity", () -> fl.getState().speedMetersPerSecond, null);
-                builder.addDoubleProperty(
-                    "Front Right Angle", () -> fr.getPosition().angle.getRadians(), null);
-                builder.addDoubleProperty(
-                    "Front Right Velocity", () -> fr.getState().speedMetersPerSecond, null);
-                builder.addDoubleProperty(
-                    "Back Left Angle", () -> bl.getPosition().angle.getRadians(), null);
-                builder.addDoubleProperty(
-                    "Back Left Velocity", () -> bl.getState().speedMetersPerSecond, null);
-                builder.addDoubleProperty(
-                    "Back Right Angle", () -> br.getPosition().angle.getRadians(), null);
-                builder.addDoubleProperty(
-                    "Back Right Velocity", () -> br.getState().speedMetersPerSecond, null);
-                builder.addDoubleProperty(
-                    "Robot Angle", () -> perception.getHeading().getRadians(), null);
-            }
-        );
-
         lastRotationTarget = getPose().getRotation().getDegrees();
     }
 
     @Override
     public final void update(final TorqueMode mode) {
-        Debug.log("Drivebase State", desiredState.toString());
-        Debug.log("Is Aligned", isAligned());
-        Debug.log("In Zone", perception.getCurrentZone() != null);
-        Logger.recordOutput("Gyro Angle", perception.getHeading());
-
-        if (perception.getCurrentZone() != null) {
-            final TorqueFieldZone zone = perception.getCurrentZone();
-            final Pose2d tagPose = Field.AprilTagList.values()[zone.getID() - 1].pose;
-            final Pose2d currentPose = perception.getPose();
-
-            final double dx = tagPose.getX() - currentPose.getX();
-            final double dy = tagPose.getY() - currentPose.getY();
-
-            final double forward = dx * Math.cos(tagPose.getRotation().getRadians()) + dy * Math.sin(tagPose.getRotation().getRadians());
-            final double right = -dx * Math.sin(tagPose.getRotation().getRadians()) + dy * Math.cos(tagPose.getRotation().getRadians());
-
-            Debug.log("AprilTag Forward Offset", -forward + "");
-            Debug.log("AprilTag Right Offset", -right + "");
-        } else {
-            Debug.log("AprilTag Forward Offset", "None");
-            Debug.log("AprilTag Right Offset", "None");
-        }
-
         if (alignPoseOverride != null && wantsState(State.ALIGN)) {
             runAlignment(alignPoseOverride);
         } else if (wantsState(State.ALIGN)) {
@@ -173,32 +120,21 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             }
         }
 
-        if (!inputSpeeds.hasRotationalVelocity() && mode.isTeleop() && desiredState != State.ALIGN) {
+        if (!inputSpeeds.hasRotationalVelocity() && mode.isTeleop() && desiredState != State.ALIGN)
             inputSpeeds.omegaRadiansPerSecond = headingLockPID.calculate(perception.getHeading().getDegrees(), lastRotationTarget);
-        }
-
-        if (inputSpeeds.hasRotationalVelocity()) {
+        if (inputSpeeds.hasRotationalVelocity())
             lastRotationTarget = getPose().getRotation().getDegrees();
-        }
-
-        if (wantsState(State.HP_ALIGN)) {
-            if (perception.getCurrentZone() != null) {
-                runHPAlignment(); 
-            }
-        }
-
-        if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN) || wantsState(State.SLOW) || alignPoseOverride != null) {
+        if (wantsState(State.HP_ALIGN) && perception.getCurrentZone() != null)
+            runHPAlignment(); 
+        if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN) || wantsState(State.SLOW) || alignPoseOverride != null)
             inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
-        }
         
         swerveStates = kinematics.toSwerveModuleStates(inputSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveStates, MAX_VELOCITY);
 
-        if (wantsState(State.SLOW)) {
-            for (SwerveModuleState state : swerveStates) {
+        if (wantsState(State.SLOW))
+            for (SwerveModuleState state : swerveStates)
                 state.speedMetersPerSecond *= getSlowMultiplier();
-            }
-        }
 
         if (inputSpeeds.hasZeroVelocity()) {
             manuallySetModuleAngles(
@@ -214,8 +150,22 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             br.setDesiredState(swerveStates[3]);
         }
 
-        Logger.recordOutput("Swerve States", swerveStates);
+        if (perception.getCurrentZone() != null) {
+            final Pose2d tagPose = Field.AprilTagList.values()[perception.getCurrentZone().getID() - 1].pose;
+            final Pair<Double, Double> offsets = perception.getOffsets(tagPose, getPose());
+            Debug.log("AprilTag Forward Offset", -offsets.getFirst() + "");
+            Debug.log("AprilTag Right Offset", -offsets.getSecond() + "");
+        } else {
+            Debug.log("AprilTag Forward Offset", "None");
+            Debug.log("AprilTag Right Offset", "None");
+        }
+
+        Debug.log("Drivebase State", desiredState.toString());
+        Debug.log("Is Aligned", isAligned());
+        Debug.log("In Zone", perception.getCurrentZone() != null);
         Debug.log("Robot Velocity", inputSpeeds.getVelocityMagnitude());
+        Logger.recordOutput("Gyro Angle", perception.getHeading());
+        Logger.recordOutput("Swerve States", swerveStates);
     }
 
     @Override
@@ -247,41 +197,15 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         Logger.recordOutput("Desired Component Poses", perception.getDesiredComponentPoses());
     }
 
-    public boolean isAligned() {
+    public boolean isAligned(final double translationTolerance, final double rotationTolerance) {
         Pose2d alignPose = perception.getAlignPose();
-        final double TRANSLATION_TOLERANCE = .005;
-        final double ROTATION_TOLERANCE = 1;
 
         if (alignPoseOverride != null) alignPose = alignPoseOverride;
         if (alignPose == null) return false;
         final double distance = alignPose.getTranslation().getDistance(perception.getPose().getTranslation());
-        final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
+        final boolean translationAligned = distance < translationTolerance;
         final double rotation = (alignPose.getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
-        final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
-
-        Debug.log("Rotation Aligned", rotationAligned);
-        Debug.log("Translation Aligned", translationAligned);
-
-        if (translationAligned && rotationAligned && desiredState == State.ALIGN) {
-            if (DriverStation.isAutonomous()) {
-                setInputSpeeds(new TorqueSwerveSpeeds());
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isNearAligned() {
-        Pose2d alignPose = perception.getAlignPose();
-        final double TRANSLATION_TOLERANCE = .05;
-        final double ROTATION_TOLERANCE = 2;
-
-        if (alignPoseOverride != null) alignPose = alignPoseOverride;
-        if (alignPose == null) return false;
-        final double distance = alignPose.getTranslation().getDistance(perception.getPose().getTranslation());
-        final boolean translationAligned = distance < TRANSLATION_TOLERANCE;
-        final double rotation = (alignPose.getRotation().getDegrees() - perception.getPose().getRotation().getDegrees() + 360) % 360;
-        final boolean rotationAligned = rotation < ROTATION_TOLERANCE;
+        final boolean rotationAligned = rotation < rotationTolerance;
 
         Debug.log("Rotation Aligned", rotationAligned);
         Debug.log("Translation Aligned", translationAligned);
@@ -302,19 +226,22 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
 
         final Rotation2d target = perception.currentTagPose.getRotation();
-
-        HPSpeed = CoralStationPID.calculate(perception.getHPDistance(), IDEAL_HP_DISTANCE);
-
-        Debug.log("align target pose", target.getDegrees());
-
-        inputSpeeds.omegaRadiansPerSecond = headingLockPID.calculate(perception.getHeading().getDegrees(), target.getDegrees()); // Rotate to face the coral station
-        inputSpeeds.vxMetersPerSecond = HPSpeed;
+        double speed = coralStationPID.calculate(perception.getHPDistance(), IDEAL_HP_DISTANCE);
+        inputSpeeds.omegaRadiansPerSecond = headingLockPID.calculate(perception.getHeading().getDegrees(), target.getDegrees());
+        inputSpeeds.vxMetersPerSecond = speed;
     }
 
     public boolean isAtHP() {;
         final double HP_DISTANCE_TOLERANCE = 0.01;
-
         return perception.getHPDistance() - IDEAL_HP_DISTANCE < HP_DISTANCE_TOLERANCE;
+    }
+
+    public boolean isAligned() {
+        return isAligned(.005, 1);
+    }
+
+    public boolean isNearAligned() {
+        return isAligned(.05, 2);
     }
 
     public double getSlowMultiplier() {
@@ -353,13 +280,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         slowStartTimestamp = Timer.getFPGATimestamp();
     }
 
-    public void setAlignPoseOverride(Pose2d alignPoseOverride) {
+    public void setAlignPoseOverride(final Pose2d alignPoseOverride) {
         this.alignPoseOverride = alignPoseOverride;
     }
 
-    public void setInputSpeeds(TorqueSwerveSpeeds inputSpeeds) {
-        if (desiredState == State.PATHING && inputSpeeds != null) lastRealInputSpeeds = inputSpeeds;
-        if (desiredState == State.ALIGN) lastRealInputSpeeds = inputSpeeds;
+    public void setInputSpeeds(final TorqueSwerveSpeeds inputSpeeds) {
         this.inputSpeeds = inputSpeeds;
     }
 

@@ -25,7 +25,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final TorqueRequestableTimeout driverRumble, operatorRumble;
     private final TorqueClickSupplier slowInitial, endgameClick, manualElevatorInitial;
     private final TorqueBoolSupplier resetGyro, align, alignToHP, slow, stow,
-
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
@@ -208,11 +207,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
         outtakeCoral.onTrue(() -> {
-            if (claw.getState() == Claw.State.SCORE_L1) {
-                claw.setCoralState(Claw.CoralState.SHOOT_SLOW);
-            } else {
-                claw.setCoralState(Claw.CoralState.SHOOT);
-            }
+            if (claw.getState() == Claw.State.SCORE_L1) claw.setCoralState(Claw.CoralState.SHOOT_SLOW);
+            else claw.setCoralState(Claw.CoralState.SHOOT);
             claw.coralSpike.reset();
         });
         outtakeAlgae.onTrue(() -> {

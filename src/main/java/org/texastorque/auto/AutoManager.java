@@ -19,14 +19,9 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadSequences() {
-        // addSequence("LEFT L3", new LeftL3Auto());
         addSequence("LEFT L4", new LeftL4Auto());
-        // addSequence("CENTER PROCESSOR", new CenterProcessor());
         addSequence("CENTER NET", new CenterNet());
         addSequence("RIGHT L4", new RightL4Auto());
-        // addSequence("RIGHT L3", new RightL3Auto());
-
-        // addSequence("PUSH", new Push());
 
         // addSequence("TEST", new TestAuto());
     }

@@ -22,6 +22,7 @@ import org.texastorque.torquelib.control.TorqueRollingMedian;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -112,9 +113,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		field.setRobotPose(getPose());
 
 		filteredPose = new Pose2d(
-                filteredX.calculate(getPose().getX()),
-                filteredY.calculate(getPose().getY()),
-                getHeading()
+			filteredX.calculate(getPose().getX()),
+			filteredY.calculate(getPose().getY()),
+			getHeading()
 		);
 
 		useDistance = getCurrentZone() != null && (getCurrentZone().getID() == 1 || getCurrentZone().getID() == 2 || getCurrentZone().getID() == 12 || getCurrentZone().getID() == 13);
@@ -177,6 +178,16 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public void updateOdometryLocalization() {
 		poseEstimator.update(getHeading(), drivebase.getModulePositions());
+	}
+
+	public Pair<Double, Double> getOffsets(final Pose2d targetPose, final Pose2d currentPose) {
+		final double dx = targetPose.getX() - currentPose.getX();
+		final double dy = targetPose.getY() - currentPose.getY();
+
+		final double forward = dx * Math.cos(targetPose.getRotation().getRadians()) + dy * Math.sin(targetPose.getRotation().getRadians());
+		final double right = -dx * Math.sin(targetPose.getRotation().getRadians()) + dy * Math.cos(targetPose.getRotation().getRadians());
+
+		return new Pair<Double, Double>(forward, right);
 	}
 
 	public void updateVisualization() {
@@ -323,7 +334,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	}
 
 	public double getHPDistance() { 
-		if (RobotBase.isSimulation())
+		if (RobotBase.isSimulation() && currentTagPose != null)
 			return Math.sqrt(Math.pow(currentTagPose.getX() - getPose().getX(), 2) + Math.pow(currentTagPose.getY() - getPose().getY(), 2));
 		return filteredHPDistance.calculate(canRange.getDistance().getValueAsDouble());
 	}
