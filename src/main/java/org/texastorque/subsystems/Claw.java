@@ -45,7 +45,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         NET(166.6797),
         ALGAE_EXTRACTION(287.2656),
         PROCESSOR(80.2832),
-        CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
+        REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
+        CORAL_HP(20), 
         CLIMB(270);
 
         private double angle;
@@ -136,7 +137,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         // Shoulder regression for HP
         double desiredAngle = desiredState.angle;
-        if (desiredState == State.CORAL_HP && perception.inCoralStationZone()) {
+        if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
             desiredAngle = getCoralStationAngle();
         }
 
@@ -159,7 +160,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         // Coral rollers logic
         if (coralState == CoralState.SHOOT || coralState == CoralState.SHOOT_SLOW) 
             coralSpike.reset();
-        if (coralState == CoralState.INTAKE && desiredState != State.CORAL_HP)
+        if (coralState == CoralState.INTAKE && desiredState != State.REGRESSION_CORAL_HP && desiredState != State.CORAL_HP)
             coralState = CoralState.OFF;
         
         if (hasCoral() && (coralState != CoralState.SHOOT || coralState != CoralState.SHOOT_SLOW)) {
