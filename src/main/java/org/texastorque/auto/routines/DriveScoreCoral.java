@@ -1,3 +1,9 @@
+/**
+ * Copyright 2025 Texas Torque.
+ *
+ * This file is part of Bravo/Charlie/Crashout-2025, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <davey.adams.three@gmail.com>.
+ */
 package org.texastorque.auto.routines;
 
 import org.texastorque.Field.AlignPosition.AlignableTarget;
@@ -27,6 +33,5 @@ public class DriveScoreCoral extends TorqueSequence implements Subsystems {
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.SHOOT)));
         addBlock(new TorqueWaitTime(.5)); // Wait until we shoot coral
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
-
 	}
 }

@@ -1,3 +1,9 @@
+/**
+ * Copyright 2025 Texas Torque.
+ *
+ * This file is part of Bravo/Charlie/Crashout-2025, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <davey.adams.three@gmail.com>.
+ */
 package org.texastorque.subsystems;
 
 import org.texastorque.Ports;
@@ -19,7 +25,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     private static volatile Climb instance;
     private final TorqueNEO climb;
     private final PIDController climbPID;
-    
+
     public State pastState;
     private double pastStateTime;
 
@@ -95,7 +101,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     }
 
     public boolean isSafe() {
-        return getClimbPosition() > 200;
+        return getClimbPosition() > 250;
     }
 
     public static final synchronized Climb getInstance() {

@@ -1,8 +1,8 @@
 /**
- * Copyright 2023 Texas Torque.
+ * Copyright 2025 Texas Torque.
  *
- * This file is part of Bravo/Charlie/Takeoff-2024, which is not licensed for distribution.
- * For more details, see ./license.txt or write <jus@justusl.com>.
+ * This file is part of Bravo/Charlie/Crashout-2025, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <davey.adams.three@gmail.com>.
  */
 package org.texastorque.auto;
 
@@ -19,14 +19,9 @@ public final class AutoManager extends TorqueAutoManager implements Subsystems {
 
     @Override
     public final void loadSequences() {
-        // addSequence("LEFT L3", new LeftL3Auto());
         addSequence("LEFT L4", new LeftL4Auto());
-        // addSequence("CENTER PROCESSOR", new CenterProcessor());
         addSequence("CENTER NET", new CenterNet());
         addSequence("RIGHT L4", new RightL4Auto());
-        // addSequence("RIGHT L3", new RightL3Auto());
-
-        // addSequence("PUSH", new Push());
 
         // addSequence("TEST", new TestAuto());
     }

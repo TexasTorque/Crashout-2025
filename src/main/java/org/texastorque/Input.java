@@ -1,3 +1,9 @@
+/**
+ * Copyright 2025 Texas Torque.
+ *
+ * This file is part of Bravo/Charlie/Crashout-2025, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <davey.adams.three@gmail.com>.
+ */
 package org.texastorque;
 
 import org.texastorque.Field.AlignPosition.AlignableTarget;
@@ -215,11 +221,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
         outtakeCoral.onTrue(() -> {
-            if (claw.getState() == Claw.State.SCORE_L1) {
-                claw.setCoralState(Claw.CoralState.SHOOT_SLOW);
-            } else {
-                claw.setCoralState(Claw.CoralState.SHOOT);
-            }
+            if (claw.getState() == Claw.State.SCORE_L1) claw.setCoralState(Claw.CoralState.SHOOT_SLOW);
+            else claw.setCoralState(Claw.CoralState.SHOOT);
             claw.coralSpike.reset();
         });
         outtakeAlgae.onTrue(() -> {

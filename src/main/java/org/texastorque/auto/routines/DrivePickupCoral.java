@@ -1,3 +1,9 @@
+/**
+ * Copyright 2025 Texas Torque.
+ *
+ * This file is part of Bravo/Charlie/Crashout-2025, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <davey.adams.three@gmail.com>.
+ */
 package org.texastorque.auto.routines;
 
 import org.texastorque.Field.AlignPosition.AlignableTarget;
@@ -7,11 +13,8 @@ import org.texastorque.subsystems.Claw;
 import org.texastorque.torquelib.auto.TorqueSequence;
 import org.texastorque.torquelib.auto.commands.TorqueFollowPath;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
-import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
-import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
+import org.texastorque.torquelib.auto.commands.TorqueWaitTimeUntil;
 import org.texastorque.torquelib.auto.marker.Marker;
-
-import edu.wpi.first.wpilibj.RobotBase;
 
 public class DrivePickupCoral extends TorqueSequence implements Subsystems {
 
@@ -26,12 +29,7 @@ public class DrivePickupCoral extends TorqueSequence implements Subsystems {
         addBlock(new Align(Relation.CENTER, AlignableTarget.CORAL_STATION, alignTime).command());
 
         // Pickup coral from coral station
-        if (RobotBase.isReal()) {
-            addBlock(new TorqueWaitUntil(() -> claw.hasCoral()));
-        } else {
-            addBlock(new TorqueWaitTime(.5));
-        }
+        addBlock(new TorqueWaitTimeUntil(.5, () -> claw.hasCoral()));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
-
 	}
 }

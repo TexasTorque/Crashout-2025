@@ -1,3 +1,9 @@
+/**
+ * Copyright 2025 Texas Torque.
+ *
+ * This file is part of Bravo/Charlie/Crashout-2025, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <davey.adams.three@gmail.com>.
+ */
 package org.texastorque.subsystems;
 
 import org.texastorque.Ports;
@@ -22,13 +28,12 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     private final TorqueNEO shoulder, algaeRollers, coralRollers;
     private final ProfiledPIDController shoulderPID;
     private final CANcoder shoulderEncoder;
+    public final TorqueCurrentSpike coralSpike;
     private AlgaeState algaeState = AlgaeState.OFF;
     private CoralState coralState = CoralState.OFF;
-    public final TorqueCurrentSpike coralSpike;
+    private State selectedState;
     private State pastState;
     private double pastStateTime;
-
-    private State selectedState;
 
     public static enum State implements TorqueState {
         ZERO(0),
@@ -40,8 +45,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         NET(166.6797),
         ALGAE_EXTRACTION(287.2656),
         PROCESSOR(80.2832),
-        REGRESSION_CORAL_HP(20), // Not a real state! Uses regression for claw angle
-        CORAL_HP(20),
+        REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
+        CORAL_HP(20), 
         CLIMB(270);
 
         private double angle;
@@ -130,36 +135,32 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Coral State", coralState.toString());
         Debug.log("Algae State", algaeState.toString());
 
-        final double SHOULDER_MAX_VOLTS = 12;
+        // Shoulder regression for HP
         double desiredAngle = desiredState.angle;
         if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
             desiredAngle = getCoralStationAngle();
         }
 
+        // Calculate volts for current setpoint
+        final double SHOULDER_MAX_VOLTS = 12;
         double volts = shoulderPID.calculate(getShoulderAngle(), desiredAngle);
         final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 25));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
-        if (desiredState == State.ZERO) {
+        // Apply volts
+        if (desiredState == State.ZERO || (desiredState == State.CLIMB && !climb.isSafe())) {
             shoulder.setVolts(ff);
             shoulderPID.reset(getShoulderAngle());
-            Debug.log("Shoulder Volts", ff);
         } else {
-            if (desiredState == State.CLIMB && !climb.isSafe()) {
-                shoulder.setVolts(ff);
-                shoulderPID.reset(getShoulderAngle());
-                Debug.log("Shoulder Volts", ff);
-            } else {
-                shoulder.setVolts(volts + ff);
-                Debug.log("Shoulder Volts", volts + ff);
-            }
+            shoulder.setVolts(volts + ff);
         }
 
         algaeRollers.setVolts(algaeState.getVolts());
 
+        // Coral rollers logic
         if (coralState == CoralState.SHOOT || coralState == CoralState.SHOOT_SLOW) 
             coralSpike.reset();
-        if (coralState == CoralState.INTAKE && desiredState != State.REGRESSION_CORAL_HP)
+        if (coralState == CoralState.INTAKE && desiredState != State.REGRESSION_CORAL_HP && desiredState != State.CORAL_HP)
             coralState = CoralState.OFF;
         
         if (hasCoral() && (coralState != CoralState.SHOOT || coralState != CoralState.SHOOT_SLOW)) {
@@ -169,6 +170,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             coralRollers.setVolts(coralState.getVolts());
         }
 
+        Debug.log("Shoulder Volts", volts + ff);
         Debug.log("Coral Volts", coralState.getVolts());
     }
 

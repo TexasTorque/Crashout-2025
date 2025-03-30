@@ -1,3 +1,9 @@
+/**
+ * Copyright 2025 Texas Torque.
+ *
+ * This file is part of Bravo/Charlie/Crashout-2025, which is not licensed for distribution.
+ * For more details, see ./license.txt or write <davey.adams.three@gmail.com>.
+ */
 package org.texastorque.auto.routines;
 
 import java.util.function.Supplier;
@@ -15,7 +21,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class Align extends TorqueSequence implements Subsystems {
 
 	public Align(final Relation relation, final AlignableTarget alignableTarget, final double timeToAlign) {
-
         if (alignableTarget == AlignableTarget.CORAL_STATION) {
             addBlock(new TorqueRun(() -> {
                 perception.setRelation(relation);
@@ -41,6 +46,7 @@ public class Align extends TorqueSequence implements Subsystems {
         }
 	}
 
+    // Effectively acts as a drive to pose
 	public Align(final Supplier<Pose2d> pose, final double timeToAlign) {
 		addBlock(new TorqueRun(() -> {
             drivebase.setAlignPoseOverride(pose.get());
