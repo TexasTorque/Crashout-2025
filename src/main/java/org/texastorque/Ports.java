@@ -16,10 +16,9 @@ public final class Ports {
 
     public static final int ELEVATOR_LEFT = 13;
     public static final int ELEVATOR_RIGHT = 14;
-    public static final int ELEVATOR_ENCODER = 19;
 
     public static final int SHOULDER = 15;
-    public static final int SHOULDER_ENCODER = 18;
+    public static final int SHOULDER_ENCODER = 19;
 
     public static final int ROLLERS_ALGAE = 16;
     public static final int ROLLERS_CORAL = 17;
