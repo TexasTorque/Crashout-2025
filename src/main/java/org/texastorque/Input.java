@@ -13,6 +13,7 @@ import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Claw.AlgaeState;
 import org.texastorque.subsystems.Climb;
+import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
@@ -129,9 +130,18 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     public final void updateDrivebase() {
         resetGyro.onTrue(() -> perception.resetHeading());
 
-        leftRelation.onTrue(() -> perception.setRelation(Relation.LEFT));
-        rightRelation.onTrue(() -> perception.setRelation(Relation.RIGHT));
-        centerRelation.onTrue(() -> perception.setRelation(Relation.CENTER));
+        leftRelation.onTrue(() -> {
+            perception.setRelation(Relation.LEFT);
+            driverRumble.set(.5);
+        });
+        rightRelation.onTrue(() -> {
+            perception.setRelation(Relation.RIGHT);
+            driverRumble.set(.5);
+        });
+        centerRelation.onTrue(() -> {
+            perception.setRelation(Relation.CENTER);
+            driverRumble.set(.5);
+        });
 
         slowInitial.onTrue(() -> drivebase.startSlowMode());
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
@@ -235,6 +245,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             climb.setState(Climb.State.OUT);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
+
+        Debug.log("Crashout", crashOut.get());
     }
 
     public final void updateClimb() {

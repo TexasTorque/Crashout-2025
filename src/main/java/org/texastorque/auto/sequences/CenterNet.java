@@ -51,7 +51,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 		));
 
 		// Pick up high algae
-		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1.2).command());
+		addBlock(new Align(Relation.CENTER, AlignableTarget.ALGAE_HIGH, 1).command());
 
 		// Drive to center net and shoot
 		addBlock(new TorqueFollowPath("CNET_3", drivebase).withMarkers(
@@ -61,8 +61,8 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 				claw.setAlgaeState(Claw.AlgaeState.OFF);
 			}, .1),
 			new Marker(() -> {
-				claw.setAlgaeState(Claw.AlgaeState.SHOOT_SEMI_FAST);
-			}, .38),
+				claw.setAlgaeState(Claw.AlgaeState.SHOOT_FAST);
+			}, .3),
 			new Marker(() -> {
 				elevator.setState(Elevator.State.ALGAE_REMOVAL_HIGH);
 				claw.setState(Claw.State.ALGAE_EXTRACTION);
@@ -81,7 +81,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 				claw.setAlgaeState(Claw.AlgaeState.OFF);
 			}, .2),
 			new Marker(() -> {
-				claw.setAlgaeState(Claw.AlgaeState.SHOOT_SEMI_FAST);
+				claw.setAlgaeState(Claw.AlgaeState.SHOOT_FAST);
 			}, .7)
 		));
 

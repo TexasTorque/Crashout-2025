@@ -47,7 +47,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         PROCESSOR(80.2832),
         REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CORAL_HP(30), 
-        CLIMB(270);
+        CLIMB(300);
 
         private double angle;
 
@@ -127,14 +127,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     @Override
     public final void update(final TorqueMode mode) {
-        Debug.log("Shoulder Position", getShoulderAngle());
-        Debug.log("Claw State", desiredState.toString());
-        Debug.log("Has Coral", hasCoral());
-        Debug.log("Shoulder At State", isAtState());
-        Debug.log("Coral Current", coralRollers.getOutputCurrent());
-        Debug.log("Coral State", coralState.toString());
-        Debug.log("Algae State", algaeState.toString());
-
         // Shoulder regression for HP
         double desiredAngle = desiredState.angle;
         if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
@@ -148,7 +140,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
         // Apply volts
-        if (desiredState == State.ZERO || (desiredState == State.CLIMB && !climb.isSafe())) {
+        if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
             shoulderPID.reset(getShoulderAngle());
         } else {
@@ -172,6 +164,13 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
         Debug.log("Shoulder Volts", volts + ff);
         Debug.log("Coral Volts", coralState.getVolts());
+        Debug.log("Shoulder Position", getShoulderAngle());
+        Debug.log("Claw State", desiredState.toString());
+        Debug.log("Has Coral", hasCoral());
+        Debug.log("Shoulder At State", isAtState());
+        Debug.log("Coral Current", coralRollers.getOutputCurrent());
+        Debug.log("Coral State", coralState.toString());
+        Debug.log("Algae State", algaeState.toString());
     }
 
 	@Override
@@ -216,7 +215,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public final boolean isNearState() {
-        return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 20);
+        return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 40);
     }
 
     public void setSelectedState(State selectedState) {

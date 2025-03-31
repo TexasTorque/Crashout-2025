@@ -15,6 +15,7 @@ import org.texastorque.torquelib.auto.TorqueSequence;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTime;
 import org.texastorque.torquelib.auto.commands.TorqueWaitUntil;
+import org.texastorque.torquelib.auto.marker.Marker;
 
 public class Quickswap extends TorqueSequence implements Subsystems {
 
@@ -34,15 +35,13 @@ public class Quickswap extends TorqueSequence implements Subsystems {
             perception.setRelation(Relation.NONE);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         }));
-        addBlock(new Align(() -> perception.getAlignPose(), .7).command());
-
-        addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.OFF)));
-
-        // Start moving subsystems while aligning
-        addBlock(new TorqueRun(() -> {
-            elevator.setState(isL4 ? Elevator.State.SCORE_L4 : Elevator.State.SCORE_L3);
-            claw.setState(isL4 ? Claw.State.SCORE_L4 : Claw.State.SCORE_L3);
-        }));
+        addBlock(new Align(() -> perception.getAlignPose(), .7, 
+            new Marker(() -> {
+                claw.setAlgaeState(Claw.AlgaeState.OFF);
+                elevator.setState(isL4 ? Elevator.State.SCORE_L4 : Elevator.State.SCORE_L3);
+                claw.setState(isL4 ? Claw.State.SCORE_L4 : Claw.State.SCORE_L3);
+            }, .3)
+        ).command());
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 

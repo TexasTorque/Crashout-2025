@@ -15,19 +15,20 @@ import org.texastorque.subsystems.Drivebase;
 import org.texastorque.torquelib.auto.TorqueSequence;
 import org.texastorque.torquelib.auto.commands.TorqueRun;
 import org.texastorque.torquelib.auto.commands.TorqueWaitTimeUntil;
+import org.texastorque.torquelib.auto.marker.Marker;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import edu.wpi.first.math.geometry.Pose2d;
 
 public class Align extends TorqueSequence implements Subsystems {
 
-	public Align(final Relation relation, final AlignableTarget alignableTarget, final double timeToAlign) {
+	public Align(final Relation relation, final AlignableTarget alignableTarget, final double timeToAlign, final Marker ...markers) {
         if (alignableTarget == AlignableTarget.CORAL_STATION) {
             addBlock(new TorqueRun(() -> {
                 perception.setRelation(relation);
                 perception.setDesiredAlignTarget(alignableTarget);
                 drivebase.setState(Drivebase.State.HP_ALIGN);
             }));
-            addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> claw.hasCoral()));
+            addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> claw.hasCoral(), markers));
             addBlock(new TorqueRun(() -> {
                 drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
                 drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
@@ -47,12 +48,12 @@ public class Align extends TorqueSequence implements Subsystems {
 	}
 
     // Effectively acts as a drive to pose
-	public Align(final Supplier<Pose2d> pose, final double timeToAlign) {
+	public Align(final Supplier<Pose2d> pose, final double timeToAlign, final Marker ...markers) {
 		addBlock(new TorqueRun(() -> {
             drivebase.setAlignPoseOverride(pose.get());
             drivebase.setState(Drivebase.State.ALIGN);
         }));
-        addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isAligned()));
+        addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> drivebase.isAligned(), markers));
         addBlock(new TorqueRun(() -> {
             drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
             drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
