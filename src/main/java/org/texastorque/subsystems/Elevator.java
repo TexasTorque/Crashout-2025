@@ -64,12 +64,10 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
         elevatorLeft = new TorqueNEO(Ports.ELEVATOR_LEFT)
             .idleMode(IdleMode.kBrake)
-            .inverted(true)
             .apply();
         
         elevatorRight = new TorqueNEO(Ports.ELEVATOR_RIGHT)
             .idleMode(IdleMode.kBrake)
-            .inverted(true)
             .apply();
         
         elevatorPID = new ProfiledPIDController(2, 0, 0,
@@ -93,11 +91,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(ELEVATOR_FF);
-            elevatorRight.setVolts(ELEVATOR_FF);
+            // elevatorRight.setVolts(ELEVATOR_FF);
             elevatorPID.reset(getElevatorPosition());
         } else {
             elevatorLeft.setVolts(volts + ELEVATOR_FF);
-            elevatorRight.setVolts(volts + ELEVATOR_FF);
+            // elevatorRight.setVolts(volts + ELEVATOR_FF);
         }
 
         Debug.log("Elevator Volts", volts + ELEVATOR_FF);
@@ -133,7 +131,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             pastStateTime = Timer.getFPGATimestamp();
             return pastState.position;
         }
-        return (elevatorLeft.getPosition() + elevatorRight.getPosition()) / 2;
+        return elevatorLeft.getPosition(); // + elevatorRight.getPosition()) / 2;
     }
 
     public final boolean isAtState() {
