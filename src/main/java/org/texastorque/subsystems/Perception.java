@@ -48,8 +48,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private static volatile Perception instance;
 
-	private final SwerveDrivePoseEstimator poseEstimator;
-
 	/**
 	 * Standard deviations of model states. Increase these numbers to trust your
 	 * model's state estimates less. This matrix is in the form [x, y, theta]ᵀ,
@@ -64,25 +62,19 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	 */
 	private static final Vector<N3> VISION_STDS = VecBuilder.fill(.1, .1, Units.degreesToRadians(1));
 
+	private final TorqueRollingMedian filteredX, filteredY, filteredHPDistance;
 	private final Pigeon2 gyro = new Pigeon2(Ports.GYRO);
-	private double gyro_simulated = 0;
-
 	private final CANrange canRange;
-
+	private final Field2d field = new Field2d();
+	private final SwerveDrivePoseEstimator poseEstimator;
 	private AlignableTarget desiredAlignTarget = AlignableTarget.NONE;
 	private Relation relation = Relation.NONE;
-
-	// Used to filter some noise directly out of the pose measurements.
-	private final TorqueRollingMedian filteredX, filteredY;
-	private final Field2d field = new Field2d();
 	private ArrayList<TorqueFieldZone> zones;
 	private Pose2d filteredPose = new Pose2d();
-	public Pose2d currentTagPose;
-
 	private boolean isHighInvalid, isLowInvalid, shouldNotUseVision;
+	private double gyro_simulated = 0;
 	public boolean useDistance;
-
-	private TorqueRollingMedian filteredHPDistance;
+	public Pose2d currentTagPose;
 	
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
@@ -90,16 +82,15 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
 
+		canRange = new CANrange(Ports.CAN_RANGE);
+
 		filteredX = new TorqueRollingMedian(15);
 		filteredY = new TorqueRollingMedian(15);
-
 		filteredHPDistance = new TorqueRollingMedian(15);
 
 		Debug.field("Field", field);
 
 		createZones();
-
-		canRange = new CANrange(Ports.CAN_RANGE);
 	}
 
 	final String LIMELIGHT_HIGH = "limelight-high";
