@@ -135,20 +135,13 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Coral State", coralState.toString());
         Debug.log("Algae State", algaeState.toString());
 
-        // Shoulder regression for HP
-        double desiredAngle = desiredState.angle;
-        if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
-            desiredAngle = getCoralStationAngle();
-        }
-
-        // Calculate volts for current setpoint
         final double SHOULDER_MAX_VOLTS = 12;
-        double volts = shoulderPID.calculate(getShoulderAngle(), desiredAngle);
+        double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.angle);
         final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 25));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
         // Apply volts
-        if (desiredState == State.ZERO || (desiredState == State.CLIMB && !climb.isSafe())) {
+        if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
             shoulderPID.reset(getShoulderAngle());
         } else {
@@ -185,13 +178,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public void onStateChange(final State lastState) {
         pastStateTime = Timer.getFPGATimestamp();
         pastState = lastState;
-    }
-
-    public double getCoralStationAngle() {
-        double angle = -92.59259 * perception.getHPDistance() + 41.11111;
-        if (angle > 30) angle = 30;
-        if (angle < 20) angle = 20;
-        return angle;
     }
 
     public final double getShoulderAngle() {

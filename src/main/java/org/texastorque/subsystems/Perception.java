@@ -17,16 +17,13 @@ import org.texastorque.Field;
 import org.texastorque.LimelightHelpers;
 import org.texastorque.LimelightHelpers.PoseEstimate;
 import org.texastorque.LimelightHelpers.RawFiducial;
-import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueStatelessSubsystem;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.control.TorqueRollingMedian;
-
-import com.ctre.phoenix6.hardware.CANrange;
-import com.ctre.phoenix6.hardware.Pigeon2;
+import org.texastorque.torquelib.sensors.TorqueNavXGyro;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
@@ -64,10 +61,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	 */
 	private static final Vector<N3> VISION_STDS = VecBuilder.fill(.1, .1, Units.degreesToRadians(1));
 
-	private final Pigeon2 gyro = new Pigeon2(Ports.GYRO);
+	private final TorqueNavXGyro gyro = TorqueNavXGyro.getInstance();
 	private double gyro_simulated = 0;
-
-	private final CANrange canRange;
 
 	private AlignableTarget desiredAlignTarget = AlignableTarget.NONE;
 	private Relation relation = Relation.NONE;
@@ -80,9 +75,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Pose2d currentTagPose;
 
 	private boolean isHighInvalid, isLowInvalid, shouldNotUseVision;
-	public boolean useDistance;
-
-	private TorqueRollingMedian filteredHPDistance;
 	
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
@@ -93,13 +85,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		filteredX = new TorqueRollingMedian(15);
 		filteredY = new TorqueRollingMedian(15);
 
-		filteredHPDistance = new TorqueRollingMedian(15);
-
 		Debug.field("Field", field);
 
 		createZones();
-
-		canRange = new CANrange(Ports.CAN_RANGE);
 	}
 
 	final String LIMELIGHT_HIGH = "limelight-high";
@@ -124,8 +112,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			getHeading()
 		);
 
-		useDistance = getCurrentZone() != null && (getCurrentZone().getID() == 1 || getCurrentZone().getID() == 2 || getCurrentZone().getID() == 12 || getCurrentZone().getID() == 13);
-
 		if (getCurrentZone() != null) {
 			currentTagPose = AprilTagList.values()[getCurrentZone().getID()-1].pose;
 		}
@@ -136,7 +122,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
-		Debug.log("CANrange Distance", getHPDistance());
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Relation", relation.toString());
 		Debug.log("Align Target", desiredAlignTarget.toString());
@@ -153,7 +138,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		LimelightHelpers.PoseEstimate visionEstimateLow = getVisionEstimate(LIMELIGHT_LOW);
 
 		shouldNotUseVision = drivebase.getState() == Drivebase.State.PATHING
-				|| gyro.getAngularVelocityYDevice().getValueAsDouble() > Math.PI;
+				|| Math.abs(gyro.getRate()) > 180;
 
 		if (shouldNotUseVision) return;
 
@@ -201,11 +186,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Logger.recordOutput("Animated Component Poses", new Pose3d[] {
 			new Pose3d(0, 0, 0, new Rotation3d()),
 			new Pose3d(0, 0, 0, new Rotation3d()),
-			new Pose3d(0.11, 0, 0.275, new Rotation3d()),
-			new Pose3d(-0.31, 0, 0.24, new Rotation3d())
+			new Pose3d(0.11, 0, 0.275, new Rotation3d())
 		});
 		Logger.recordOutput("Zeroed Component Poses", new Pose3d[] {
-			new Pose3d(),
 			new Pose3d(),
 			new Pose3d(),
 			new Pose3d()
@@ -225,8 +208,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return new Pose3d[] {
 			new Pose3d(0, 0, .5 * elevatorMultiplier, new Rotation3d()),
 			new Pose3d(0, 0, 1.05 * elevatorMultiplier, new Rotation3d()),
-			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0)),
-			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0))
+			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0))
 		};
 	}
 
@@ -238,8 +220,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return new Pose3d[] {
 			new Pose3d(0, 0, .5 * elevatorMultiplier, new Rotation3d()),
 			new Pose3d(0, 0, 1.05 * elevatorMultiplier, new Rotation3d()),
-			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0)),
-			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0))
+			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0))
 		};
 	}
 
@@ -284,7 +265,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		if (RobotBase.isSimulation()) {
 			return Rotation2d.fromRadians(gyro_simulated);
 		}
-		return Rotation2d.fromDegrees((gyro.getYaw().getValueAsDouble() + (100 * 360)) % 360);
+		return Rotation2d.fromDegrees(gyro.getFusedHeading());
 	}
 
 	public Pose2d getAlignPose() {
@@ -300,7 +281,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public void resetHeading(final double offset) {
 		gyro_simulated = 0;
-		gyro.setYaw(offset);
+		gyro.setOffsetCCW(Rotation2d.fromRadians(0));
 		setPose(new Pose2d(0, 0, getHeading()));
 	}
 	
@@ -337,12 +318,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	private PoseEstimate getVisionEstimate(final String limelightName) {
 		return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-	}
-
-	public double getHPDistance() { 
-		if (RobotBase.isSimulation() && currentTagPose != null)
-			return Math.sqrt(Math.pow(currentTagPose.getX() - getPose().getX(), 2) + Math.pow(currentTagPose.getY() - getPose().getY(), 2));
-		return filteredHPDistance.calculate(canRange.getDistance().getValueAsDouble());
 	}
 
 	public Pose2d getFilteredPose() {

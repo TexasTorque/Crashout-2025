@@ -12,12 +12,10 @@ import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Claw.AlgaeState;
-import org.texastorque.subsystems.Climb;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
 import org.texastorque.torquelib.control.TorqueRequestableTimeout;
-import org.texastorque.torquelib.control.TorqueToggleSupplier;
 import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
@@ -32,13 +30,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueRequestableTimeout driverRumble, operatorRumble;
     private final TorqueClickSupplier slowInitial, endgameClick, manualElevatorInitial;
-    private final TorqueToggleSupplier crashOut;
-    private final TorqueBoolSupplier resetGyro, align, alignToHP, slow, stow,
+    private final TorqueBoolSupplier resetGyro, align, slow, stow,
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
-            climbUp, climbDown, manualElevatorUp, manualElevatorDown,
-            intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
-            climbMode, goToSelected;
+            manualElevatorUp, manualElevatorDown, intakeCoral, intakeAlgae,
+            outtakeCoral, outtakeAlgae, goToSelected;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -51,11 +47,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
-        crashOut = new TorqueToggleSupplier(driver::isDPADUpDown);
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
-        alignToHP = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.useDistance);
-        align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null && !alignToHP.get());
+        align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null);
 
         goToSelected = new TorqueBoolSupplier(driver::isAButtonDown);
 
@@ -79,11 +73,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
         centerRelation = new TorqueBoolSupplier(operator::isDPADUpDown);
 
-        climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND && !operator.isLeftStickClickDown());
-        climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
-
-        climbMode = new TorqueBoolSupplier(driver::isDPADRightDown);
-
         manualElevatorInitial = new TorqueClickSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND || operator.getRightYAxis() < -CONTROLLER_DEADBAND);
         manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
         manualElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
@@ -96,7 +85,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     public final void update() {
         updateDrivebase();
         updateSuperstructure();
-        updateClimb();
 
         endgameClick.onTrue(() -> {
             driverRumble.set(.5);
@@ -137,8 +125,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
 
         align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
-
-        alignToHP.onTrue(() -> drivebase.setState(Drivebase.State.HP_ALIGN));
 
         final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
                     ? DriverStation.getAlliance().get() == Alliance.Red
@@ -202,13 +188,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
         intakeCoral.onTrue(() -> {
-            if (!crashOut.get()) {
-                elevator.setState(Elevator.State.REGRESSION_CORAL_HP);
-                claw.setState(Claw.State.REGRESSION_CORAL_HP);
-            } else {
-                elevator.setState(Elevator.State.CORAL_HP);
-                claw.setState(Claw.State.CORAL_HP);
-            }
+            elevator.setState(Elevator.State.CORAL_HP);
+            claw.setState(Claw.State.CORAL_HP);
             claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
             perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
@@ -229,17 +210,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         outtakeAlgae.onTrue(() -> {
             claw.setAlgaeState(Claw.AlgaeState.SHOOT);
         });
-        climbMode.onTrue(() -> {
-            elevator.setState(Elevator.State.CLIMB);
-            claw.setState(Claw.State.CLIMB);
-            climb.setState(Climb.State.OUT);
-            perception.setDesiredAlignTarget(AlignableTarget.NONE);
-        });
-    }
-
-    public final void updateClimb() {
-        climbUp.onTrue(() -> climb.setState(Climb.State.OUT));
-        climbDown.onTrue(() -> climb.setState(Climb.State.IN));
     }
 
     public final boolean isDebugMode() {
