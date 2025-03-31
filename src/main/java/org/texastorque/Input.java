@@ -27,17 +27,18 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public final class Input extends TorqueInput<TorqueController> implements Subsystems {
+
     private static volatile Input instance;
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueRequestableTimeout driverRumble, operatorRumble;
     private final TorqueClickSupplier slowInitial, endgameClick, manualElevatorInitial;
+    private final TorqueToggleSupplier crashOut;
     private final TorqueBoolSupplier resetGyro, align, alignToHP, slow, stow,
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
             climbMode, goToSelected;
-    private final TorqueToggleSupplier crashOut;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -200,24 +201,18 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setState(Claw.State.ALGAE_EXTRACTION);
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
-        if (!crashOut.get()) {
-            intakeCoral.onTrue(() -> {
+        intakeCoral.onTrue(() -> {
+            if (!crashOut.get()) {
                 elevator.setState(Elevator.State.REGRESSION_CORAL_HP);
                 claw.setState(Claw.State.REGRESSION_CORAL_HP);
-                claw.setCoralState(Claw.CoralState.INTAKE);
-                claw.coralSpike.reset();
-                perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
-            });
-        }
-        else {
-            intakeCoral.onTrue(() -> {
+            } else {
                 elevator.setState(Elevator.State.CORAL_HP);
                 claw.setState(Claw.State.CORAL_HP);
-                claw.setCoralState(Claw.CoralState.INTAKE);
-                claw.coralSpike.reset();
-                perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
-            });
-        }
+            }
+            claw.setCoralState(Claw.CoralState.INTAKE);
+            claw.coralSpike.reset();
+            perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
+        });
         intakeAlgae.onTrue(() -> {
             claw.setAlgaeState(AlgaeState.INTAKE);
         });
