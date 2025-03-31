@@ -58,7 +58,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     public final SwerveDriveKinematics kinematics;
     private final TorqueAlignController alignController;
     private final PIDController headingLockPID;
-    private final PIDController coralStationPID;
     public TorqueSwerveSpeeds inputSpeeds;
     private SwerveModuleState[] swerveStates;
     private double slowStartTimestamp;
@@ -101,8 +100,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
         headingLockPID = new PIDController(.08, 0, 0);
         headingLockPID.enableContinuousInput(0, 360);
-
-        coralStationPID = new PIDController(2.5, 0, 0);
     }
 
     @Override
@@ -130,8 +127,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             inputSpeeds.omegaRadiansPerSecond = headingLockPID.calculate(perception.getHeading().getDegrees(), lastRotationTarget);
         if (inputSpeeds.hasRotationalVelocity())
             lastRotationTarget = getPose().getRotation().getDegrees();
-        if (wantsState(State.HP_ALIGN) && perception.getCurrentZone() != null)
-            runHPAlignment(); 
         if (wantsState(State.FIELD_RELATIVE) || wantsState(State.ALIGN) || wantsState(State.SLOW) || alignPoseOverride != null)
             inputSpeeds = inputSpeeds.toFieldRelativeSpeeds(perception.getHeading());
         
@@ -223,23 +218,6 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
             return true;
         }
         return false;
-    }
-
-    public void runHPAlignment() {
-        if (isAtHP()) {
-            setInputSpeeds(new TorqueSwerveSpeeds());
-            return;
-        }
-
-        final Rotation2d target = perception.currentTagPose.getRotation();
-        double speed = coralStationPID.calculate(perception.getHPDistance(), IDEAL_HP_DISTANCE);
-        inputSpeeds.omegaRadiansPerSecond = headingLockPID.calculate(perception.getHeading().getDegrees(), target.getDegrees());
-        inputSpeeds.vxMetersPerSecond = speed;
-    }
-
-    public boolean isAtHP() {;
-        final double HP_DISTANCE_TOLERANCE = 0.01;
-        return perception.getHPDistance() - IDEAL_HP_DISTANCE < HP_DISTANCE_TOLERANCE;
     }
 
     public boolean isAligned() {
