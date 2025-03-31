@@ -12,10 +12,10 @@ import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
-import org.texastorque.torquelib.motors.TorqueKraken;
+import org.texastorque.torquelib.motors.TorqueNEO;
 import org.texastorque.torquelib.util.TorqueMath;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.Timer;
 public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implements Subsystems {
 
     private static volatile Elevator instance;
-    private final TorqueKraken elevatorLeft, elevatorRight;
+    private final TorqueNEO elevatorLeft, elevatorRight;
     private final ProfiledPIDController elevatorPID;
     private final double ELEVATOR_FF = .35;
     public final double MAX_HEIGHT = 40;
@@ -62,13 +62,13 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
         selectedState = State.ZERO;
 
-        elevatorLeft = new TorqueKraken(Ports.ELEVATOR_LEFT)
-            .idleMode(NeutralModeValue.Brake)
+        elevatorLeft = new TorqueNEO(Ports.ELEVATOR_LEFT)
+            .idleMode(IdleMode.kBrake)
             .inverted(true)
             .apply();
         
-        elevatorRight = new TorqueKraken(Ports.ELEVATOR_RIGHT)
-            .idleMode(NeutralModeValue.Brake)
+        elevatorRight = new TorqueNEO(Ports.ELEVATOR_RIGHT)
+            .idleMode(IdleMode.kBrake)
             .inverted(true)
             .apply();
         
