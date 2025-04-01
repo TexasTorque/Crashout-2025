@@ -126,10 +126,14 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
     public final double getElevatorPosition() {
         if (RobotBase.isSimulation()) {
-            final double timeToAnimate = Math.abs(desiredState.position - pastState.position) / 114;
+            double desiredPosition = desiredState.position;
+            if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
+                desiredPosition = getCoralStationHeight();
+            }
+            final double timeToAnimate = Math.abs(desiredPosition - pastState.position) / 114;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
-            double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
-            if (animationMultiplier > 1) position = desiredState.position;
+            double position = ((desiredPosition - pastState.position) * animationMultiplier) + pastState.position;
+            if (animationMultiplier > 1) position = desiredPosition;
 
             if (desiredState != State.ZERO) {
                 return position;

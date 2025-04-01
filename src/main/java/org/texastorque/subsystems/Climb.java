@@ -13,6 +13,7 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.motors.TorqueNEO;
+import org.texastorque.torquelib.util.TorqueMath;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -65,10 +66,10 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         Debug.log("Climb State", desiredState.toString());
         Debug.log("Climb Position", getClimbPosition());
 
-        if (claw.getState() != Claw.State.CLIMB) {
+        if (claw.getState() != Claw.State.CLIMB && claw.getState() != Claw.State.HALF_CLIMB) {
             climb.setVolts(0);
         } else {
-            if (claw.isNearState() && claw.getState() == Claw.State.CLIMB) {
+            if (claw.isNearState() && (claw.getState() == Claw.State.CLIMB || claw.getState() == Claw.State.HALF_CLIMB)) {
                 final double CLIMB_MAX_VOLTS_OUT = 12;
                 final double CLIMB_MAX_VOLTS_IN = 8;
                 double volts = climbPID.calculate(getClimbPosition(), desiredState.position);
@@ -97,15 +98,20 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
             final double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
 
-            if (animationMultiplier > 1) return desiredState.position;
-            return position;
+            if (claw.isNearState() && (claw.getState() == Claw.State.CLIMB || claw.getState() == Claw.State.HALF_CLIMB)) {
+                if (animationMultiplier > 1) return desiredState.position;
+                return position;
+            }
+
+            pastStateTime = Timer.getFPGATimestamp();
+            return pastState.position;
         }
 
         return climb.getPosition();
     }
 
-    public boolean isSafe() {
-        return getClimbPosition() > 250;
+    public boolean isAtState() {
+        return TorqueMath.toleranced(getClimbPosition(), desiredState.getPosition(), 10);
     }
 
     public static final synchronized Climb getInstance() {

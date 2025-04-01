@@ -47,6 +47,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         PROCESSOR(80.2832),
         REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CORAL_HP(30), 
+        HALF_CLIMB(196.6699),
         CLIMB(300);
 
         private double angle;
@@ -139,6 +140,10 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 25));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
+        if (climb.getState() == Climb.State.OUT && climb.isAtState()) {
+            setState(State.CLIMB);
+        }
+
         // Apply volts
         if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
@@ -195,10 +200,14 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     public final double getShoulderAngle() {
         if (RobotBase.isSimulation()) {
-            final double timeToAnimate = Math.abs(desiredState.angle - pastState.angle) / 180;
+            double desiredAngle = desiredState.angle;
+            if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
+                desiredAngle = getCoralStationAngle();
+            }
+            final double timeToAnimate = Math.abs(desiredAngle - pastState.angle) / 180;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
-            double position = ((desiredState.angle - pastState.angle) * animationMultiplier) + pastState.angle;
-            if (animationMultiplier > 1) position = desiredState.angle;
+            double position = ((desiredAngle - pastState.angle) * animationMultiplier) + pastState.angle;
+            if (animationMultiplier > 1) position = desiredAngle;
 
             if (desiredState != State.ZERO) {
                 return position;

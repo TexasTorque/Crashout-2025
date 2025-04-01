@@ -13,7 +13,6 @@ import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Claw.AlgaeState;
 import org.texastorque.subsystems.Climb;
-import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
@@ -223,6 +222,17 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.coralSpike.reset();
             perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
         });
+        crashOut.onTrueOrFalse(() -> {
+            if (claw.getState() == Claw.State.CORAL_HP || claw.getState() == Claw.State.REGRESSION_CORAL_HP) {
+                claw.setState(Claw.State.CORAL_HP);
+                elevator.setState(Elevator.State.CORAL_HP);
+            }
+        }, () -> {
+            if (claw.getState() == Claw.State.CORAL_HP || claw.getState() == Claw.State.REGRESSION_CORAL_HP) {
+                claw.setState(Claw.State.REGRESSION_CORAL_HP);
+                elevator.setState(Elevator.State.REGRESSION_CORAL_HP);
+            }
+        });
         intakeAlgae.onTrue(() -> {
             claw.setAlgaeState(AlgaeState.INTAKE);
         });
@@ -241,12 +251,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         climbMode.onTrue(() -> {
             elevator.setState(Elevator.State.CLIMB);
-            claw.setState(Claw.State.CLIMB);
+            claw.setState(Claw.State.HALF_CLIMB);
             climb.setState(Climb.State.OUT);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
-
-        Debug.log("Crashout", crashOut.get());
     }
 
     public final void updateClimb() {

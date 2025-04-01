@@ -332,7 +332,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public double getHPDistance() { 
 		if (RobotBase.isSimulation() && currentTagPose != null)
-			return Math.sqrt(Math.pow(currentTagPose.getX() - getPose().getX(), 2) + Math.pow(currentTagPose.getY() - getPose().getY(), 2));
+			return Math.sqrt(Math.pow(currentTagPose.getX() + .15 - getPose().getX(), 2) + Math.pow(currentTagPose.getY() + .15 - getPose().getY(), 2));
 		return filteredHPDistance.calculate(canRange.getDistance().getValueAsDouble());
 	}
 

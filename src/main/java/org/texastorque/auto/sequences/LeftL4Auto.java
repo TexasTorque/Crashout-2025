@@ -9,7 +9,6 @@ package org.texastorque.auto.sequences;
 import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.Subsystems;
-import org.texastorque.auto.routines.Align;
 import org.texastorque.auto.routines.DrivePickupCoral;
 import org.texastorque.auto.routines.DriveScoreCoral;
 import org.texastorque.subsystems.Claw;
