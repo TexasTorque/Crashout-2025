@@ -17,13 +17,14 @@ import org.texastorque.Field;
 import org.texastorque.LimelightHelpers;
 import org.texastorque.LimelightHelpers.PoseEstimate;
 import org.texastorque.LimelightHelpers.RawFiducial;
+import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueStatelessSubsystem;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.control.TorqueRollingMedian;
-import org.texastorque.torquelib.sensors.TorqueNavXGyro;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
@@ -45,8 +46,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private static volatile Perception instance;
 
-	private final SwerveDrivePoseEstimator poseEstimator;
-
 	/**
 	 * Standard deviations of model states. Increase these numbers to trust your
 	 * model's state estimates less. This matrix is in the form [x, y, theta]ᵀ,
@@ -61,20 +60,16 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	 */
 	private static final Vector<N3> VISION_STDS = VecBuilder.fill(.1, .1, Units.degreesToRadians(1));
 
-	private final TorqueNavXGyro gyro = TorqueNavXGyro.getInstance();
-	private double gyro_simulated = 0;
-
+	private final TorqueRollingMedian filteredX, filteredY;
+	private final Pigeon2 gyro = new Pigeon2(Ports.GYRO);
+	private final Field2d field = new Field2d();
+	private final SwerveDrivePoseEstimator poseEstimator;
 	private AlignableTarget desiredAlignTarget = AlignableTarget.NONE;
 	private Relation relation = Relation.NONE;
-
-	// Used to filter some noise directly out of the pose measurements.
-	private final TorqueRollingMedian filteredX, filteredY;
-	private final Field2d field = new Field2d();
 	private ArrayList<TorqueFieldZone> zones;
 	private Pose2d filteredPose = new Pose2d();
-	public Pose2d currentTagPose;
-
 	private boolean isHighInvalid, isLowInvalid, shouldNotUseVision;
+	private double gyro_simulated = 0;
 	
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
@@ -112,10 +107,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			getHeading()
 		);
 
-		if (getCurrentZone() != null) {
-			currentTagPose = AprilTagList.values()[getCurrentZone().getID()-1].pose;
-		}
-
 		updateVisualization();
 
 		Logger.recordOutput("Filtered Pose", getFilteredPose());
@@ -125,7 +116,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Relation", relation.toString());
 		Debug.log("Align Target", desiredAlignTarget.toString());
-		Debug.log("Current Tag ID", getCurrentZone() != null ? currentTagPose.getRotation().toString() : "none");
 	}
 
 	@Override
@@ -138,7 +128,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		LimelightHelpers.PoseEstimate visionEstimateLow = getVisionEstimate(LIMELIGHT_LOW);
 
 		shouldNotUseVision = drivebase.getState() == Drivebase.State.PATHING
-				|| Math.abs(gyro.getRate()) > 180;
+				|| gyro.getAngularVelocityYDevice().getValueAsDouble() > Math.PI;
 
 		if (shouldNotUseVision) return;
 
@@ -265,7 +255,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		if (RobotBase.isSimulation()) {
 			return Rotation2d.fromRadians(gyro_simulated);
 		}
-		return Rotation2d.fromDegrees(gyro.getFusedHeading());
+		return Rotation2d.fromDegrees((gyro.getYaw().getValueAsDouble() + (100 * 360)) % 360);
 	}
 
 	public Pose2d getAlignPose() {
@@ -281,7 +271,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	public void resetHeading(final double offset) {
 		gyro_simulated = 0;
-		gyro.setOffsetCCW(Rotation2d.fromRadians(0));
+		gyro.setYaw(offset);
 		setPose(new Pose2d(0, 0, getHeading()));
 	}
 	
@@ -346,25 +336,22 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		final Translation2d farLeftRed = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 - 1.5);
 		final Translation2d farRightRed = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 + 1.5);
 
-		final Translation2d csLeftBackLeftBlue = new Translation2d(0, 1.194053);
-		final Translation2d csLeftBackRightBlue = new Translation2d(1.644160, 0);
-		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 3.429942);
-		final Translation2d csLeftFrontRightBlue = new Translation2d(4.345927, 0);
+		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 3.429942); // far side of line
+		final Translation2d csLeftFrontRightBlue = new Translation2d(4.345927, 0); // near side of line
+		final Translation2d csLeftBackBlue = new Translation2d(csLeftFrontLeftBlue.getX(), csLeftFrontRightBlue.getY()); 
+		// ^ out of the field to avoid zone errors
 
-		final Translation2d csRightBackLeftBlue = new Translation2d(0, 6.857747);
-		final Translation2d csRightBackRightBlue = new Translation2d(1.644160, 8.0518);
 		final Translation2d csRightFrontLeftBlue = new Translation2d(0, 4.621858);
 		final Translation2d csRightFrontRightBlue = new Translation2d(4.345927, 8.0518);
+		final Translation2d csRightBackBlue = new Translation2d(csRightFrontLeftBlue.getX(), csRightFrontRightBlue.getY());
 
-		final Translation2d csLeftBackLeftRed = new Translation2d(17.548249, 1.194053);
-		final Translation2d csLeftBackRightRed = new Translation2d(17.548249 - 1.644160, 0);
 		final Translation2d csLeftFrontLeftRed = new Translation2d(17.548249, 3.429942);
 		final Translation2d csLeftFrontRightRed = new Translation2d(17.548249 - 4.345927, 0);
+		final Translation2d csLeftBackRed = new Translation2d(csLeftFrontLeftRed.getX(), csLeftFrontRightRed.getY());
 
-		final Translation2d csRightBackLeftRed = new Translation2d(17.548249, 6.857747);
-		final Translation2d csRightBackRightRed = new Translation2d(17.548249 - 1.644160, 8.0518);
 		final Translation2d csRightFrontLeftRed = new Translation2d(17.548249, 4.621858);
 		final Translation2d csRightFrontRightRed = new Translation2d(17.548249 - 4.345927, 8.0518);
+		final Translation2d csRightBackRed = new Translation2d(csRightFrontLeftRed.getX(), csRightFrontRightRed.getY());
 
 		zones = new ArrayList<>();
 
@@ -382,11 +369,11 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
         zones.add(new TorqueFieldZone(9, centerRed, farRightRed, rightRed, centerRed));
         zones.add(new TorqueFieldZone(8, centerRed, rightRed, closeRightRed, centerRed));
 
-		zones.add(new TorqueFieldZone(12, csLeftBackLeftBlue, csLeftBackRightBlue, csLeftFrontRightBlue, csLeftFrontLeftBlue, csLeftBackLeftBlue));
-		zones.add(new TorqueFieldZone(13, csRightBackLeftBlue, csRightBackRightBlue, csRightFrontRightBlue, csRightFrontLeftBlue, csRightBackLeftBlue));
+		zones.add(new TorqueFieldZone(12, csLeftBackBlue, csLeftFrontRightBlue, csLeftFrontLeftBlue, csLeftBackBlue));
+		zones.add(new TorqueFieldZone(13, csRightBackBlue, csRightFrontRightBlue, csRightFrontLeftBlue, csRightBackBlue));
 
-		zones.add(new TorqueFieldZone(1, csLeftBackLeftRed, csLeftBackRightRed, csLeftFrontRightRed, csLeftFrontLeftRed, csLeftBackLeftRed));
-		zones.add(new TorqueFieldZone(2, csRightBackLeftRed, csRightBackRightRed, csRightFrontRightRed, csRightFrontLeftRed, csRightBackLeftRed));
+		zones.add(new TorqueFieldZone(1, csLeftBackRed, csLeftFrontRightRed, csLeftFrontLeftRed, csLeftBackRed));
+		zones.add(new TorqueFieldZone(2, csRightBackRed, csRightFrontRightRed, csRightFrontLeftRed, csRightBackRed));
 	}
 
 	public static Perception getInstance() {
