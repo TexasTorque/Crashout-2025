@@ -135,7 +135,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		int calc = gyroZero.calculate(SmartDashboard.getBoolean("Gyro Zero", false));
 		if (calc == 0 || calc == 1) {
-			resetHeading();
+			final boolean isRedAlliance = DriverStation.getAlliance().isPresent()
+                    ? DriverStation.getAlliance().get() == Alliance.Red
+                    : false;
+			resetHeading(isRedAlliance ? 0 : 180);
 		}
 
 		updateVisualization();
@@ -306,8 +309,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return desiredAlignTarget;
 	}
 
-	public void resetHeading(final double offset) {
-		gyro_simulated = 0;
+	public void resetHeading(final double offset) {		
+		gyro_simulated = offset;
 		gyro.setYaw(offset);
 		setPose(new Pose2d(0, 0, getHeading()));
 	}
