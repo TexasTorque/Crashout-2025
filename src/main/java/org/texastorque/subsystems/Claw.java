@@ -130,7 +130,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public final void update(final TorqueMode mode) {
         // Shoulder regression for HP
         double desiredAngle = desiredState.angle;
-        if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
+        if (desiredState == State.REGRESSION_CORAL_HP) {
             desiredAngle = getCoralStationAngle();
         }
 
@@ -201,7 +201,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public final double getShoulderAngle() {
         if (RobotBase.isSimulation()) {
             double desiredAngle = desiredState.angle;
-            if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
+            if (desiredState == State.REGRESSION_CORAL_HP) {
                 desiredAngle = getCoralStationAngle();
             }
             final double timeToAnimate = Math.abs(desiredAngle - pastState.angle) / 180;
