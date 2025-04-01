@@ -39,13 +39,13 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         STOW(5),
         SCORE_L1(0.8044),
         SCORE_L2(0.8044),
-        SCORE_L3(4.8713),
-        SCORE_L4(38.7693),
-        NET(36.7693),
+        SCORE_L3(10.9762),
+        SCORE_L4(92.5753),
+        NET(95.3128),
         ALGAE_REMOVAL_LOW(1.5771),
-        ALGAE_REMOVAL_HIGH(17.2666),
+        ALGAE_REMOVAL_HIGH(38.333),
         PROCESSOR(1.6765),
-        CORAL_HP(7.0032),
+        CORAL_HP(21.9285),
         CLIMB(0.8044);
 
         public double position;
@@ -71,7 +71,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             .apply();
         
         elevatorPID = new ProfiledPIDController(2, 0, 0,
-                new TrapezoidProfile.Constraints(400, 200));
+                new TrapezoidProfile.Constraints(1000, 400));
         
         elevatorPID.reset(getElevatorPosition());
     }
@@ -91,11 +91,11 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
         if (desiredState == State.ZERO) {
             elevatorLeft.setVolts(ELEVATOR_FF);
-            // elevatorRight.setVolts(ELEVATOR_FF);
+            elevatorRight.setVolts(ELEVATOR_FF);
             elevatorPID.reset(getElevatorPosition());
         } else {
             elevatorLeft.setVolts(volts + ELEVATOR_FF);
-            // elevatorRight.setVolts(volts + ELEVATOR_FF);
+            elevatorRight.setVolts(volts + ELEVATOR_FF);
         }
 
         Debug.log("Elevator Volts", volts + ELEVATOR_FF);
