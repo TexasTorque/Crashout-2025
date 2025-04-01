@@ -330,9 +330,13 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
 	}
 
-	public double getHPDistance() { 
-		if (RobotBase.isSimulation() && currentTagPose != null)
-			return Math.sqrt(Math.pow(currentTagPose.getX() + .15 - getPose().getX(), 2) + Math.pow(currentTagPose.getY() + .15 - getPose().getY(), 2));
+	public double getHPDistance() {
+		if (RobotBase.isSimulation() && currentTagPose != null) {
+			Rotation2d rotation = currentTagPose.getRotation().rotateBy(Rotation2d.fromDegrees(90));
+			Pose2d currentPose = getPose();
+
+			return Math.abs(Math.cos(rotation.getRadians()) * (currentTagPose.getY() - currentPose.getY()) - Math.sin(rotation.getRadians()) * (currentTagPose.getX() - currentPose.getX()));
+		}
 		return filteredHPDistance.calculate(canRange.getDistance().getValueAsDouble());
 	}
 

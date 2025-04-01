@@ -36,8 +36,8 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
         
         addBlock(new DrivePickupCoral("RL4_2", 1, 
             new Marker(() -> {
-                elevator.setState(State.CORAL_HP);
-                claw.setState(Claw.State.CORAL_HP);
+                elevator.setState(State.REGRESSION_CORAL_HP);
+                claw.setState(Claw.State.REGRESSION_CORAL_HP);
             }, 0.2)
         ).command());
 
@@ -50,8 +50,8 @@ public class RightL4Auto extends TorqueSequence implements Subsystems {
 
         addBlock(new DrivePickupCoral("RL4_4", 1, 
             new Marker(() -> {
-                elevator.setState(State.CORAL_HP);
-                claw.setState(Claw.State.CORAL_HP);
+                elevator.setState(State.REGRESSION_CORAL_HP);
+                claw.setState(Claw.State.REGRESSION_CORAL_HP);
             }, 0.2)
         ).command());
 

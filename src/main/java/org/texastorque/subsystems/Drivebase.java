@@ -118,11 +118,11 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     @Override
     public final void update(final TorqueMode mode) {
         if (alignPoseOverride != null && wantsState(State.ALIGN)) {
-            runAlignment(alignPoseOverride);
+            runAlignment(alignPoseOverride, false);
         } else if (wantsState(State.ALIGN)) {
             final Pose2d alignPose = perception.getAlignPose();
             if (alignPose != null) {
-                runAlignment(alignPose);
+                runAlignment(alignPose, true);
             }
         }
 
@@ -181,13 +181,13 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         }
     }
 
-    public void runAlignment(final Pose2d pose) {
+    public void runAlignment(final Pose2d pose, final boolean sidewaysFirst) {
         if (isAligned()) {
             setInputSpeeds(new TorqueSwerveSpeeds());
             return;
         }
 
-        inputSpeeds = alignController.calculate(getPose(), pose);
+        inputSpeeds = alignController.calculate(getPose(), pose, sidewaysFirst);
 
         if (perception.getDesiredAlignTarget() == AlignableTarget.L4) {
             inputSpeeds.vxMetersPerSecond = TorqueMath.constrain(inputSpeeds.vxMetersPerSecond, MAX_ALIGN_VELOCITY_SLOW);
