@@ -37,7 +37,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
                           // deployed at so the elevator doesn't try to go to the ZERO position @ startup
         MANUAL(0), // Also not a setpoint!! Gets set to whatever we manually control it to
         STOW(5),
-        SCORE_L1(0.8044),
+        SCORE_L1(1.044),
         SCORE_L2(0.8044),
         SCORE_L3(4.8713),
         SCORE_L4(38.7693),

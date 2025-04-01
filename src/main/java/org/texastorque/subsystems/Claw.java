@@ -38,7 +38,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(51.2793),
-        SCORE_L1(15),
+        SCORE_L1(20),
         SCORE_L2(196.6699),
         SCORE_L3(175),
         SCORE_L4(215.0977),
