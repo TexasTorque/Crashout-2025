@@ -33,7 +33,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
     public static enum State implements TorqueState {
         STOWED(0),
         OUT(285.8833),
-        IN(130);
+        IN(125);
 
         public double position;
 
