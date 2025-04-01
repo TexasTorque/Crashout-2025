@@ -366,25 +366,22 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		final Translation2d farLeftRed = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 - 1.5);
 		final Translation2d farRightRed = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 + 1.5);
 
-		final Translation2d csLeftBackLeftBlue = new Translation2d(0, 1.194053);
-		final Translation2d csLeftBackRightBlue = new Translation2d(1.644160, 0);
-		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 3.429942);
-		final Translation2d csLeftFrontRightBlue = new Translation2d(4.345927, 0);
+		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 3.429942); // far side of line
+		final Translation2d csLeftFrontRightBlue = new Translation2d(4.345927, 0); // near side of line
+		final Translation2d csLeftBackBlue = new Translation2d(csLeftFrontLeftBlue.getX(), csLeftFrontRightBlue.getY()); 
+		// ^ out of the field to avoid zone errors
 
-		final Translation2d csRightBackLeftBlue = new Translation2d(0, 6.857747);
-		final Translation2d csRightBackRightBlue = new Translation2d(1.644160, 8.0518);
 		final Translation2d csRightFrontLeftBlue = new Translation2d(0, 4.621858);
 		final Translation2d csRightFrontRightBlue = new Translation2d(4.345927, 8.0518);
+		final Translation2d csRightBackBlue = new Translation2d(csRightFrontLeftBlue.getX(), csRightFrontRightBlue.getY());
 
-		final Translation2d csLeftBackLeftRed = new Translation2d(17.548249, 1.194053);
-		final Translation2d csLeftBackRightRed = new Translation2d(17.548249 - 1.644160, 0);
 		final Translation2d csLeftFrontLeftRed = new Translation2d(17.548249, 3.429942);
 		final Translation2d csLeftFrontRightRed = new Translation2d(17.548249 - 4.345927, 0);
+		final Translation2d csLeftBackRed = new Translation2d(csLeftFrontLeftRed.getX(), csLeftFrontRightRed.getY());
 
-		final Translation2d csRightBackLeftRed = new Translation2d(17.548249, 6.857747);
-		final Translation2d csRightBackRightRed = new Translation2d(17.548249 - 1.644160, 8.0518);
 		final Translation2d csRightFrontLeftRed = new Translation2d(17.548249, 4.621858);
 		final Translation2d csRightFrontRightRed = new Translation2d(17.548249 - 4.345927, 8.0518);
+		final Translation2d csRightBackRed = new Translation2d(csRightFrontLeftRed.getX(), csRightFrontRightRed.getY());
 
 		zones = new ArrayList<>();
 
@@ -402,11 +399,11 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
         zones.add(new TorqueFieldZone(9, centerRed, farRightRed, rightRed, centerRed));
         zones.add(new TorqueFieldZone(8, centerRed, rightRed, closeRightRed, centerRed));
 
-		zones.add(new TorqueFieldZone(12, csLeftBackLeftBlue, csLeftBackRightBlue, csLeftFrontRightBlue, csLeftFrontLeftBlue, csLeftBackLeftBlue));
-		zones.add(new TorqueFieldZone(13, csRightBackLeftBlue, csRightBackRightBlue, csRightFrontRightBlue, csRightFrontLeftBlue, csRightBackLeftBlue));
+		zones.add(new TorqueFieldZone(12, csLeftBackBlue, csLeftFrontRightBlue, csLeftFrontLeftBlue, csLeftBackBlue));
+		zones.add(new TorqueFieldZone(13, csRightBackBlue, csRightFrontRightBlue, csRightFrontLeftBlue, csRightBackBlue));
 
-		zones.add(new TorqueFieldZone(1, csLeftBackLeftRed, csLeftBackRightRed, csLeftFrontRightRed, csLeftFrontLeftRed, csLeftBackLeftRed));
-		zones.add(new TorqueFieldZone(2, csRightBackLeftRed, csRightBackRightRed, csRightFrontRightRed, csRightFrontLeftRed, csRightBackLeftRed));
+		zones.add(new TorqueFieldZone(1, csLeftBackRed, csLeftFrontRightRed, csLeftFrontLeftRed, csLeftBackRed));
+		zones.add(new TorqueFieldZone(2, csRightBackRed, csRightFrontRightRed, csRightFrontLeftRed, csRightBackRed));
 	}
 
 	public static Perception getInstance() {

@@ -90,7 +90,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public final void update(final TorqueMode mode) {
         final double ELEVATOR_MAX_VOLTS = 10;
         double desiredPosition = desiredState.position;
-        if (desiredState == State.REGRESSION_CORAL_HP) {
+        if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
             desiredPosition = getCoralStationHeight();
         }
         double volts = elevatorPID.calculate(getElevatorPosition(), desiredPosition);
@@ -127,7 +127,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     public final double getElevatorPosition() {
         if (RobotBase.isSimulation()) {
             double desiredPosition = desiredState.position;
-            if (desiredState == State.REGRESSION_CORAL_HP) {
+            if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
                 desiredPosition = getCoralStationHeight();
             }
             final double timeToAnimate = Math.abs(desiredPosition - pastState.position) / 114;
