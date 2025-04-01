@@ -102,8 +102,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
             .apply();
 
         shoulderEncoder = new CANcoder(Ports.SHOULDER_ENCODER);
-        shoulderPID = new ProfiledPIDController(.3, 0, 0,
-                new TrapezoidProfile.Constraints(2000, 1000));
+        shoulderPID = new ProfiledPIDController(.1, 0, 0,
+                new TrapezoidProfile.Constraints(2500, 900));
 
         algaeRollers = new TorqueNEO(Ports.ROLLERS_ALGAE)
             .apply();
@@ -135,7 +135,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         }
 
         // Calculate volts for current setpoint
-        final double SHOULDER_MAX_VOLTS = 12;
+        final double SHOULDER_MAX_VOLTS = 10;
         double volts = shoulderPID.calculate(getShoulderAngle(), desiredAngle);
         final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 25));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
