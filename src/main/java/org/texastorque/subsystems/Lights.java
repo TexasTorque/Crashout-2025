@@ -88,7 +88,8 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
             yellow = new Solid(() -> Color.kYellow),
             white = new Solid(() -> Color.kWhite),
             blinkGreen = new Blink(() -> Color.kGreen, HERTZ),
-            rainbow = new Rainbow();
+            rainbow = new Rainbow(),
+            pink = new Solid(() -> Color.kHotPink);
 
     private Lights() {
         lights = new ArrayList<>();
@@ -129,7 +130,7 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
         if (elevator.getState() == Elevator.State.CLIMB) return rainbow;
         if (DriverStation.isDisabled()) return white;
         if (perception.seesTag()) return green;
-        if (claw.hasCoral()) return yellow;
+        if (claw.hasCoral()) return pink;
 
         return alliance;
     }
