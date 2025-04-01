@@ -71,7 +71,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
             .apply();
         
         elevatorPID = new ProfiledPIDController(2, 0, 0,
-                new TrapezoidProfile.Constraints(1000, 400));
+                new TrapezoidProfile.Constraints(, 400));
         
         elevatorPID.reset(getElevatorPosition());
     }
