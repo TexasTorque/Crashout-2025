@@ -38,7 +38,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(51.2793),
-        SCORE_L1(20),
+        SCORE_L1(25),
         SCORE_L2(196.6699),
         SCORE_L3(175),
         SCORE_L4(215.0977),
@@ -48,7 +48,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CORAL_HP(30), 
         HALF_CLIMB(196.6699),
-        CLIMB(256);
+        CLIMB(296);
 
         private double angle;
 
@@ -76,7 +76,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum CoralState implements TorqueState {
-        INTAKE(-4), SHOOT(6), SHOOT_SLOW(4), OFF(-1);
+        INTAKE(-4), SHOOT(12), SHOOT_SLOW(4), OFF(-1);
 
         private final double volts;
 

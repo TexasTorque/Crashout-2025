@@ -22,8 +22,13 @@ import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueStatelessSubsystem;
+import org.texastorque.torquelib.control.TorqueBoolSupplier;
+import org.texastorque.torquelib.control.TorqueClick;
+import org.texastorque.torquelib.control.TorqueClickSupplier;
+import org.texastorque.torquelib.control.TorqueControl;
 import org.texastorque.torquelib.control.TorqueFieldZone;
 import org.texastorque.torquelib.control.TorqueRollingMedian;
+import org.texastorque.torquelib.control.TorqueToggleSupplier;
 
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -44,6 +49,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private static volatile Perception instance;
@@ -75,6 +81,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private double gyro_simulated = 0;
 	public boolean useDistance;
 	public Pose2d currentTagPose;
+
+	private TorqueControl gyroZero = new TorqueControl();
 	
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
@@ -91,6 +99,10 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.field("Field", field);
 
 		createZones();
+
+		SmartDashboard.putBoolean("Gyro Zero", false);
+
+		// FALSE IS 0 - TRUE IS 180, 0 IS RED - 180 IS BLUE, FLIPPED BC AUTO RUNS THE OTHER WAY
 	}
 
 	final String LIMELIGHT_HIGH = "limelight-high";
@@ -119,6 +131,11 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		if (getCurrentZone() != null) {
 			currentTagPose = AprilTagList.values()[getCurrentZone().getID()-1].pose;
+		}
+
+		int calc = gyroZero.calculate(SmartDashboard.getBoolean("Gyro Zero", false));
+		if (calc == 0 || calc == 1) {
+			resetHeading();
 		}
 
 		updateVisualization();
