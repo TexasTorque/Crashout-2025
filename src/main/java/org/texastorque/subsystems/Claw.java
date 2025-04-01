@@ -48,7 +48,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CORAL_HP(30), 
         HALF_CLIMB(196.6699),
-        CLIMB(300);
+        CLIMB(256);
 
         private double angle;
 
