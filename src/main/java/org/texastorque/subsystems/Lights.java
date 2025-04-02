@@ -85,7 +85,6 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
 
     private LightAction alliance = new Solid(() -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red ? Color.kRed : Color.kBlue),
             green = new Solid(() -> Color.kGreen),
-            yellow = new Solid(() -> Color.kYellow),
             white = new Solid(() -> Color.kWhite),
             blinkGreen = new Blink(() -> Color.kGreen, HERTZ),
             rainbow = new Rainbow(),

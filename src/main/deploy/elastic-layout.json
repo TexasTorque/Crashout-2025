@@ -10,14 +10,14 @@
           {
             "title": "limelight-high",
             "x": 0.0,
-            "y": 128.0,
-            "width": 384.0,
-            "height": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 384.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight-high",
               "period": 0.06,
-              "rotation_turns": 0
+              "rotation_turns": 3
             }
           },
           {
@@ -101,8 +101,8 @@
           },
           {
             "title": "Has Coral",
-            "x": 128.0,
-            "y": 0.0,
+            "x": 256.0,
+            "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -118,8 +118,8 @@
           },
           {
             "title": "Is Aligned",
-            "x": 0.0,
-            "y": 0.0,
+            "x": 256.0,
+            "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -150,7 +150,7 @@
             "title": "Gyro Angle",
             "x": 0.0,
             "y": 640.0,
-            "width": 384.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -158,6 +158,19 @@
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
+            }
+          },
+          {
+            "title": "Gyro Zero",
+            "x": 256.0,
+            "y": 640.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/SmartDashboard/Gyro Zero",
+              "period": 0.06,
+              "data_type": "boolean"
             }
           }
         ]
@@ -451,20 +464,6 @@
               "true_icon": "None",
               "false_icon": "None"
             }
-          },
-          {
-            "title": "Distance to Align",
-            "x": 512.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Drivebase/Distance to Align",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
           }
         ]
       }
@@ -750,6 +749,20 @@
               "data_type": "double",
               "show_submit_button": false
             }
+          },
+          {
+            "title": "Elevator Setpoint",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Elevator/Elevator Setpoint",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
           }
         ]
       }
@@ -873,6 +886,7 @@
             "properties": {
               "topic": "/Shuffleboard/Claw/Shoulder Volts",
               "period": 0.06,
+              "data_type": "double",
               "show_submit_button": false
             }
           }
