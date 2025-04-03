@@ -146,7 +146,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     public double getCoralStationHeight() {
-        double height = -40.92593 * perception.getHPDistance() + 11.91431;
+        double height = -63.09278 * perception.getHPDistance() + 14.95289;
         if (height > 7.0032) height = 7.0032;
         if (height < 0.8832) height = 0.8832;
         return height;

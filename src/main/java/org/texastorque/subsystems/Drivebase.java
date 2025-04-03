@@ -79,6 +79,9 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
 
     final double IDEAL_HP_DISTANCE = .05;
 
+    // CANRANGE AGAINST IS .126
+    // CANRANGE 1 CORAL IS .223
+
     private Drivebase() {
         super(State.FIELD_RELATIVE);
 
