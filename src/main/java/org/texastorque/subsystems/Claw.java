@@ -140,10 +140,6 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 25));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
-        if (climb.getState() == Climb.State.OUT && climb.isAtState()) {
-            setState(State.CLIMB);
-        }
-
         // Apply volts
         if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);

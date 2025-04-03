@@ -13,50 +13,43 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.motors.TorqueNEO;
-import org.texastorque.torquelib.util.TorqueMath;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.Timer;
 
 public final class Climb extends TorqueStatorSubsystem<Climb.State> implements Subsystems {
 
     private static volatile Climb instance;
     private final TorqueNEO climb;
-    private final PIDController climbPID;
+    // private final PIDController climbPID;
 
     public State pastState;
-    private double pastStateTime;
+    // private double pastStateTime;
 
     public static enum State implements TorqueState {
-        STOWED(0),
-        OUT(285.8833),
-        IN(125);
+        OFF(0),
+        OUT(9),
+        IN(-8);
 
-        public double position;
+        public double volts;
 
-        private State(double position) {
-            this.position = position;
+        private State(double volts) {
+            this.volts = volts;
         }
 
-        public double getPosition() {
-            return position;
+        public double getVolts() {
+            return volts;
         }
     }
 
     private Climb() {
-        super(State.STOWED);
-        pastState = State.STOWED;
-        pastStateTime = Timer.getFPGATimestamp();
+        super(State.OFF);
+        pastState = State.OFF;
+        // pastStateTime = Timer.getFPGATimestamp();
 
         climb = new TorqueNEO(Ports.CLIMB)
                 .idleMode(IdleMode.kBrake)
                 .apply();
-        
-        climbPID = new PIDController(1, 0, 0);
-    }
+        }
 
     @Override
     public final void initialize(final TorqueMode mode) {}
@@ -69,50 +62,46 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         if (claw.getState() != Claw.State.CLIMB && claw.getState() != Claw.State.HALF_CLIMB) {
             climb.setVolts(0);
         } else {
-            if (claw.isNearState() && (claw.getState() == Claw.State.CLIMB || claw.getState() == Claw.State.HALF_CLIMB)) {
-                final double CLIMB_MAX_VOLTS_OUT = 9;
-                final double CLIMB_MAX_VOLTS_IN = 8;
-                double volts = climbPID.calculate(getClimbPosition(), desiredState.position);
-                if (volts > CLIMB_MAX_VOLTS_OUT) volts = CLIMB_MAX_VOLTS_OUT;
-                if (volts < -CLIMB_MAX_VOLTS_IN) volts = -CLIMB_MAX_VOLTS_IN;
-                
-                climb.setVolts(volts);
-            } else {
+            if (getClimbPosition() > 285.8833 && desiredState == State.OUT) {
                 climb.setVolts(0);
+            } else {
+                climb.setVolts(desiredState.volts);
             }
         }
     }
 
     @Override
-    public final void clean(final TorqueMode mode) {}
+    public final void clean(final TorqueMode mode) {
+        desiredState = State.OFF;
+    }
 
     @Override
     public void onStateChange(final State lastState) {
-        pastStateTime = Timer.getFPGATimestamp();
+        // pastStateTime = Timer.getFPGATimestamp();
         pastState = lastState;
     }
 
     public double getClimbPosition() {
-        if (RobotBase.isSimulation()) {
-            final double timeToAnimate = Math.abs(desiredState.position - pastState.position) / 120;
-            final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
-            final double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
+        // if (RobotBase.isSimulation()) {
+        //     final double timeToAnimate = Math.abs(desiredState.position - pastState.position) / 120;
+        //     final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
+        //     final double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
 
-            if (claw.isNearState() && (claw.getState() == Claw.State.CLIMB || claw.getState() == Claw.State.HALF_CLIMB)) {
-                if (animationMultiplier > 1) return desiredState.position;
-                return position;
-            }
+        //     if (claw.isNearState() && (claw.getState() == Claw.State.CLIMB || claw.getState() == Claw.State.HALF_CLIMB)) {
+        //         if (animationMultiplier > 1) return desiredState.position;
+        //         return position;
+        //     }
 
-            pastStateTime = Timer.getFPGATimestamp();
-            return pastState.position;
-        }
+        //     pastStateTime = Timer.getFPGATimestamp();
+        //     return pastState.position;
+        // }
 
         return climb.getPosition();
     }
 
-    public boolean isAtState() {
-        return TorqueMath.toleranced(getClimbPosition(), desiredState.getPosition(), 10);
-    }
+    // public boolean isAtState() {
+    //     return TorqueMath.toleranced(getClimbPosition(), desiredState.getPosition(), 10);
+    // }
 
     public static final synchronized Climb getInstance() {
         return instance == null ? instance = new Climb() : instance;

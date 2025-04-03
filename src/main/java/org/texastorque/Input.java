@@ -51,7 +51,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
-        crashOut = new TorqueToggleSupplier(driver::isDPADUpDown);
+        crashOut = new TorqueToggleSupplier(driver::isRightBumperDown);
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         alignToHP = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.useDistance);
@@ -251,7 +251,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         climbMode.onTrue(() -> {
             elevator.setState(Elevator.State.CLIMB);
-            claw.setState(Claw.State.HALF_CLIMB);
+            claw.setState(Claw.State.CLIMB);
             climb.setState(Climb.State.OUT);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
