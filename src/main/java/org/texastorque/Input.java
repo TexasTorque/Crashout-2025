@@ -32,13 +32,12 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final double CONTROLLER_DEADBAND = 0.1;
     private final TorqueRequestableTimeout driverRumble, operatorRumble;
     private final TorqueClickSupplier slowInitial, endgameClick, manualElevatorInitial;
-    private final TorqueToggleSupplier crashOut;
     private final TorqueBoolSupplier resetGyro, align, alignToHP, slow, stow,
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
-            climbMode, goToSelected;
+            climbMode, goToSelected, crashout;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -51,7 +50,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
-        crashOut = new TorqueToggleSupplier(driver::isRightBumperDown);
+        crashout = new TorqueBoolSupplier(driver::isRightBumperDown);
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
         intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         alignToHP = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.useDistance);
@@ -211,27 +210,18 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
         intakeCoral.onTrue(() -> {
-            if (!crashOut.get()) {
-                elevator.setState(Elevator.State.REGRESSION_CORAL_HP);
-                claw.setState(Claw.State.REGRESSION_CORAL_HP);
-            } else {
-                elevator.setState(Elevator.State.CORAL_HP);
-                claw.setState(Claw.State.CORAL_HP);
-            }
+            elevator.setState(Elevator.State.REGRESSION_CORAL_HP);
+            claw.setState(Claw.State.REGRESSION_CORAL_HP);
             claw.setCoralState(Claw.CoralState.INTAKE);
             claw.coralSpike.reset();
             perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
         });
-        crashOut.onTrueOrFalse(() -> {
-            if (claw.getState() == Claw.State.CORAL_HP || claw.getState() == Claw.State.REGRESSION_CORAL_HP) {
-                claw.setState(Claw.State.CORAL_HP);
-                elevator.setState(Elevator.State.CORAL_HP);
-            }
-        }, () -> {
-            if (claw.getState() == Claw.State.CORAL_HP || claw.getState() == Claw.State.REGRESSION_CORAL_HP) {
-                claw.setState(Claw.State.REGRESSION_CORAL_HP);
-                elevator.setState(Elevator.State.REGRESSION_CORAL_HP);
-            }
+        crashout.onTrue(() -> {
+            elevator.setState(Elevator.State.CORAL_HP);
+            claw.setState(Claw.State.CORAL_HP);
+            claw.setCoralState(Claw.CoralState.INTAKE);
+            claw.coralSpike.reset();
+            perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
         });
         intakeAlgae.onTrue(() -> {
             claw.setAlgaeState(AlgaeState.INTAKE);
