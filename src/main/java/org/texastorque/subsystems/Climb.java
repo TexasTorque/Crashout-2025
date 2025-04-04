@@ -16,14 +16,13 @@ import org.texastorque.torquelib.motors.TorqueNEO;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.wpilibj.RobotBase;
+
 public final class Climb extends TorqueStatorSubsystem<Climb.State> implements Subsystems {
 
     private static volatile Climb instance;
     private final TorqueNEO climb;
-    // private final PIDController climbPID;
-
-    public State pastState;
-    // private double pastStateTime;
+    private double simulatedClimbPosition;
 
     public static enum State implements TorqueState {
         OFF(0),
@@ -43,8 +42,6 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
 
     private Climb() {
         super(State.OFF);
-        pastState = State.OFF;
-        // pastStateTime = Timer.getFPGATimestamp();
 
         climb = new TorqueNEO(Ports.CLIMB)
                 .idleMode(IdleMode.kBrake)
@@ -64,8 +61,11 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         } else {
             if (getClimbPosition() > 285.8833 && desiredState == State.OUT) {
                 climb.setVolts(0);
+            } else if (getClimbPosition() < 120 && desiredState == State.IN) {
+                climb.setVolts(0);
             } else {
                 climb.setVolts(desiredState.volts);
+                simulatedClimbPosition += desiredState.volts;
             }
         }
     }
@@ -75,33 +75,13 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         desiredState = State.OFF;
     }
 
-    @Override
-    public void onStateChange(final State lastState) {
-        // pastStateTime = Timer.getFPGATimestamp();
-        pastState = lastState;
-    }
-
     public double getClimbPosition() {
-        // if (RobotBase.isSimulation()) {
-        //     final double timeToAnimate = Math.abs(desiredState.position - pastState.position) / 120;
-        //     final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
-        //     final double position = ((desiredState.position - pastState.position) * animationMultiplier) + pastState.position;
-
-        //     if (claw.isNearState() && (claw.getState() == Claw.State.CLIMB || claw.getState() == Claw.State.HALF_CLIMB)) {
-        //         if (animationMultiplier > 1) return desiredState.position;
-        //         return position;
-        //     }
-
-        //     pastStateTime = Timer.getFPGATimestamp();
-        //     return pastState.position;
-        // }
+        if (RobotBase.isSimulation()) {
+            return simulatedClimbPosition;
+        }
 
         return climb.getPosition();
     }
-
-    // public boolean isAtState() {
-    //     return TorqueMath.toleranced(getClimbPosition(), desiredState.getPosition(), 10);
-    // }
 
     public static final synchronized Climb getInstance() {
         return instance == null ? instance = new Climb() : instance;
