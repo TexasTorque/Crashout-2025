@@ -26,7 +26,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
 
     public static enum State implements TorqueState {
         OFF(0),
-        OUT(9),
+        OUT(8),
         IN(-8);
 
         public double volts;
@@ -59,9 +59,9 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         if (claw.getState() != Claw.State.CLIMB && claw.getState() != Claw.State.HALF_CLIMB) {
             climb.setVolts(0);
         } else {
-            if (getClimbPosition() > 285.8833 && desiredState == State.OUT) {
+            if (getClimbPosition() > 279.0271 && desiredState == State.OUT) {
                 climb.setVolts(0);
-            } else if (getClimbPosition() < 120 && desiredState == State.IN) {
+            } else if (getClimbPosition() < 110 && desiredState == State.IN) {
                 climb.setVolts(0);
             } else {
                 climb.setVolts(desiredState.volts);
