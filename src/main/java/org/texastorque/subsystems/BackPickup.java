@@ -6,6 +6,7 @@
  */
 package org.texastorque.subsystems;
 
+import org.texastorque.Input;
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
 import org.texastorque.torquelib.Debug;
@@ -19,12 +20,14 @@ import edu.wpi.first.math.controller.PIDController;
 public final class BackPickup extends TorqueStatorSubsystem<BackPickup.State> implements Subsystems {
 
     private static volatile BackPickup instance;
-    private final TorqueNEO backPickup;
+    private final TorqueNEO backPickup, backRollers;
     private PIDController backPID;
+    private RollerState rollerState = RollerState.OFF;
 
     public static enum State implements TorqueState {
-        ZERO(69),
-        INTAKE(420);
+        UP(0.092),
+        SHOOT(1.0952),
+        INTAKE(4);
 
         private double angle;
 
@@ -38,7 +41,7 @@ public final class BackPickup extends TorqueStatorSubsystem<BackPickup.State> im
     }
 
     public static enum RollerState implements TorqueState {
-        INTAKE(-5), OUTTAKE(5), OFF(0);
+        INTAKE(-5), OUTTAKE(2), OFF(0);
 
         private final double volts;
 
@@ -52,8 +55,9 @@ public final class BackPickup extends TorqueStatorSubsystem<BackPickup.State> im
     }
 
     private BackPickup() {
-        super(State.ZERO);
+        super(State.UP);
         backPickup = new TorqueNEO(Ports.BACKPICKUP);
+        backRollers = new TorqueNEO(Ports.BACKPICKUP_ROLLERS);
         backPID = new PIDController(1, 0, 0);
     }
 
@@ -63,19 +67,37 @@ public final class BackPickup extends TorqueStatorSubsystem<BackPickup.State> im
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Back Pickup", getBackPickupPosition());
-     
+
+        // if(Input.getInstance().isBackIntaking()) {
+        //     setState(State.INTAKE);
+        //     setBackRollerState(RollerState.INTAKE);
+        // }else {
+        //     setState(State.ZERO);
+        //     setBackRollerState(RollerState.OFF);
+        // }
+
+        // if(Input.getInstance().isShootBackCoral()) {
+        //     setBackRollerState(RollerState.OUTTAKE);
+        // }
 
         double volts = backPID.calculate(getBackPickupPosition(), getState().getAngle());
         backPickup.setVolts(volts);
+        backRollers.setVolts(rollerState.getVolts());
+        
     }
 
 	@Override
     public final void clean(final TorqueMode mode) {
-
+        desiredState = State.UP;
+        rollerState = RollerState.OFF;
     }
 
     @Override
     public void onStateChange(final State lastState) {}
+
+    public void setBackRollerState(final RollerState state) {
+        rollerState = state;
+    }
 
 
     public double getBackPickupPosition() {

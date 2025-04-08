@@ -8,11 +8,13 @@ package org.texastorque;
 
 import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
+import org.texastorque.subsystems.BackPickup;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Claw.AlgaeState;
 import org.texastorque.subsystems.Intake;
+import org.texastorque.subsystems.BackPickup.RollerState;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
@@ -21,6 +23,7 @@ import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
+import edu.wpi.first.util.sendable.SendableBuilder.BackendKind;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -35,7 +38,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             manualElevatorUp, manualElevatorDown, intakeCoral, intakeAlgae,
-            outtakeCoral, outtakeAlgae, goToSelected, groundIntake;
+            outtakeCoral, outtakeAlgae, goToSelected, groundIntake, backIntake, backOuttake, shootLow;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -82,6 +85,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
+
+        backIntake = new TorqueBoolSupplier(driver::isDPADLeftDown);
+        backOuttake = new TorqueBoolSupplier(driver::isDPADRightDown);
+        shootLow = new TorqueBoolSupplier(driver::isDPADUpDown);
     }
 
     @Override
@@ -220,7 +227,26 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setCoralState(Claw.CoralState.INTAKE);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
+        backIntake.onTrue(() -> {
+            backPickup.setState(BackPickup.State.INTAKE);
+            backPickup.setBackRollerState(RollerState.INTAKE);
+        });
+        backOuttake.onTrue(() -> {
+            backPickup.setState(BackPickup.State.UP);
+        });
+        shootLow.onTrue(() -> {
+            backPickup.setState(BackPickup.State.SHOOT);
+            backPickup.setBackRollerState(RollerState.OUTTAKE);
+        });
     }
+
+    // public boolean isBackIntaking () {
+    //     return backIntake.get();
+    // }
+
+    // public boolean isShootBackCoral () {
+    //     return shootLow.get();
+    // }
 
     public final boolean isDebugMode() {
         return false;

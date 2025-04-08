@@ -8,6 +8,7 @@ package org.texastorque.subsystems;
 
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
+import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
@@ -27,8 +28,8 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
     public static enum State implements TorqueState {
         INTAKE(0),
-        SCORE_L1(15),
-        HANDOFF(90),
+        SCORE_L1(740.7592),
+        HANDOFF(1108.3506),
         ZERO(69);
 
         private double angle;
@@ -73,6 +74,7 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
     @Override
     public final void update(final TorqueMode mode) {
+        Debug.log("Ground Intake", getPivotAngle());
         double volts = intakePID.calculate(getPivotAngle(), desiredState.angle); 
 
         // if(desiredState == State.INTAKE && claw.isAtState()) {
@@ -81,8 +83,8 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
         //     setState(State.ZERO);
         // }
 
-        rollers.setVolts(rollerState.getVolts());
-        pivot.setVolts(volts);
+        // rollers.setVolts(rollerState.getVolts());
+        // pivot.setVolts(volts);
     }
 
 	@Override
