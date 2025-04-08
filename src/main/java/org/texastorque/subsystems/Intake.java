@@ -21,7 +21,7 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
     private static volatile Intake instance;
     private final TorqueNEO pivot, rollers;
-    public final DigitalInput breakBeam;
+    // public final DigitalInput breakBeam;
     private RollerState rollerState = RollerState.OFF;
     private final PIDController intakePID;
 
@@ -59,17 +59,13 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
     private Intake() {
         super(State.ZERO);
 
-        pivot = new TorqueNEO(Ports.INTAKE_PIVOT)
-            .idleMode(IdleMode.kBrake)
-            .apply();
+        pivot = new TorqueNEO(Ports.INTAKE_PIVOT);
 
         intakePID = new PIDController(.5, 0, 0);
 
-        rollers = new TorqueNEO(Ports.INTAKE_ROLLERS)
-            .idleMode(IdleMode.kBrake)
-            .apply();
+        rollers = new TorqueNEO(Ports.INTAKE_ROLLERS);
 
-        breakBeam = new DigitalInput(Ports.INTAKE_BREAK_BEAM);
+        // breakBeam = new DigitalInput(Ports.INTAKE_BREAK_BEAM);
     }
 
     @Override
@@ -79,11 +75,11 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
     public final void update(final TorqueMode mode) {
         double volts = intakePID.calculate(getPivotAngle(), desiredState.angle); 
 
-        if(desiredState == State.INTAKE && claw.isAtState()) {
-            claw.setState(Claw.State.HANDOFF);
-        }else if(!isIntaking()){
-            setState(State.ZERO);
-        }
+        // if(desiredState == State.INTAKE && claw.isAtState()) {
+        //     claw.setState(Claw.State.HANDOFF);
+        // }else if(!isIntaking()){
+        //     setState(State.ZERO);
+        // }
 
         rollers.setVolts(rollerState.getVolts());
         pivot.setVolts(volts);
@@ -91,9 +87,9 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
 	@Override
     public final void clean(final TorqueMode mode) {
-        if (mode.isTeleop()) {
-            rollerState = rollerState.INTAKE;
-        }
+        // if (mode.isTeleop()) {
+        //     rollerState = rollerState.INTAKE;
+        // }
     }
 
     @Override
@@ -107,9 +103,9 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
         return pivot.getPosition();
     }
 
-    public boolean hasCoral() {
-        return breakBeam.get();
-    }
+    // public boolean hasCoral() {
+    //     return breakBeam.get();
+    // }
 
     public boolean isIntaking() {
         return wantsState(State.INTAKE);
