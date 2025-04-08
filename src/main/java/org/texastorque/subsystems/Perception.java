@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private static volatile Perception instance;
@@ -74,6 +75,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Perception() {
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_HIGH, -0.152, -0.135, 0.747 + .046, 0, 45, 180);
 		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_LOW, 0.0916686, 0.127, 0.164267, 0, 25, 0);
+		LimelightHelpers.setCameraPose_RobotSpace(LIMELIGHT_INTAKE, gyro_simulated, gyro_simulated, gyro_simulated, gyro_simulated, gyro_simulated, gyro_simulated);
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
 
@@ -87,6 +89,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	final String LIMELIGHT_HIGH = "limelight-high";
 	final String LIMELIGHT_LOW = "limelight-low";
+	final String LIMELIGHT_INTAKE = "limelight-intake";
 
 	@Override
 	public void initialize(TorqueMode mode) {}
@@ -263,6 +266,23 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			return Field.getInstance().getAlignPose(filteredPose, AlignableTarget.of(elevator.getSelectedState()), relation);
 		}
 		return Field.getInstance().getAlignPose(filteredPose, desiredAlignTarget, relation);
+	}
+
+	// public Pose2d getCoralAlignPose() {
+	// 	double rotation = LimelightHelpers.getTX(LIMELIGHT_INTAKE);
+	// 	double forward = LimelightHelpers.getTY(LIMELIGHT_INTAKE);
+
+	// 	Pose2d targetPose = new Pose2d(
+	// 		forwardPosition.getX() + alignPosition.getRight() * Math.cos(tagPose.getRotation().getRadians() + Math.toRadians(90)),
+	// 		forwardPosition.getY() + alignPosition.getRight() * Math.sin(tagPose.getRotation().getRadians() + Math.toRadians(90)),
+	// 		forwardPosition.getRotation().rotateBy(alignPosition.getPlacement() == Placement.CORAL_STATION  || alignableTarget == AlignableTarget.L1 ? new Rotation2d() : Rotation2d.fromDegrees(180))
+	// 	);
+
+	// 	return targetPose;
+	// }
+
+	public boolean seesCoral() {
+		return LimelightHelpers.getTV(LIMELIGHT_INTAKE);
 	}
 
 	public AlignableTarget getDesiredAlignTarget() {

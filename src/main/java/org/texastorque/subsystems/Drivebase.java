@@ -44,6 +44,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         ALIGN(FIELD_RELATIVE),
         SLOW(FIELD_RELATIVE),
         PATHING(null),
+        CORAL_ALIGN(FIELD_RELATIVE),
         HP_ALIGN(FIELD_RELATIVE);
 
         public final State parent;
