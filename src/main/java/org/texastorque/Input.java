@@ -12,6 +12,7 @@ import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Claw.AlgaeState;
+import org.texastorque.subsystems.Intake;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
@@ -34,7 +35,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             manualElevatorUp, manualElevatorDown, intakeCoral, intakeAlgae,
-            outtakeCoral, outtakeAlgae, goToSelected;
+            outtakeCoral, outtakeAlgae, goToSelected, groundIntake;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -65,6 +66,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         algaeExtractionHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
         algaeExtractionLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
+
+        groundIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
 
         net = new TorqueBoolSupplier(operator::isLeftBumperDown);
         processor = new TorqueBoolSupplier(operator::isLeftTriggerDown);
@@ -209,6 +212,14 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         outtakeAlgae.onTrue(() -> {
             claw.setAlgaeState(Claw.AlgaeState.SHOOT);
+        });
+        groundIntake.onTrue(() -> {
+            intake.setState(Intake.State.INTAKE);
+            intake.setRollerState(Intake.RollerState.INTAKE);
+            elevator.setState(Elevator.State.STOW);
+            claw.setState(Claw.State.HANDOFF);
+            claw.setCoralState(Claw.CoralState.INTAKE);
+            perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
     }
 

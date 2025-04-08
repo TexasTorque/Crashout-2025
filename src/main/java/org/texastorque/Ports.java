@@ -23,6 +23,10 @@ public final class Ports {
     public static final int ROLLERS_ALGAE = 16;
     public static final int ROLLERS_CORAL = 17;
 
+    public static final int INTAKE_PIVOT = 22;
+    public static final int INTAKE_ROLLERS = 23;
+    public static final int INTAKE_BREAK_BEAM = 24;
+
     public static final int GYRO = 21;
     
 }
