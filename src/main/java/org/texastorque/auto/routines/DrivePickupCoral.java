@@ -29,7 +29,7 @@ public class DrivePickupCoral extends TorqueSequence implements Subsystems {
         addBlock(new Align(Relation.CENTER, AlignableTarget.CORAL_STATION, alignTime).command());
 
         // Pickup coral from coral station
-        addBlock(new TorqueWaitTimeUntil(.5, () -> claw.hasCoral()));
+        addBlock(new TorqueWaitTimeUntil(.5, () -> claw.clawHasCoral()));
         addBlock(new TorqueRun(() -> claw.setCoralState(Claw.CoralState.OFF)));
 	}
 }

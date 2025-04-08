@@ -217,7 +217,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             intake.setState(Intake.State.INTAKE);
             intake.setRollerState(Intake.RollerState.INTAKE);
             elevator.setState(Elevator.State.STOW);
-            claw.setState(Claw.State.HANDOFF);
             claw.setCoralState(Claw.CoralState.INTAKE);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });

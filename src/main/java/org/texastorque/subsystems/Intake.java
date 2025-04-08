@@ -77,7 +77,13 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
     @Override
     public final void update(final TorqueMode mode) {
-        double volts = intakePID.calculate(getPivotAngle(), desiredState.angle);
+        double volts = intakePID.calculate(getPivotAngle(), desiredState.angle); 
+
+        if(desiredState == State.INTAKE && claw.isAtState()) {
+            claw.setState(Claw.State.HANDOFF);
+        }else if(!isIntaking()){
+            setState(State.ZERO);
+        }
 
         rollers.setVolts(rollerState.getVolts());
         pivot.setVolts(volts);
@@ -103,6 +109,10 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
     public boolean hasCoral() {
         return breakBeam.get();
+    }
+
+    public boolean isIntaking() {
+        return wantsState(State.INTAKE);
     }
 
     public static final synchronized Intake getInstance() {

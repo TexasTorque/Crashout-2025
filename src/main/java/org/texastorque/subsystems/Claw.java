@@ -129,7 +129,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     public final void update(final TorqueMode mode) {
         Debug.log("Shoulder Position", getShoulderAngle());
         Debug.log("Claw State", desiredState.toString());
-        Debug.log("Has Coral", hasCoral());
+        Debug.log("Has Coral", clawHasCoral());
         Debug.log("Shoulder At State", isAtState());
         Debug.log("Coral Current", coralRollers.getOutputCurrent());
         Debug.log("Coral State", coralState.toString());
@@ -156,7 +156,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         if (coralState == CoralState.INTAKE && desiredState != State.REGRESSION_CORAL_HP && desiredState != State.CORAL_HP)
             coralState = CoralState.OFF;
         
-        if (hasCoral() && (coralState != CoralState.SHOOT || coralState != CoralState.SHOOT_SLOW)) {
+        if (clawHasCoral() && (coralState != CoralState.SHOOT || coralState != CoralState.SHOOT_SLOW)) {
             coralState = CoralState.OFF;
             coralRollers.setVolts(coralState.getVolts());
         } else {
@@ -213,7 +213,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
       	return selectedState;
     }
 
-    public boolean hasCoral() {
+    public boolean clawHasCoral() {
         return coralSpike.calculate(coralRollers.getOutputCurrent());
     }
 

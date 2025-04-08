@@ -27,7 +27,7 @@ public class Align extends TorqueSequence implements Subsystems {
                 perception.setDesiredAlignTarget(alignableTarget);
                 drivebase.setState(Drivebase.State.HP_ALIGN);
             }));
-            addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> claw.hasCoral()));
+            addBlock(new TorqueWaitTimeUntil(timeToAlign, () -> claw.clawHasCoral()));
             addBlock(new TorqueRun(() -> {
                 drivebase.setInputSpeeds(new TorqueSwerveSpeeds());
                 drivebase.setState(Drivebase.State.ROBOT_RELATIVE);
