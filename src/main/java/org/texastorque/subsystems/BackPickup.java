@@ -67,19 +67,7 @@ public final class BackPickup extends TorqueStatorSubsystem<BackPickup.State> im
     @Override
     public final void update(final TorqueMode mode) {
         Debug.log("Back Pickup", getBackPickupPosition());
-
-        // if(Input.getInstance().isBackIntaking()) {
-        //     setState(State.INTAKE);
-        //     setBackRollerState(RollerState.INTAKE);
-        // }else {
-        //     setState(State.ZERO);
-        //     setBackRollerState(RollerState.OFF);
-        // }
-
-        // if(Input.getInstance().isShootBackCoral()) {
-        //     setBackRollerState(RollerState.OUTTAKE);
-        // }
-
+        
         double volts = backPID.calculate(getBackPickupPosition(), getState().getAngle());
         backPickup.setVolts(volts);
         backRollers.setVolts(rollerState.getVolts());

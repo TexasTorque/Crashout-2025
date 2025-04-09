@@ -23,7 +23,6 @@ import org.texastorque.torquelib.sensors.TorqueController;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
-import edu.wpi.first.util.sendable.SendableBuilder.BackendKind;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -38,7 +37,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             manualElevatorUp, manualElevatorDown, intakeCoral, intakeAlgae,
-            outtakeCoral, outtakeAlgae, goToSelected, groundIntake, backIntake, backOuttake, shootLow;
+            outtakeCoral, outtakeAlgae, goToSelected, groundIntake, backIntake, shootLow;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -87,7 +86,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
 
         backIntake = new TorqueBoolSupplier(driver::isDPADLeftDown);
-        backOuttake = new TorqueBoolSupplier(driver::isDPADRightDown);
         shootLow = new TorqueBoolSupplier(driver::isDPADUpDown);
     }
 
@@ -223,30 +221,19 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         groundIntake.onTrue(() -> {
             intake.setState(Intake.State.INTAKE);
             intake.setRollerState(Intake.RollerState.INTAKE);
-            elevator.setState(Elevator.State.STOW);
-            claw.setCoralState(Claw.CoralState.INTAKE);
+            elevator.setState(Elevator.State.HANDOFF);
+            claw.setState(Claw.State.HANDOFF_INITIAL);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
         backIntake.onTrue(() -> {
             backPickup.setState(BackPickup.State.INTAKE);
             backPickup.setBackRollerState(RollerState.INTAKE);
         });
-        backOuttake.onTrue(() -> {
-            backPickup.setState(BackPickup.State.UP);
-        });
         shootLow.onTrue(() -> {
             backPickup.setState(BackPickup.State.SHOOT);
             backPickup.setBackRollerState(RollerState.OUTTAKE);
         });
     }
-
-    // public boolean isBackIntaking () {
-    //     return backIntake.get();
-    // }
-
-    // public boolean isShootBackCoral () {
-    //     return shootLow.get();
-    // }
 
     public final boolean isDebugMode() {
         return false;

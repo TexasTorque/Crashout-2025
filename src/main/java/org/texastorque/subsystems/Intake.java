@@ -13,6 +13,8 @@ import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
 import org.texastorque.torquelib.base.TorqueStatorSubsystem;
 import org.texastorque.torquelib.motors.TorqueNEO;
+import org.texastorque.torquelib.util.TorqueMath;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -44,7 +46,7 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
     }
 
     public static enum RollerState implements TorqueState {
-        INTAKE(-12), OUTTAKE(12), OFF(0);
+        INTAKE(-4), OUTTAKE(4), OFF(0);
 
         private final double volts;
 
@@ -74,24 +76,27 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
     @Override
     public final void update(final TorqueMode mode) {
-        Debug.log("Ground Intake", getPivotAngle());
+        Debug.log("Ground Intake Position", getPivotAngle());
         double volts = intakePID.calculate(getPivotAngle(), desiredState.angle); 
 
-        // if(desiredState == State.INTAKE && claw.isAtState()) {
-        //     claw.setState(Claw.State.HANDOFF);
-        // }else if(!isIntaking()){
-        //     setState(State.ZERO);
-        // }
-
-        // rollers.setVolts(rollerState.getVolts());
-        // pivot.setVolts(volts);
+        // First elevator moves up
+        // Once intake at state, claw handoffs
+        if(desiredState == State.HANDOFF && elevator.isAtState() && claw.isAtState()) {
+            // brothaaaa
+            rollers.setVolts(0);
+            pivot.setVolts(volts);  
+        } else {
+            rollers.setVolts(rollerState.getVolts());
+            pivot.setVolts(volts);
+        }
     }
 
 	@Override
     public final void clean(final TorqueMode mode) {
-        // if (mode.isTeleop()) {
-        //     rollerState = rollerState.INTAKE;
-        // }
+        if (mode.isTeleop()) {
+            rollerState = rollerState.OFF;
+            desiredState = State.INTAKE;
+        }
     }
 
     @Override
@@ -103,6 +108,10 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
     public double getPivotAngle() {
         return pivot.getPosition();
+    }
+
+    public boolean isAtState() {
+        return TorqueMath.toleranced(getPivotAngle(), desiredState.angle, 5);
     }
 
     // public boolean hasCoral() {
