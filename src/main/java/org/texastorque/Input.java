@@ -219,10 +219,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.setAlgaeState(Claw.AlgaeState.SHOOT);
         });
         groundIntake.onTrue(() -> {
-            intake.setState(Intake.State.INTAKE);
-            intake.setRollerState(Intake.RollerState.INTAKE);
-            elevator.setState(Elevator.State.HANDOFF);
-            claw.setState(Claw.State.HANDOFF_INITIAL);
+            intake.setState(Intake.State.HANDOFF);
+            intake.setRollerState(Intake.RollerState.OFF);
+            // intake.setRollerState(Intake.RollerState.INTAKE);
+            // elevator.setState(Elevator.State.HANDOFF);
+            // claw.setState(Claw.State.HANDOFF_INITIAL);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
         backIntake.onTrue(() -> {
