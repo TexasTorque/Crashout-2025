@@ -44,6 +44,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         SCORE_L4(215.0977),
         NET(166.6797),
         ALGAE_EXTRACTION(287.2656),
+        ALGAE_GROUND(347),
         PROCESSOR(80.2832),
         REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CORAL_HP(30), 

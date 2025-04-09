@@ -44,6 +44,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         NET(36.7693),
         ALGAE_REMOVAL_LOW(1.5771),
         ALGAE_REMOVAL_HIGH(17.2666),
+        ALGAE_GROUND(5),
         PROCESSOR(1.6765),
         REGRESSION_CORAL_HP(0.8832), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CORAL_HP(7.0032),

@@ -34,8 +34,8 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(10),
-        SAFE(120),
-        OUT(135);
+        SAFE(100),
+        OUT(140);
 
         private double angle;
 
@@ -49,7 +49,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     }
 
     public static enum RollersState implements TorqueState {
-        INTAKE(-4),
+        INTAKE(-8),
         OUTTAKE(4),
         OFF(0);
 
@@ -71,12 +71,15 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
 
         rotary = new TorqueNEO(Ports.ARM_ROTARY)
             .idleMode(IdleMode.kBrake)
+            .currentLimit(20)
+            .inverted(true)
             .apply();
         
         rollers = new TorqueNEO(Ports.ARM_ROLLERS)
+            .currentLimit(60)
             .apply();
 
-        rotaryPID = new PIDController(1, 0, 0);
+        rotaryPID = new PIDController(.05, 0, 0);
         
         rotaryEncoder = new CANcoder(Ports.ARM_ENCODER);
     }
@@ -90,20 +93,24 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     @Override
     public final void update(final TorqueMode mode) {
         // Calculate volts for current setpoint
-        final double ROTARY_MAX_VOLTS = 4;
+        final double ROTARY_MAX_VOLTS = 6;
         double volts = rotaryPID.calculate(getRotaryAngle(), desiredState.getAngle());
-        final double ff = .35 * Math.sin(Math.toRadians(getRotaryAngle() + 25));
         if (Math.abs(volts) > ROTARY_MAX_VOLTS) volts = Math.signum(volts) * ROTARY_MAX_VOLTS;
 
         if (desiredState == State.ZERO) {
-            rotary.setVolts(ff);
+            rotary.setVolts(0);
         } else {
-            rotary.setVolts(volts + ff);
+            if (desiredState == State.OUT && isAtState()) {
+                rotary.setVolts(3);
+            } else {
+                rotary.setVolts(volts);
+            }
         }
 
         rollers.setVolts(rollersState.getVolts());
 
-        Debug.log("Rotary Volts", volts + ff);
+        Debug.log("Rotary Volts", volts);
+        Debug.log("Rotary Current", rotary.getOutputCurrent());
         Debug.log("Rotary Angle", getRotaryAngle());
         Debug.log("Rotary At State", isAtState());
         Debug.log("Rotary State", desiredState.toString());
@@ -111,7 +118,11 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     }
 
 	@Override
-    public final void clean(final TorqueMode mode) {}
+    public final void clean(final TorqueMode mode) {
+        if (mode.isTeleop()) {
+            rollersState = RollersState.OFF;
+        }
+    }
 
     @Override
     public void onStateChange(final State lastState) {
@@ -134,7 +145,11 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
             pastStateTime = Timer.getFPGATimestamp();
             return pastState.angle;
         }
-        return rotaryEncoder.getPosition().getValueAsDouble();
+        return rotaryEncoder.getAbsolutePosition().getValueAsDouble() * 360;
+    }
+
+    public void setRollersState(RollersState rollersState) {
+        this.rollersState = rollersState;
     }
 
     public final boolean isAtState() {
