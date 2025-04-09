@@ -8,6 +8,7 @@ package org.texastorque.subsystems;
 
 import org.texastorque.Ports;
 import org.texastorque.Subsystems;
+import org.texastorque.subsystems.Claw.CoralState;
 import org.texastorque.torquelib.Debug;
 import org.texastorque.torquelib.base.TorqueMode;
 import org.texastorque.torquelib.base.TorqueState;
@@ -81,10 +82,12 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
         // First elevator moves up
         // Once intake at state, claw handoffs
-        if(desiredState == State.HANDOFF && elevator.isAtState() && claw.isAtState()) {
+        if (desiredState == State.HANDOFF && elevator.isAtState() && claw.isAtState()) {
             // brothaaaa
             rollers.setVolts(0);
             pivot.setVolts(volts);  
+            claw.setCoralState(CoralState.INTAKE);
+            claw.setState(Claw.State.HANDOFF_INTAKE);
         } else {
             rollers.setVolts(rollerState.getVolts());
             pivot.setVolts(volts);
@@ -94,7 +97,7 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 	@Override
     public final void clean(final TorqueMode mode) {
         if (mode.isTeleop()) {
-            rollerState = rollerState.OFF;
+            rollerState = RollerState.OFF;
             desiredState = State.INTAKE;
         }
     }
