@@ -1,5 +1,6 @@
 package org.texastorque;
 
+import org.texastorque.subsystems.Arm;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Climb;
 import org.texastorque.subsystems.Drivebase;
@@ -13,5 +14,6 @@ public interface Subsystems {
     public final Elevator elevator = Elevator.getInstance();
     public final Claw claw = Claw.getInstance();
     public final Climb climb = Climb.getInstance();
+    public final Arm arm = Arm.getInstance();
     public final Lights lights = Lights.getInstance();
 }

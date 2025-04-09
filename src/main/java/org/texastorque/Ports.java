@@ -29,5 +29,9 @@ public final class Ports {
     public static final int GYRO = 21;
     public static final int CAN_RANGE = 22;
 
+    public static final int ARM_ROTARY = 23;
+    public static final int ARM_ROLLERS = 24;
+    public static final int ARM_ENCODER = 25;
+
     public static final int LIGHTS = 9;
 }
