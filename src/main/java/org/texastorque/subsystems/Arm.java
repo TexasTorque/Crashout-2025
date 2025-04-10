@@ -17,6 +17,7 @@ import org.texastorque.torquelib.util.TorqueMath;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -26,7 +27,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
 
     private static volatile Arm instance;
     private final TorqueNEO rotary, rollers;
-    private final ProfiledPIDController rotaryPID;
+    private final PIDController rotaryPID;
     private final CANcoder rotaryEncoder;
     private RollersState rollersState = RollersState.OFF;
     private State pastState;
@@ -35,7 +36,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(2),
-        OUT(140);
+        OUT(147);
 
         private double angle;
 
@@ -71,7 +72,6 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
 
         rotary = new TorqueNEO(Ports.ARM_ROTARY)
             .idleMode(IdleMode.kBrake)
-            .currentLimit(20)
             .inverted(true)
             .apply();
         
@@ -79,8 +79,8 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
             .currentLimit(60)
             .apply();
 
-        rotaryPID = new ProfiledPIDController(.05, 0, 0,
-                new TrapezoidProfile.Constraints(360, 60));
+        rotaryPID = new PIDController(.1, 0, 0);
+        rotaryPID.enableContinuousInput(0, 360);
         
         rotaryEncoder = new CANcoder(Ports.ARM_ENCODER);
     }
@@ -89,26 +89,26 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     public final void initialize(final TorqueMode mode) {
         State.ZERO.angle = getRotaryAngle();
         setState(State.ZERO);
-        rotaryPID.reset(getRotaryAngle());
     }
 
     @Override
     public final void update(final TorqueMode mode) {
         // Calculate volts for current setpoint
-        final double ROTARY_MAX_VOLTS = 6;
+        final double ROTARY_MAX_VOLTS = 10;
         double volts = rotaryPID.calculate(getRotaryAngle(), desiredState.getAngle());
+        final double ff = 2.0 * Math.cos(Math.toRadians(getRotaryAngle() + 5));
         if (Math.abs(volts) > ROTARY_MAX_VOLTS) volts = Math.signum(volts) * ROTARY_MAX_VOLTS;
 
         if (desiredState == State.ZERO) {
             rotary.setVolts(0);
-            rotaryPID.reset(getRotaryAngle());
         } else {
-            rotary.setVolts(volts);
+            rotary.setVolts(volts + ff);
         }
 
         rollers.setVolts(rollersState.getVolts());
 
-        Debug.log("Rotary Volts", volts);
+        Debug.log("Rotary Volts", volts + ff);
+        Debug.log("Rotary FF", ff);
         Debug.log("Rotary Current", rotary.getOutputCurrent());
         Debug.log("Rotary Angle", getRotaryAngle());
         Debug.log("Rotary At State", isAtState());
@@ -156,7 +156,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     }
 
     public final boolean isAtState(final State state) {
-        return TorqueMath.toleranced(getRotaryAngle(), state.getAngle(), 2);
+        return TorqueMath.toleranced(getRotaryAngle(), state.getAngle(), 5);
     }
 
     public static final synchronized Arm getInstance() {
