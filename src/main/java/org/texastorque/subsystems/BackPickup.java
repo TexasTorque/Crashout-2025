@@ -66,9 +66,12 @@ public final class BackPickup extends TorqueStatorSubsystem<BackPickup.State> im
 
     @Override
     public final void update(final TorqueMode mode) {
-        Debug.log("Back Pickup", getBackPickupPosition());
+        Debug.log("Back Pickup Positon", getBackPickupPosition());
         
+        double MAX_VOLTS = 8.0;
         double volts = backPID.calculate(getBackPickupPosition(), getState().getAngle());
+        if (Math.abs(volts) > MAX_VOLTS) volts = Math.signum(volts) * MAX_VOLTS;
+
         backPickup.setVolts(volts);
         backRollers.setVolts(rollerState.getVolts());
         
