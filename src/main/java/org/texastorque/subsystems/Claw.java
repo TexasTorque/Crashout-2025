@@ -45,6 +45,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         NET(166.6797),
         ALGAE_EXTRACTION(287.2656),
         ALGAE_GROUND(347),
+        HALF_ALGAE_GROUND(190),
         PROCESSOR(80.2832),
         REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CORAL_HP(30), 
@@ -130,7 +131,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     @Override
     public final void update(final TorqueMode mode) {
         // Shoulder regression for HP
-        double desiredAngle = desiredState.angle;
+        double desiredAngle = desiredState.getAngle();
         if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
             desiredAngle = getCoralStationAngle();
         }
@@ -217,11 +218,19 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public final boolean isAtState() {
-        return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 8);
+        return isAtState(desiredState);
+    }
+
+    public final boolean isAtState(final State state) {
+        return TorqueMath.toleranced(getShoulderAngle(), state.getAngle(), 8);
     }
 
     public final boolean isNearState() {
         return TorqueMath.toleranced(getShoulderAngle(), desiredState.getAngle(), 40);
+    }
+
+    public final boolean isArmSafe() {
+        return getShoulderAngle() < 290 && getShoulderAngle() > 90;
     }
 
     public void setSelectedState(State selectedState) {

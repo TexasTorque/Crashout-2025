@@ -11,7 +11,6 @@ import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
-import org.texastorque.subsystems.Claw.AlgaeState;
 import org.texastorque.subsystems.Climb;
 import org.texastorque.subsystems.Arm;
 import org.texastorque.torquelib.base.TorqueInput;
@@ -36,8 +35,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
-            intakeCoral, intakeAlgae, outtakeCoral, outtakeAlgae,
-            climbMode, goToSelected, crashout, armOut, intakeGroundAlgae;
+            intakeCoral, outtakeCoral, outtakeAlgae, climbMode,
+            goToSelected, crashout, groundAlgaeIntake;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -50,9 +49,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
-        crashout = new TorqueBoolSupplier(() -> false);
+        crashout = new TorqueBoolSupplier(driver::isDPADLeftDown);
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
-        intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         alignToHP = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.useDistance);
         align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null && !alignToHP.get());
 
@@ -90,8 +88,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
 
-        armOut = new TorqueBoolSupplier(driver::isDPADLeftDown);
-        intakeGroundAlgae = new TorqueBoolSupplier(driver::isRightBumperDown);
+        groundAlgaeIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
     }
 
     @Override
@@ -226,9 +223,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.coralSpike.reset();
             perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
         });
-        intakeAlgae.onTrue(() -> {
-            claw.setAlgaeState(AlgaeState.INTAKE);
-        });
         stow.onTrue(() -> {
             elevator.setState(Elevator.State.STOW);
             claw.setState(Claw.State.STOW);
@@ -249,15 +243,25 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             climb.setState(Climb.State.OUT);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
-        armOut.onTrue(() -> {
-            arm.setState(Arm.State.OUT);
-            arm.setRollersState(Arm.RollersState.INTAKE);
-        });
-        intakeGroundAlgae.onTrue(() -> {
-            claw.setState(Claw.State.ALGAE_GROUND);
-            elevator.setState(Elevator.State.ALGAE_GROUND);
-            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
-            arm.setRollersState(Arm.RollersState.INTAKE);
+        groundAlgaeIntake.onTrueOrFalse(() -> {
+            if (!arm.isAtState(Arm.State.OUT)) {
+                elevator.setState(Elevator.State.ALGAE_GROUND);
+                claw.setState(Claw.State.HALF_ALGAE_GROUND);
+            }
+            if (claw.isAtState(Claw.State.HALF_ALGAE_GROUND)) {
+                elevator.setState(Elevator.State.ALGAE_GROUND);
+                arm.setState(Arm.State.OUT);
+            }
+            if (arm.isAtState(Arm.State.OUT)) {
+                elevator.setState(Elevator.State.ALGAE_GROUND);
+                claw.setState(Claw.State.ALGAE_GROUND);
+                claw.setAlgaeState(Claw.AlgaeState.INTAKE);
+                arm.setRollersState(Arm.RollersState.INTAKE);
+            }
+        }, () -> {
+            if (claw.isArmSafe() && !(claw.getState() == Claw.State.ALGAE_GROUND || claw.getState() == Claw.State.HALF_ALGAE_GROUND)) {
+                arm.setState(Arm.State.STOW);
+            }
         });
     }
 

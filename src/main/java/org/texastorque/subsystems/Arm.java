@@ -33,8 +33,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
 
     public static enum State implements TorqueState {
         ZERO(0),
-        STOW(10),
-        SAFE(100),
+        STOW(2),
         OUT(140);
 
         private double angle;
@@ -149,7 +148,11 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     }
 
     public final boolean isAtState() {
-        return TorqueMath.toleranced(getRotaryAngle(), desiredState.getAngle(), 2);
+        return isAtState(desiredState);
+    }
+
+    public final boolean isAtState(final State state) {
+        return TorqueMath.toleranced(getRotaryAngle(), state.getAngle(), 2);
     }
 
     public static final synchronized Arm getInstance() {

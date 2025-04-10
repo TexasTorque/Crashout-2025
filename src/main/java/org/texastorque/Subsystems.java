@@ -12,8 +12,8 @@ public interface Subsystems {
     public final Drivebase drivebase = Drivebase.getInstance();
     public final Perception perception = Perception.getInstance();
     public final Elevator elevator = Elevator.getInstance();
+    public final Arm arm = Arm.getInstance();
     public final Claw claw = Claw.getInstance();
     public final Climb climb = Climb.getInstance();
-    public final Arm arm = Arm.getInstance();
     public final Lights lights = Lights.getInstance();
 }
