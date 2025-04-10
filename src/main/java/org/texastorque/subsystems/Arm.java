@@ -100,11 +100,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
         if (desiredState == State.ZERO) {
             rotary.setVolts(0);
         } else {
-            if (desiredState == State.OUT && isAtState()) {
-                rotary.setVolts(3);
-            } else {
-                rotary.setVolts(volts);
-            }
+            rotary.setVolts(volts);
         }
 
         rollers.setVolts(rollersState.getVolts());
