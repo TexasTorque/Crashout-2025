@@ -30,9 +30,9 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
     private final PIDController intakePID;
 
     public static enum State implements TorqueState {
-        INTAKE(0),
+        INTAKE(20),
         SCORE_L1(740.7592),
-        HANDOFF(1108.3506),
+        HANDOFF(2840.4666),
         ZERO(69);
 
         private double angle;
@@ -65,7 +65,7 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
         pivot = new TorqueNEO(Ports.INTAKE_PIVOT);
 
-        intakePID = new PIDController(.5, 0, 0);
+        intakePID = new PIDController(.1, 0, 0);
 
         rollers = new TorqueNEO(Ports.INTAKE_ROLLERS);
 
@@ -82,22 +82,24 @@ public final class Intake extends TorqueStatorSubsystem<Intake.State> implements
 
         // First elevator moves up
         // Once intake at state, claw handoffs
-        if (desiredState == State.HANDOFF && elevator.isAtState() && claw.isAtState()) {
-            // brothaaaa
-            rollers.setVolts(0);
-            pivot.setVolts(volts);  
-            claw.setCoralState(CoralState.INTAKE);
-            claw.setState(Claw.State.HANDOFF_INTAKE);
-        } else {
-            rollers.setVolts(rollerState.getVolts());
-            pivot.setVolts(volts);
-        }
+        // if (desiredState == State.HANDOFF && elevator.isAtState() && claw.isAtState()) {
+        //     // brothaaaa
+        //     rollers.setVolts(0);
+        //     pivot.setVolts(volts);  
+        //     claw.setCoralState(CoralState.INTAKE);
+        //     claw.setState(Claw.State.HANDOFF_INTAKE);
+        // } else {
+        //     rollers.setVolts(rollerState.getVolts());
+        //     pivot.setVolts(-volts);
+        // }
+        rollers.setVolts(rollerState.getVolts());
+        pivot.setVolts(TorqueMath.constrain(volts, 2));
     }
 
 	@Override
     public final void clean(final TorqueMode mode) {
         if (mode.isTeleop()) {
-            rollerState = RollerState.OFF;
+            rollerState = RollerState.INTAKE;
             desiredState = State.INTAKE;
         }
     }
