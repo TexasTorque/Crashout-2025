@@ -238,9 +238,18 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             arm.setRollersState(Arm.RollersState.OUTTAKE);
         });
         climbMode.onTrue(() -> {
-            elevator.setState(Elevator.State.CLIMB);
-            claw.setState(Claw.State.CLIMB);
-            climb.setState(Climb.State.OUT);
+            if (!arm.isAtState(Arm.State.OUT)) {
+                elevator.setState(Elevator.State.CLIMB);
+                claw.setState(Claw.State.HALF_CLIMB);
+            }
+            if (claw.isAtState(Claw.State.HALF_CLIMB)) {
+                elevator.setState(Elevator.State.CLIMB);
+                arm.setState(Arm.State.OUT);
+            }
+            if (arm.isAtState(Arm.State.OUT)) {
+                elevator.setState(Elevator.State.CLIMB);
+                claw.setState(Claw.State.CLIMB);
+            }
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
         groundAlgaeIntake.onTrueOrFalse(() -> {
@@ -259,7 +268,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
                 arm.setRollersState(Arm.RollersState.INTAKE);
             }
         }, () -> {
-            if (claw.isArmSafe() && !(claw.getState() == Claw.State.ALGAE_GROUND || claw.getState() == Claw.State.HALF_ALGAE_GROUND)) {
+            if (claw.isArmSafe() && !(claw.getState() == Claw.State.ALGAE_GROUND || claw.getState() == Claw.State.HALF_ALGAE_GROUND || claw.getState() == Claw.State.CLIMB || claw.getState() == Claw.State.HALF_CLIMB)) {
                 arm.setState(Arm.State.STOW);
             }
         });
