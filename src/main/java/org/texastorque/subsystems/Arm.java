@@ -18,6 +18,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -25,7 +27,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
 
     private static volatile Arm instance;
     private final TorqueNEO rotary, rollers;
-    private final PIDController rotaryPID;
+    private final ProfiledPIDController rotaryPID;
     private final CANcoder rotaryEncoder;
     private RollersState rollersState = RollersState.OFF;
     private State pastState;
@@ -49,7 +51,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
 
     public static enum RollersState implements TorqueState {
         INTAKE(-8),
-        OUTTAKE(4),
+        OUTTAKE(8),
         OFF(0);
 
         private double volts;
@@ -78,7 +80,8 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
             .currentLimit(60)
             .apply();
 
-        rotaryPID = new PIDController(.05, 0, 0);
+        rotaryPID = new ProfiledPIDController(.05, 0, 0,
+                new TrapezoidProfile.Constraints(360, 60));
         
         rotaryEncoder = new CANcoder(Ports.ARM_ENCODER);
     }
@@ -87,6 +90,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     public final void initialize(final TorqueMode mode) {
         State.ZERO.angle = getRotaryAngle();
         setState(State.ZERO);
+        rotaryPID.reset(getRotaryAngle());
     }
 
     @Override
@@ -98,6 +102,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
 
         if (desiredState == State.ZERO) {
             rotary.setVolts(0);
+            rotaryPID.reset(getRotaryAngle());
         } else {
             rotary.setVolts(volts);
         }
