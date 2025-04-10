@@ -73,6 +73,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
         rotary = new TorqueNEO(Ports.ARM_ROTARY)
             .idleMode(IdleMode.kBrake)
             .inverted(true)
+            .currentLimit(30)
             .apply();
         
         rollers = new TorqueNEO(Ports.ARM_ROLLERS)
