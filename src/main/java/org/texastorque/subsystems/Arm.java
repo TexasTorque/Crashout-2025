@@ -17,7 +17,6 @@ import org.texastorque.torquelib.util.TorqueMath;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
