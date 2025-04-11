@@ -35,7 +35,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     private final TorqueBoolSupplier resetGyro, align, slow, stow,
             L1, L2, L3, L4, leftRelation, rightRelation, centerRelation,
             algaeExtractionHigh, algaeExtractionLow, net, processor,
-            manualElevatorUp, manualElevatorDown, intakeCoral, intakeAlgae,
+            manualElevatorUp, manualElevatorDown, intakeCoral,
             outtakeCoral, outtakeAlgae, goToSelected, groundIntake, backIntake, shootLow;
 
     private Input() {
@@ -50,7 +50,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
 
         intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
-        intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
+        // intakeAlgae = new TorqueBoolSupplier(driver::isYButtonDown);
         align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null);
 
         goToSelected = new TorqueBoolSupplier(driver::isAButtonDown);
@@ -84,8 +84,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
 
-        backIntake = new TorqueBoolSupplier(driver::isDPADLeftDown);
-        shootLow = new TorqueBoolSupplier(driver::isDPADUpDown);
+        backIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
+        shootLow = new TorqueBoolSupplier(driver::isYButtonDown);
     }
 
     @Override
@@ -201,9 +201,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.coralSpike.reset();
             perception.setDesiredAlignTarget(AlignableTarget.CORAL_STATION);
         });
-        intakeAlgae.onTrue(() -> {
-            claw.setAlgaeState(AlgaeState.INTAKE);
-        });
+        // intakeAlgae.onTrue(() -> {
+        //     claw.setAlgaeState(AlgaeState.INTAKE);
+        // });
         stow.onTrue(() -> {
             elevator.setState(Elevator.State.STOW);
             claw.setState(Claw.State.STOW);
