@@ -76,7 +76,7 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
             .apply();
         
         rollers = new TorqueNEO(Ports.ARM_ROLLERS)
-            .currentLimit(60)
+            .currentLimit(20)
             .apply();
 
         pivotPID = new PIDController(1, 0, 0);
@@ -102,7 +102,7 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
         if (desiredState == State.ZERO) {
             pivot.setVolts(0);
         } else {
-            pivot.setVolts(volts + ff);
+            pivot.setVolts(volts + ff); //Delete volts to tune ff
         }
 
         rollers.setVolts(rollersState.getVolts());
@@ -114,11 +114,15 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
         Debug.log("Pivot At State", isAtState());
         Debug.log("Pivot State", desiredState.toString());
         Debug.log("Rollers State", rollersState.toString());
+        Debug.log("Rollers Current", rollers.getOutputCurrent());
     }
 
 	@Override
     public final void clean(final TorqueMode mode) {
-        
+        if (mode.isTeleop()) {
+            desiredState = State.STOW;
+            rollersState = RollersState.OFF;
+        }
     }
 
     @Override

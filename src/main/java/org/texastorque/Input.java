@@ -36,7 +36,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, outtakeCoral, outtakeAlgae, climbMode,
-            goToSelected, crashout, groundCoral, shootGroundCoral;
+            goToSelected, crashout, groundCoral, shootGroundCoral, outtakeAlgaeSlow;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -87,6 +87,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
+        outtakeAlgaeSlow = new TorqueBoolSupplier(driver::isDPADLeftDown);
 
         groundCoral = new TorqueBoolSupplier(driver::isRightBumperDown);
         shootGroundCoral = new TorqueBoolSupplier(driver::isYButtonDown);
@@ -236,6 +237,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         outtakeAlgae.onTrue(() -> {
             claw.setAlgaeState(Claw.AlgaeState.SHOOT);
+        });
+        outtakeAlgaeSlow.onTrue(() -> {
+            claw.setAlgaeState(Claw.AlgaeState.SHOOT_SLOW);
         });
         climbMode.onTrue(() -> {
             elevator.setState(Elevator.State.CLIMB);
