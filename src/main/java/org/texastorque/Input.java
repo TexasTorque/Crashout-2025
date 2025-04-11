@@ -8,13 +8,12 @@ package org.texastorque;
 
 import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
-import org.texastorque.subsystems.BackPickup;
+import org.texastorque.subsystems.Pickup;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Claw.AlgaeState;
 import org.texastorque.subsystems.Intake;
-import org.texastorque.subsystems.BackPickup.RollerState;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
@@ -227,12 +226,12 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
         backIntake.onTrue(() -> {
-            backPickup.setState(BackPickup.State.INTAKE);
-            backPickup.setBackRollerState(RollerState.INTAKE);
+            backPickup.setState(Pickup.State.INTAKE);
+            backPickup.setRollersState(Pickup.RollersState.INTAKE);
         });
         shootLow.onTrue(() -> {
-            backPickup.setState(BackPickup.State.SHOOT);
-            backPickup.setBackRollerState(RollerState.OUTTAKE);
+            backPickup.setState(Pickup.State.SHOOT);
+            backPickup.setRollersState(Pickup.RollersState.SHOOT);
         });
     }
 

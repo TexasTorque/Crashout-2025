@@ -27,8 +27,10 @@ public final class Ports {
     public static final int INTAKE_ROLLERS = 23;
     // public static final int INTAKE_BREAK_BEAM = 24;
 
-    public static final int BACKPICKUP = 24;
-    public static final int BACKPICKUP_ROLLERS = 25;
+    public static final int PICKUP_PIVOT = 24;
+    public static final int PICKUP_ROLLERS = 25;
+    public static final int PICKUP_ENCODER = 26;
+
 
     public static final int GYRO = 21;
     

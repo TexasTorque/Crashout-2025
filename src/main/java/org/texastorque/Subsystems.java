@@ -1,6 +1,6 @@
 package org.texastorque;
 
-import org.texastorque.subsystems.BackPickup;
+import org.texastorque.subsystems.Pickup;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
@@ -13,5 +13,5 @@ public interface Subsystems {
     public final Elevator elevator = Elevator.getInstance();
     public final Claw claw = Claw.getInstance();
     public final Intake intake = Intake.getInstance();
-    public final BackPickup backPickup = BackPickup.getInstance();
+    public final Pickup backPickup = Pickup.getInstance();
 }
