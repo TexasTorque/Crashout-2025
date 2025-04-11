@@ -8,12 +8,11 @@ package org.texastorque;
 
 import org.texastorque.Field.AlignPosition.AlignableTarget;
 import org.texastorque.Field.AlignPosition.Relation;
-import org.texastorque.subsystems.Arm;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
-import org.texastorque.subsystems.Pickup;
 import org.texastorque.subsystems.Climb;
+import org.texastorque.subsystems.Arm;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
@@ -37,8 +36,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, outtakeCoral, outtakeAlgae, climbMode,
-            goToSelected, crashout, groundCoral, shootGroundCoral, outtakeAlgaeSlow, 
-            groundAlgaeIntake;
+            goToSelected, crashout, groundAlgaeIntake;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -89,12 +87,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
-        outtakeAlgaeSlow = new TorqueBoolSupplier(driver::isDPADLeftDown);
 
-        groundCoral = new TorqueBoolSupplier(driver::isRightBumperDown);
-        shootGroundCoral = new TorqueBoolSupplier(driver::isYButtonDown);
-
-        groundAlgaeIntake = new TorqueBoolSupplier(driver::isLeftStickClickDown); // :)
+        groundAlgaeIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
     }
 
     @Override

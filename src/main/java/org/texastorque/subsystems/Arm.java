@@ -72,8 +72,8 @@
   
           rotary = new TorqueNEO(Ports.ARM_ROTARY)
               .idleMode(IdleMode.kBrake)
+              .currentLimit(40)
               .inverted(true)
-              .currentLimit(30)
               .apply();
   
           rollers = new TorqueNEO(Ports.ARM_ROLLERS)
@@ -95,7 +95,7 @@
       @Override
       public final void update(final TorqueMode mode) {
           // Calculate volts for current setpoint
-          final double ROTARY_MAX_VOLTS = 10;
+          final double ROTARY_MAX_VOLTS = 5;
           double volts = rotaryPID.calculate(getRotaryAngle(), desiredState.getAngle());
           final double ff = 2.0 * Math.cos(Math.toRadians(getRotaryAngle() + 5));
           if (Math.abs(volts) > ROTARY_MAX_VOLTS) volts = Math.signum(volts) * ROTARY_MAX_VOLTS;
@@ -108,7 +108,7 @@
   
           rollers.setVolts(rollersState.getVolts());
   
-          Debug.log("Rotary Volts", volts + ff);
+          Debug.log("Rotary Volts", volts);
           Debug.log("Rotary FF", ff);
           Debug.log("Rotary Current", rotary.getOutputCurrent());
           Debug.log("Rotary Angle", getRotaryAngle());
@@ -157,7 +157,7 @@
       }
   
       public final boolean isAtState(final State state) {
-          return TorqueMath.toleranced(getRotaryAngle(), state.getAngle(), 5);
+          return TorqueMath.toleranced(getRotaryAngle(), state.getAngle(), 20);
       }
   
       public static final synchronized Arm getInstance() {

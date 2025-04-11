@@ -174,6 +174,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         Debug.log("Coral Current", coralRollers.getOutputCurrent());
         Debug.log("Coral State", coralState.toString());
         Debug.log("Algae State", algaeState.toString());
+        Debug.log("Safe Arm", isArmSafe());
     }
 
 	@Override
