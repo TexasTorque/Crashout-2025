@@ -18,17 +18,15 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 
-public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsystems {
+public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements Subsystems {
 
-    private static volatile Arm instance;
-    private final TorqueNEO rotary, rollers;
-    private final PIDController rotaryPID;
-    private final CANcoder rotaryEncoder;
+    private static volatile Pickup instance;
+    private final TorqueNEO pivot, rollers;
+    private final PIDController pivotPID;
+    private final CANcoder pivotEncoder;
     private RollersState rollersState = RollersState.OFF;
     private State pastState;
     private double pastStateTime;
@@ -36,7 +34,8 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(2),
-        OUT(147);
+        SHOOT(20),
+        INTAKE(118);
 
         private double angle;
 
@@ -50,9 +49,9 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     }
 
     public static enum RollersState implements TorqueState {
-        INTAKE(-8),
-        OUTTAKE(8),
-        OFF(0);
+        INTAKE(-5),
+        SHOOT(2),
+        OFF(-0.5);
 
         private double volts;
 
@@ -65,12 +64,12 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
         }
     }
 
-    private Arm() {
+    private Pickup() {
         super(State.ZERO);
         pastState = State.ZERO;
         pastStateTime = Timer.getFPGATimestamp();
 
-        rotary = new TorqueNEO(Ports.ARM_ROTARY)
+        pivot = new TorqueNEO(Ports.PICKUP_PIVOT)
             .idleMode(IdleMode.kBrake)
             .inverted(true)
             .currentLimit(30)
@@ -80,48 +79,46 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
             .currentLimit(60)
             .apply();
 
-        rotaryPID = new PIDController(.1, 0, 0);
-        rotaryPID.enableContinuousInput(0, 360);
+        pivotPID = new PIDController(1, 0, 0);
+        pivotPID.enableContinuousInput(0, 360);
         
-        rotaryEncoder = new CANcoder(Ports.ARM_ENCODER);
+        pivotEncoder = new CANcoder(Ports.ARM_ENCODER);
     }
 
     @Override
     public final void initialize(final TorqueMode mode) {
-        State.ZERO.angle = getRotaryAngle();
+        State.ZERO.angle = getPivotAngle();
         setState(State.ZERO);
     }
 
     @Override
     public final void update(final TorqueMode mode) {
         // Calculate volts for current setpoint
-        final double ROTARY_MAX_VOLTS = 10;
-        double volts = rotaryPID.calculate(getRotaryAngle(), desiredState.getAngle());
-        final double ff = 2.0 * Math.cos(Math.toRadians(getRotaryAngle() + 5));
-        if (Math.abs(volts) > ROTARY_MAX_VOLTS) volts = Math.signum(volts) * ROTARY_MAX_VOLTS;
+        final double PIVOT_MAX_VOLTS = 5;
+        double volts = pivotPID.calculate(getPivotAngle(), desiredState.getAngle());
+        final double ff = .5 * Math.cos(Math.toRadians(getPivotAngle() - 1.631949));
+        if (Math.abs(volts) > PIVOT_MAX_VOLTS) volts = Math.signum(volts) * PIVOT_MAX_VOLTS;
 
         if (desiredState == State.ZERO) {
-            rotary.setVolts(0);
+            pivot.setVolts(0);
         } else {
-            rotary.setVolts(volts + ff);
+            pivot.setVolts(volts + ff);
         }
 
         rollers.setVolts(rollersState.getVolts());
 
-        Debug.log("Rotary Volts", volts + ff);
-        Debug.log("Rotary FF", ff);
-        Debug.log("Rotary Current", rotary.getOutputCurrent());
-        Debug.log("Rotary Angle", getRotaryAngle());
-        Debug.log("Rotary At State", isAtState());
-        Debug.log("Rotary State", desiredState.toString());
+        Debug.log("Pivot Volts", volts + ff);
+        Debug.log("Pivot FF", ff);
+        Debug.log("Pivot Current", pivot.getOutputCurrent());
+        Debug.log("Pivot Angle", getPivotAngle());
+        Debug.log("Pivot At State", isAtState());
+        Debug.log("Pivot State", desiredState.toString());
         Debug.log("Rollers State", rollersState.toString());
     }
 
 	@Override
     public final void clean(final TorqueMode mode) {
-        if (mode.isTeleop()) {
-            rollersState = RollersState.OFF;
-        }
+        
     }
 
     @Override
@@ -130,7 +127,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
         pastState = lastState;
     }
 
-    public double getRotaryAngle() {
+    public double getPivotAngle() {
         if (RobotBase.isSimulation()) {
             double desiredAngle = desiredState.angle;
             final double timeToAnimate = Math.abs(desiredAngle - pastState.angle) / 180;
@@ -145,7 +142,7 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
             pastStateTime = Timer.getFPGATimestamp();
             return pastState.angle;
         }
-        return rotaryEncoder.getAbsolutePosition().getValueAsDouble() * 360;
+        return pivotEncoder.getAbsolutePosition().getValueAsDouble() * 360;
     }
 
     public void setRollersState(RollersState rollersState) {
@@ -157,10 +154,10 @@ public final class Arm extends TorqueStatorSubsystem<Arm.State> implements Subsy
     }
 
     public final boolean isAtState(final State state) {
-        return TorqueMath.toleranced(getRotaryAngle(), state.getAngle(), 5);
+        return TorqueMath.toleranced(getPivotAngle(), state.getAngle(), 5);
     }
 
-    public static final synchronized Arm getInstance() {
-        return instance == null ? instance = new Arm() : instance;
+    public static final synchronized Pickup getInstance() {
+        return instance == null ? instance = new Pickup() : instance;
     }
 }

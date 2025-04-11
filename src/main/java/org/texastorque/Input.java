@@ -11,8 +11,8 @@ import org.texastorque.Field.AlignPosition.Relation;
 import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
+import org.texastorque.subsystems.Pickup;
 import org.texastorque.subsystems.Climb;
-import org.texastorque.subsystems.Arm;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
@@ -36,7 +36,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, outtakeCoral, outtakeAlgae, climbMode,
-            goToSelected, crashout, groundAlgaeIntake;
+            goToSelected, crashout, groundCoral, shootGroundCoral;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -88,7 +88,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
 
-        groundAlgaeIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
+        groundCoral = new TorqueBoolSupplier(driver::isRightBumperDown);
+        shootGroundCoral = new TorqueBoolSupplier(driver::isYButtonDown);
     }
 
     @Override
@@ -235,42 +236,18 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         outtakeAlgae.onTrue(() -> {
             claw.setAlgaeState(Claw.AlgaeState.SHOOT);
-            arm.setRollersState(Arm.RollersState.OUTTAKE);
         });
         climbMode.onTrue(() -> {
-            if (!arm.isAtState(Arm.State.OUT)) {
-                elevator.setState(Elevator.State.CLIMB);
-                claw.setState(Claw.State.HALF_CLIMB);
-            }
-            if (claw.isAtState(Claw.State.HALF_CLIMB)) {
-                elevator.setState(Elevator.State.CLIMB);
-                arm.setState(Arm.State.OUT);
-            }
-            if (arm.isAtState(Arm.State.OUT)) {
-                elevator.setState(Elevator.State.CLIMB);
-                claw.setState(Claw.State.CLIMB);
-            }
+            elevator.setState(Elevator.State.CLIMB);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
         });
-        groundAlgaeIntake.onTrueOrFalse(() -> {
-            if (!arm.isAtState(Arm.State.OUT)) {
-                elevator.setState(Elevator.State.ALGAE_GROUND);
-                claw.setState(Claw.State.HALF_ALGAE_GROUND);
-            }
-            if (claw.isAtState(Claw.State.HALF_ALGAE_GROUND)) {
-                elevator.setState(Elevator.State.ALGAE_GROUND);
-                arm.setState(Arm.State.OUT);
-            }
-            if (arm.isAtState(Arm.State.OUT)) {
-                elevator.setState(Elevator.State.ALGAE_GROUND);
-                claw.setState(Claw.State.ALGAE_GROUND);
-                claw.setAlgaeState(Claw.AlgaeState.INTAKE);
-                arm.setRollersState(Arm.RollersState.INTAKE);
-            }
-        }, () -> {
-            if (claw.isArmSafe() && !(claw.getState() == Claw.State.ALGAE_GROUND || claw.getState() == Claw.State.HALF_ALGAE_GROUND || claw.getState() == Claw.State.CLIMB || claw.getState() == Claw.State.HALF_CLIMB)) {
-                arm.setState(Arm.State.STOW);
-            }
+        groundCoral.onTrue(() -> {
+            pickup.setState(Pickup.State.INTAKE);
+            pickup.setRollersState(Pickup.RollersState.INTAKE);
+        });
+        shootGroundCoral.onTrue(() -> {
+            pickup.setState(Pickup.State.SHOOT);
+            pickup.setRollersState(Pickup.RollersState.SHOOT);
         });
     }
 
