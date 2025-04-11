@@ -34,8 +34,8 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(3.6035),
-        SHOOT(20),
-        INTAKE(110);
+        SHOOT(30),
+        INTAKE(119);
 
         private double angle;
 
@@ -49,9 +49,9 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
     }
 
     public static enum RollersState implements TorqueState {
-        INTAKE(-5),
-        SHOOT(2),
-        OFF(-1.5);
+        INTAKE(-12),
+        SHOOT(4),
+        OFF(0);
 
         private double volts;
 
@@ -79,7 +79,7 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
             .currentLimit(20)
             .apply();
 
-        pivotPID = new PIDController(0.5, 0, 0);
+        pivotPID = new PIDController(0.05, 0, 0);
         pivotPID.enableContinuousInput(0, 360);
         
         pivotEncoder = new CANcoder(Ports.PICKUP_ENCODER);
@@ -94,18 +94,21 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
     @Override
     public final void update(final TorqueMode mode) {
         // Calculate volts for current setpoint
-        final double PIVOT_MAX_VOLTS = 2;
+        final double PIVOT_MAX_VOLTS = 4;
         double volts = pivotPID.calculate(getPivotAngle(), desiredState.getAngle());
         final double ff = .5 * Math.cos(Math.toRadians(getPivotAngle() - 1.631949));
         if (Math.abs(volts) > PIVOT_MAX_VOLTS) volts = Math.signum(volts) * PIVOT_MAX_VOLTS;
 
-        if (desiredState == State.ZERO) {
-            pivot.setVolts(0);
-        } else {
-            pivot.setVolts(volts + ff); //Delete volts to tune ff
-        }
+        // if (desiredState == State.ZERO) {
+        //     pivot.setVolts(0);
+        // } else {
+        //     pivot.setVolts(volts + ff); //Delete volts to tune ff
+        // }
+        pivot.setVolts(-volts);
 
-        rollers.setVolts(rollersState.getVolts());
+        if (isAtState()) {
+            rollers.setVolts(rollersState.getVolts());
+        }
 
         Debug.log("Pivot Volts", volts + ff);
         Debug.log("Pivot FF", ff);
