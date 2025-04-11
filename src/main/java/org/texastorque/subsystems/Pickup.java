@@ -75,14 +75,14 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
             .currentLimit(30)
             .apply();
         
-        rollers = new TorqueNEO(Ports.ARM_ROLLERS)
+        rollers = new TorqueNEO(Ports.PICKUP_ROLLERS)
             .currentLimit(20)
             .apply();
 
         pivotPID = new PIDController(1, 0, 0);
         pivotPID.enableContinuousInput(0, 360);
         
-        pivotEncoder = new CANcoder(Ports.ARM_ENCODER);
+        pivotEncoder = new CANcoder(Ports.PICKUP_ENCODER);
     }
 
     @Override
