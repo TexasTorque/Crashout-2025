@@ -68,7 +68,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 	private final TorqueRollingMedian filteredX, filteredY, filteredHPDistance;
 	private final Pigeon2 gyro = new Pigeon2(Ports.GYRO);
-	private final CANrange canRange;
 	private final Field2d field = new Field2d();
 	private final SwerveDrivePoseEstimator poseEstimator;
 	private AlignableTarget desiredAlignTarget = AlignableTarget.NONE;
@@ -79,7 +78,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private double gyro_simulated = 0;
 	public boolean useDistance;
 	public Pose2d currentTagPose;
-	// public DigitalInput ripRange;
 	public AnalogInput ripRange;
 
 	private TorqueControl gyroZero = new TorqueControl();
@@ -90,8 +88,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
 
-		canRange = new CANrange(Ports.CAN_RANGE);
-		ripRange = new AnalogInput(0);
+		ripRange = new AnalogInput(Ports.RIP_RANGE);
 		ripRange.setOversampleBits(8);
 	
 
@@ -150,8 +147,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
-		Debug.log("CANrange Distance", getHPDistance());
-		Debug.log("Rip Range", ripRange.getValue()/16);
+		Debug.log("Rip Range Distance", ripRange.getValue()/16);
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Relation", relation.toString());
 		Debug.log("Align Target", desiredAlignTarget.toString());

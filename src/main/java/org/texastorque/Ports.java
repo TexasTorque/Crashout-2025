@@ -27,7 +27,7 @@ public final class Ports {
     public static final int CLIMB = 20;
 
     public static final int GYRO = 21;
-    public static final int CAN_RANGE = 22;
+    public static final int RIP_RANGE = 0;
 
     public static final int ARM_ROTARY = 23;
     public static final int ARM_ROLLERS = 24;
