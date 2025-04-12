@@ -41,6 +41,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -77,6 +79,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	private double gyro_simulated = 0;
 	public boolean useDistance;
 	public Pose2d currentTagPose;
+	// public DigitalInput ripRange;
+	public AnalogInput ripRange;
 
 	private TorqueControl gyroZero = new TorqueControl();
 	
@@ -87,6 +91,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		poseEstimator = new SwerveDrivePoseEstimator(drivebase.kinematics, getHeading(), drivebase.getModulePositions(), new Pose2d(), ODOMETRY_STDS, VISION_STDS);
 
 		canRange = new CANrange(Ports.CAN_RANGE);
+		ripRange = new AnalogInput(0);
+		ripRange.setOversampleBits(8);
+	
 
 		filteredX = new TorqueRollingMedian(15);
 		filteredY = new TorqueRollingMedian(15);
@@ -144,6 +151,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
 		Debug.log("CANrange Distance", getHPDistance());
+		Debug.log("Rip Range", ripRange.getValue()/16);
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Relation", relation.toString());
 		Debug.log("Align Target", desiredAlignTarget.toString());
@@ -357,7 +365,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 			return Math.abs(Math.cos(rotation.getRadians()) * (currentTagPose.getY() - currentPose.getY()) - Math.sin(rotation.getRadians()) * (currentTagPose.getX() - currentPose.getX()));
 		}
-		return filteredHPDistance.calculate(canRange.getDistance().getValueAsDouble());
+		return filteredHPDistance.calculate(ripRange.getValue()/16);
 	}
 
 	public Pose2d getFilteredPose() {

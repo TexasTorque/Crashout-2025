@@ -191,7 +191,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public double getCoralStationAngle() {
-        double angle = -103.09278 * perception.getHPDistance() + 42.98969;
+        double angle = -0.263158 * perception.getHPDistance() + 36.57895;
         if (angle > 30) angle = 30;
         if (angle < 20) angle = 20;
         return angle;
