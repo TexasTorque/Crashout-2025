@@ -140,13 +140,13 @@ public class Field implements Subsystems {
 	private ArrayList<AlignPosition> alignPositions = new ArrayList<>();
     private AlignPosition leftL2 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L2, .5304, .0154 - 0.328619002);
     private AlignPosition leftL3 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L3, .4118, .0189 - 0.328619002);
-    private AlignPosition leftL4 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L4, .5171, -.3634);
+    private AlignPosition leftL4 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L4, .5271, -.3634);
     private AlignPosition centerHigh = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_HIGH, .4118, -.1834);
     private AlignPosition centerLow = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_LOW, .4118, -.1834);
     private AlignPosition backup = new AlignPosition(Placement.REEF, Relation.NONE, AlignableTarget.NONE, .75, -.2);
     private AlignPosition rightL2 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L2, .5304, .0154);
     private AlignPosition rightL3 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L3, .4118, .0189);
-    private AlignPosition rightL4 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L4, .5220, .0089);
+    private AlignPosition rightL4 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L4, .5320, .0089);
     private AlignPosition leftCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.LEFT, AlignableTarget.CORAL_STATION, .4118, .0127 - 0.2032 - 0.2032);
     private AlignPosition centerCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.CENTER, AlignableTarget.CORAL_STATION, .4118, .0127);
     private AlignPosition rightCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.RIGHT, AlignableTarget.CORAL_STATION, .4118, .0127 + 0.2032 + 0.2032);
