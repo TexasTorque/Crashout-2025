@@ -225,7 +225,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Pose3d[] getRealComponentPoses() {
 		final double elevatorPos = elevator.getElevatorPosition();
 		final double shoulderAngle = claw.getShoulderAngle();
-		final double armAngle = arm.getRotaryAngle();
+		//final double armAngle = arm.getRotaryAngle();
 		final double elevatorMultiplier = elevatorPos / elevator.MAX_HEIGHT;
 		
 		return new Pose3d[] {
@@ -234,7 +234,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0)),
 			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0)),
  			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, 0, 0)),
- 			new Pose3d(0.2, -0.3, 0.236, new Rotation3d(0, Math.toRadians(armAngle), 0)),
 			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0))
 		};
 	}
@@ -242,7 +241,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Pose3d[] getDesiredComponentPoses() {
 		final double elevatorPos = elevator.getState().position;
 		final double shoulderAngle = claw.getState().getAngle();
-		final double armAngle = arm.getState().getAngle();
+		//final double armAngle = arm.getState().getAngle();
 		final double elevatorMultiplier = elevatorPos / elevator.MAX_HEIGHT;
 
 		return new Pose3d[] {
@@ -251,7 +250,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0)),
 			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0)),
  			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, 0, 0)),
- 			new Pose3d(0.2, -0.3, 0.236, new Rotation3d(0, Math.toRadians(armAngle), 0)),
 			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0))
 		};
 	}

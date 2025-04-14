@@ -34,8 +34,8 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
     public static enum State implements TorqueState {
         ZERO(0),
         STOW(3.6035),
-        SHOOT(30),
-        INTAKE(119);
+        SHOOT(34),
+        INTAKE(122);
 
         private double angle;
 

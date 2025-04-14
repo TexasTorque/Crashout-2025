@@ -12,7 +12,6 @@ import org.texastorque.subsystems.Claw;
 import org.texastorque.subsystems.Drivebase;
 import org.texastorque.subsystems.Elevator;
 import org.texastorque.subsystems.Climb;
-import org.texastorque.subsystems.Arm;
 import org.texastorque.subsystems.Pickup;
 import org.texastorque.torquelib.base.TorqueInput;
 import org.texastorque.torquelib.control.TorqueBoolSupplier;
@@ -39,7 +38,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, outtakeCoral, outtakeAlgae, climbMode,
-            goToSelected, crashout, pickupIntake, pickupScore;
+            goToSelected, crashout, pickupIntake, pickupScore, intakeAlgae;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -90,6 +89,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
+
+        intakeAlgae = new TorqueBoolSupplier(operator::isRightCenterButtonDown);
 
         // groundAlgaeIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
 
@@ -241,7 +242,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
         outtakeAlgae.onTrue(() -> {
             claw.setAlgaeState(Claw.AlgaeState.SHOOT);
-            arm.setRollersState(Arm.RollersState.OUTTAKE);
+    
+        });
+        intakeAlgae.onTrue(() -> {
+            claw.setAlgaeState(Claw.AlgaeState.INTAKE);
         });
         // climbMode.onTrue(() -> {
         //     if (!arm.isAtState(Arm.State.OUT)) {

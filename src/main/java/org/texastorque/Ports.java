@@ -29,13 +29,13 @@ public final class Ports {
     public static final int GYRO = 21;
     public static final int RIP_RANGE = 0;
 
-    public static final int ARM_ROTARY = 23;
-    public static final int ARM_ROLLERS = 24;
-    public static final int ARM_ENCODER = 25;
+    //public static final int ARM_ROTARY = 23;
+    //public static final int ARM_ROLLERS = 24;
+    //public static final int ARM_ENCODER = 25;
 
     public static final int PICKUP_PIVOT = 26;
     public static final int PICKUP_ROLLERS = 27;
-    public static final int PICKUP_ENCODER = 28;
+    public static final int PICKUP_ENCODER = 26;
 
     public static final int LIGHTS = 9;
 }
