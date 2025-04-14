@@ -125,10 +125,12 @@ public final class Lights extends TorqueStatelessSubsystem implements Subsystems
     }
 
     public final LightAction getColor(final TorqueMode mode) {
-        if (drivebase.getState() == Drivebase.State.ALIGN) return blinkGreen;
+        //if (drivebase.getState() == Drivebase.State.ALIGN) return blinkGreen;
+        if (drivebase.isAligned()) return rainbow;
+        if (perception.getCurrentZone() != null) return green;
         if (elevator.getState() == Elevator.State.CLIMB) return rainbow;
         if (DriverStation.isDisabled()) return white;
-        if (perception.seesTag()) return green;
+        if (perception.seesTag()) return blinkGreen;
         if (claw.hasCoral()) return pink;
 
         return alliance;
