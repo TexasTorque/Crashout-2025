@@ -77,10 +77,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
     final double MAX_ALIGN_VELOCITY_SLOW = .5;
     final double MAX_ALIGN_OMEGA_SLOW = Math.PI;
 
-    final double IDEAL_HP_DISTANCE = .05;
-
-    // CANRANGE AGAINST IS .126
-    // CANRANGE 1 CORAL IS .223
+    final double IDEAL_HP_DISTANCE = 20;
 
     private Drivebase() {
         super(State.FIELD_RELATIVE);
@@ -105,7 +102,7 @@ public final class Drivebase extends TorqueStatorSubsystem<Drivebase.State> impl
         headingLockPID = new PIDController(.08, 0, 0);
         headingLockPID.enableContinuousInput(0, 360);
 
-        coralStationPID = new PIDController(2.5, 0, 0);
+        coralStationPID = new PIDController(.01, 0, 0);
     }
 
     @Override
