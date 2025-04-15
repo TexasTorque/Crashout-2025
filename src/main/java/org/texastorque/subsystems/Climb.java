@@ -61,7 +61,7 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         } else {
             if (getClimbPosition() > 279.0271 && desiredState == State.OUT) {
                 climb.setVolts(0);
-            } else if (getClimbPosition() < 110 && desiredState == State.IN) {
+            } else if (getClimbPosition() < 100 && desiredState == State.IN) {
                 climb.setVolts(0);
             } else {
                 climb.setVolts(desiredState.volts);

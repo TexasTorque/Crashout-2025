@@ -47,6 +47,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         ALGAE_GROUND(347),
         HALF_ALGAE_GROUND(190),
         PROCESSOR(80.2832),
+        LOLLIPOP(330),
         REGRESSION_CORAL_HP(15), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
         CORAL_HP(15), 
         HALF_CLIMB(196.6699),

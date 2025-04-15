@@ -38,7 +38,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             algaeExtractionHigh, algaeExtractionLow, net, processor,
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, outtakeCoral, outtakeAlgae, climbMode,
-            goToSelected, crashout, pickupIntake, pickupScore, intakeAlgae, outtakeAlgaeSlow;
+            goToSelected, crashout, pickupIntake, pickupScore, intakeAlgae,
+            outtakeAlgaeSlow, lollipop;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -92,6 +93,8 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         outtakeAlgaeSlow = new TorqueBoolSupplier(driver::isDPADUpDown);
 
         intakeAlgae = new TorqueBoolSupplier(operator::isRightCenterButtonDown);
+
+        lollipop = new TorqueBoolSupplier(operator::isLeftCenterButtonDown);
 
         // groundAlgaeIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
 
@@ -268,7 +271,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         //     perception.setDesiredAlignTarget(AlignableTarget.NONE);
         // });
         climbMode.onTrue(() -> {
-            elevator.setState(Elevator.State.CLIMB);
+            elevator.setState(Elevator.State.STOW);
             claw.setState(Claw.State.CLIMB);
             climb.setState(Climb.State.OUT);
             perception.setDesiredAlignTarget(AlignableTarget.NONE);
@@ -293,6 +296,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         //         arm.setState(Arm.State.STOW);
         //     }
         // });
+        lollipop.onTrue(() -> {
+            claw.setState(Claw.State.LOLLIPOP);
+            elevator.setState(Elevator.State.LOLLIPOP);
+        });
         pickupIntake.onTrue(() -> {
             pickup.setState(Pickup.State.INTAKE);
             pickup.setRollersState(Pickup.RollersState.INTAKE);
@@ -305,7 +312,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
     }
 
     public final void updateClimb() {
-        climbUp.onTrue(() -> climb.setState(Climb.State.OUT));
+        climbUp.onTrue(() -> {
+            climb.setState(Climb.State.OUT);
+            elevator.setState(Elevator.State.CLIMB);
+        });
         climbDown.onTrue(() -> climb.setState(Climb.State.IN));
     }
 

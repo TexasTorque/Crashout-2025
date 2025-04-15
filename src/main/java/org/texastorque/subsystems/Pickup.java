@@ -33,7 +33,7 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
 
     public static enum State implements TorqueState {
         ZERO(0),
-        STOW(3.6035),
+        STOW(.1),
         SHOOT(34),
         INTAKE(122);
 
@@ -98,12 +98,6 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
         double volts = pivotPID.calculate(getPivotAngle(), desiredState.getAngle());
         // final double ff = .5 * Math.cos(Math.toRadians(getPivotAngle() - 1.631949));
         if (Math.abs(volts) > PIVOT_MAX_VOLTS) volts = Math.signum(volts) * PIVOT_MAX_VOLTS;
-
-        // if (desiredState == State.ZERO) {
-        //     pivot.setVolts(0);
-        // } else {
-        //     pivot.setVolts(volts + ff); //Delete volts to tune ff
-        // }
 
         pivot.setVolts(-volts);
 
