@@ -71,7 +71,7 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
 
         pivot = new TorqueNEO(Ports.PICKUP_PIVOT)
             .idleMode(IdleMode.kBrake)
-            .inverted(true)
+            .inverted(false)
             .currentLimit(30)
             .apply();
         
@@ -99,16 +99,12 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
         // final double ff = .5 * Math.cos(Math.toRadians(getPivotAngle() - 1.631949));
         if (Math.abs(volts) > PIVOT_MAX_VOLTS) volts = Math.signum(volts) * PIVOT_MAX_VOLTS;
 
-        // if (desiredState == State.ZERO) {
-        //     pivot.setVolts(0);
-        // } else {
-        //     pivot.setVolts(volts + ff); //Delete volts to tune ff
-        // }
-
-        pivot.setVolts(-volts);
+        pivot.setVolts(volts);
 
         if (isAtState()) {
             rollers.setVolts(rollersState.getVolts());
+        } else {
+            rollers.setVolts(0);
         }
 
         Debug.log("Pivot Volts", volts);
