@@ -47,7 +47,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
         ALGAE_GROUND(5),
         PROCESSOR(1.6765),
         REGRESSION_CORAL_HP(0.8832), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
-        CORAL_HP(7.0032),
+        CORAL_HP(7),
         CLIMB(0.8044);
 
         public double position;
@@ -147,9 +147,8 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
     }
 
     public double getCoralStationHeight() {
-        // double height = -63.09278 * perception.getHPDistance() + 14.95289;
-        double height = -0.151053 * perception.getHPDistance() + 11.02952;
-        if (height > 7.0032) height = 7.0032;
+        double height = -0.15 * perception.getHPDistance() + 10.9;
+        if (height > 7) height = 7;
         if (height < 0.8832) height = 0.8832;
         return height;
     }

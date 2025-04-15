@@ -145,7 +145,8 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Current Pose", getPose().toString());
 		Debug.log("Sees Tag", seesTag());
-		Debug.log("Rip Range Distance", ripRange.getValue()/16);
+		Debug.log("Rip Range Distance", getHPDistance());
+		Debug.log("Raw Rip Range Distance", ripRange.getValue() / 16);
 		Debug.log("Gyro Angle", getHeading().getDegrees());
 		Debug.log("Relation", relation.toString());
 		Debug.log("Align Target", desiredAlignTarget.toString());
@@ -357,7 +358,7 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 
 			return Math.abs(Math.cos(rotation.getRadians()) * (currentTagPose.getY() - currentPose.getY()) - Math.sin(rotation.getRadians()) * (currentTagPose.getX() - currentPose.getX()));
 		}
-		return filteredHPDistance.calculate(ripRange.getValue()/16);
+		return filteredHPDistance.calculate(ripRange.getValue() / 16);
 	}
 
 	public Pose2d getFilteredPose() {

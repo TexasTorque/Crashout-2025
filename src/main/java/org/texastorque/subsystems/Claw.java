@@ -47,8 +47,8 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         ALGAE_GROUND(347),
         HALF_ALGAE_GROUND(190),
         PROCESSOR(80.2832),
-        REGRESSION_CORAL_HP(20), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
-        CORAL_HP(30), 
+        REGRESSION_CORAL_HP(15), // It's a half state, used when not in the HP zone, but when in the zone it uses regression
+        CORAL_HP(15), 
         HALF_CLIMB(196.6699),
         CLIMB(296);
 
@@ -130,15 +130,9 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
 
     @Override
     public final void update(final TorqueMode mode) {
-        // Shoulder regression for HP
-        double desiredAngle = desiredState.getAngle();
-        if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
-            desiredAngle = getCoralStationAngle();
-        }
-
         // Calculate volts for current setpoint
         final double SHOULDER_MAX_VOLTS = 10;
-        double volts = shoulderPID.calculate(getShoulderAngle(), desiredAngle);
+        double volts = shoulderPID.calculate(getShoulderAngle(), desiredState.getAngle());
         final double ff = .35 * Math.sin(Math.toRadians(getShoulderAngle() + 25));
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
@@ -190,19 +184,9 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         pastState = lastState;
     }
 
-    public double getCoralStationAngle() {
-        double angle = -0.263158 * perception.getHPDistance() + 36.57895;
-        if (angle > 30) angle = 30;
-        if (angle < 20) angle = 20;
-        return angle;
-    }
-
     public final double getShoulderAngle() {
         if (RobotBase.isSimulation()) {
-            double desiredAngle = desiredState.angle;
-            if (desiredState == State.REGRESSION_CORAL_HP && perception.inCoralStationZone()) {
-                desiredAngle = getCoralStationAngle();
-            }
+            double desiredAngle = desiredState.getAngle();
             final double timeToAnimate = Math.abs(desiredAngle - pastState.angle) / 180;
             final double animationMultiplier = (Timer.getFPGATimestamp() - pastStateTime) / timeToAnimate;
             double position = ((desiredAngle - pastState.angle) * animationMultiplier) + pastState.angle;
