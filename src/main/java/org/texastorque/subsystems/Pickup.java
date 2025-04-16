@@ -71,7 +71,7 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
 
         pivot = new TorqueNEO(Ports.PICKUP_PIVOT)
             .idleMode(IdleMode.kBrake)
-            .inverted(true)
+            .inverted(false)
             .currentLimit(30)
             .apply();
         
@@ -103,6 +103,8 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
 
         if (isAtState()) {
             rollers.setVolts(rollersState.getVolts());
+        } else {
+            rollers.setVolts(0);
         }
 
         Debug.log("Pivot Volts", volts);
