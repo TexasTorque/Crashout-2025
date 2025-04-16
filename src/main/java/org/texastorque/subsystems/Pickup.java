@@ -71,7 +71,7 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
 
         pivot = new TorqueNEO(Ports.PICKUP_PIVOT)
             .idleMode(IdleMode.kBrake)
-            .inverted(false)
+            .inverted(true)
             .currentLimit(30)
             .apply();
         

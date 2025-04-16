@@ -79,7 +79,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum CoralState implements TorqueState {
-        INTAKE(-4), SHOOT(12), SHOOT_FAST(4.5), OFF(-1);
+        INTAKE(-4), SHOOT(4), SHOOT_FAST(4.5), OFF(-1);
 
         private final double volts;
 
