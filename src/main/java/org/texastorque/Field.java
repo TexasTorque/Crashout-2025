@@ -141,15 +141,15 @@ public class Field implements Subsystems {
 	// Bumpers against is .4121
 
 	private ArrayList<AlignPosition> alignPositions = new ArrayList<>();
-    private AlignPosition leftL2 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L2, .4933, -0.352969002); // F R
-    private AlignPosition leftL3 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L3, .4121, -0.352969002); // F R
-    private AlignPosition leftL4 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L4, .4981, -0.352969002); // F R
-    private AlignPosition centerHigh = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_HIGH, .4121, -.15105); // F R
-    private AlignPosition centerLow = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_LOW, .4121, -.15105); // F R
+    private AlignPosition leftL2 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L2, .4606, -0.313269002); // F R
+    private AlignPosition leftL3 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L3, .4073, -0.316849002); // F R
+    private AlignPosition leftL4 = new AlignPosition(Placement.REEF, Relation.LEFT, AlignableTarget.L4, .4785, -0.311569002); // F R
+    private AlignPosition centerHigh = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_HIGH, .4066, -.15895); // F R
+    private AlignPosition centerLow = new AlignPosition(Placement.REEF, Relation.CENTER, AlignableTarget.ALGAE_LOW, .4066, -.15895); // F R
     private AlignPosition backup = new AlignPosition(Placement.REEF, Relation.NONE, AlignableTarget.NONE, .75, .01865); // F R
-    private AlignPosition rightL2 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L2, .4933, -.02435); // F R
-    private AlignPosition rightL3 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L3, .4121, -.02435); // F R
-    private AlignPosition rightL4 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L4, .4981, -.02435); // F R
+    private AlignPosition rightL2 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L2, .4606, 0.01535); // F R
+    private AlignPosition rightL3 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L3, .4073, 0.01177); // F R
+    private AlignPosition rightL4 = new AlignPosition(Placement.REEF, Relation.RIGHT, AlignableTarget.L4, .4785, 0.01705); // F R
     private AlignPosition leftCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.LEFT, AlignableTarget.CORAL_STATION, .4118, .0127 - 0.2032 - 0.2032); // Not used
     private AlignPosition centerCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.CENTER, AlignableTarget.CORAL_STATION, .4118, .0127); // Not used
     private AlignPosition rightCoralStation = new AlignPosition(Placement.CORAL_STATION, Relation.RIGHT, AlignableTarget.CORAL_STATION, .4118, .0127 + 0.2032 + 0.2032); // Not used
