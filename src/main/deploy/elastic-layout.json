@@ -10,21 +10,21 @@
           {
             "title": "limelight-high",
             "x": 0.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 384.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 256.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight-high",
               "period": 0.06,
-              "rotation_turns": 3
+              "rotation_turns": 0
             }
           },
           {
             "title": "MatchTime",
             "x": 384.0,
             "y": 0.0,
-            "width": 640.0,
+            "width": 1024.0,
             "height": 384.0,
             "type": "Match Time",
             "properties": {
@@ -59,9 +59,9 @@
           {
             "title": "Auto List",
             "x": 1024.0,
-            "y": 640.0,
+            "y": 384.0,
             "width": 384.0,
-            "height": 128.0,
+            "height": 384.0,
             "type": "ComboBox Chooser",
             "properties": {
               "topic": "/SmartDashboard/Auto List",
@@ -101,8 +101,8 @@
           },
           {
             "title": "Has Coral",
-            "x": 256.0,
-            "y": 128.0,
+            "x": 128.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -118,8 +118,8 @@
           },
           {
             "title": "Is Aligned",
-            "x": 256.0,
-            "y": 256.0,
+            "x": 0.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -131,19 +131,6 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
-            }
-          },
-          {
-            "title": "Climb Camera",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 384.0,
-            "height": 640.0,
-            "type": "Camera Stream",
-            "properties": {
-              "topic": "/CameraPublisher/Climb Camera",
-              "period": 0.06,
-              "rotation_turns": 3
             }
           },
           {
@@ -889,6 +876,23 @@
               "data_type": "double",
               "show_submit_button": false
             }
+          },
+          {
+            "title": "Safe Arm",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Shuffleboard/Claw/Safe Arm",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
           }
         ]
       }
@@ -945,6 +949,115 @@
             "type": "Text Display",
             "properties": {
               "topic": "/Shuffleboard/Climb/Climb Position",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Pickup",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Pivot Volts",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Pickup/Pivot Volts",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Pivot Current",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Pickup/Pivot Current",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Pivot Angle",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Pickup/Pivot Angle",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Pivot At State",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Shuffleboard/Pickup/Pivot At State",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Pivot State",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Pickup/Pivot State",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Rollers State",
+            "x": 1280.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Pickup/Rollers State",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Rollers Current",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Pickup/Rollers Current",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
