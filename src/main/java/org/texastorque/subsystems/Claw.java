@@ -138,7 +138,11 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
         if (Math.abs(volts) > SHOULDER_MAX_VOLTS) volts = Math.signum(volts) * SHOULDER_MAX_VOLTS;
 
         // Apply volts
-        if (desiredState == State.ZERO) {
+        if (mode.isDisabled()) {
+            State.ZERO.angle = getShoulderAngle();
+            shoulderPID.reset(getShoulderAngle());
+            shoulder.setVolts(ff);
+        } else if (desiredState == State.ZERO) {
             shoulder.setVolts(ff);
             shoulderPID.reset(getShoulderAngle());
         } else {
