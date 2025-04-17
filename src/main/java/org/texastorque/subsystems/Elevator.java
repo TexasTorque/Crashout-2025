@@ -100,6 +100,7 @@ public final class Elevator extends TorqueStatorSubsystem<Elevator.State> implem
 
         if (mode.isDisabled()) {
             State.ZERO.position = getElevatorPosition();
+            desiredState = State.ZERO;
             elevatorPID.reset(getElevatorPosition());
             elevatorLeft.setVolts(ELEVATOR_FF);
             elevatorRight.setVolts(ELEVATOR_FF);
