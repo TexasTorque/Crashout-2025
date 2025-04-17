@@ -30,6 +30,8 @@ public class CenterNet extends TorqueSequence implements Subsystems {
         // Drive center to far
 		addBlock(new TorqueFollowPath("CNET_1", drivebase));
 
+		addBlock(new TorqueRun(() -> claw.setAlgaeState(Claw.AlgaeState.INTAKE)));
+
 		addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
 
 		addBlock(new Quickswap(true, Relation.RIGHT).command());

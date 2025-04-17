@@ -39,7 +39,7 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             climbUp, climbDown, manualElevatorUp, manualElevatorDown,
             intakeCoral, outtakeCoral, outtakeAlgae, climbMode,
             goToSelected, crashout, pickupIntake, pickupScore, intakeAlgae,
-            outtakeAlgaeSlow, lollipop;
+            lollipop;
 
     private Input() {
         driver = new TorqueController(0, CONTROLLER_DEADBAND);
@@ -90,7 +90,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
 
         outtakeCoral = new TorqueBoolSupplier(driver::isBButtonDown);
         outtakeAlgae = new TorqueBoolSupplier(driver::isXButtonDown);
-        outtakeAlgaeSlow = new TorqueBoolSupplier(driver::isDPADUpDown);
 
         intakeAlgae = new TorqueBoolSupplier(operator::isRightCenterButtonDown);
 
@@ -245,12 +244,11 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
             claw.coralSpike.reset();
         });
         outtakeAlgae.onTrue(() -> {
-            claw.setAlgaeState(Claw.AlgaeState.SHOOT);
-    
-        });
-        outtakeAlgaeSlow.onTrue(() -> {
-            claw.setAlgaeState(Claw.AlgaeState.SHOOT_SLOW);
-    
+            if (elevator.getState() == Elevator.State.PROCESSOR) {
+                claw.setAlgaeState(Claw.AlgaeState.SHOOT_SLOW);
+            } else {
+                claw.setAlgaeState(Claw.AlgaeState.SHOOT);
+            }
         });
         intakeAlgae.onTrue(() -> {
             claw.setAlgaeState(Claw.AlgaeState.INTAKE);

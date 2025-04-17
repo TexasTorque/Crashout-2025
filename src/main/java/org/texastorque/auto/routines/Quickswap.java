@@ -37,13 +37,16 @@ public class Quickswap extends TorqueSequence implements Subsystems {
         }));
         addBlock(new Align(() -> perception.getAlignPose(), .7, 
             new Marker(() -> {
-                claw.setAlgaeState(Claw.AlgaeState.OFF);
                 elevator.setState(isL4 ? Elevator.State.SCORE_L4 : Elevator.State.SCORE_L3);
                 claw.setState(isL4 ? Claw.State.SCORE_L4 : Claw.State.SCORE_L3);
             }, .3)
         ).command());
 
         addBlock(new TorqueWaitUntil(() -> elevator.isNearState() && claw.isNearState()));
+
+        addBlock(new TorqueRun(() -> {
+            claw.setAlgaeState(Claw.AlgaeState.OFF);
+        }));
 
         // Alignment
         addBlock(new Align(relation, isL4 ? AlignableTarget.L4 : AlignableTarget.L3, 1.2).command());
