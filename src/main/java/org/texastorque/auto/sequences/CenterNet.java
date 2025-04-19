@@ -84,7 +84,7 @@ public class CenterNet extends TorqueSequence implements Subsystems {
 			}, .2),
 			new Marker(() -> {
 				claw.setAlgaeState(Claw.AlgaeState.SHOOT_FAST);
-			}, .7)
+			}, .6)
 		));
 
 		// Go to stow at end
