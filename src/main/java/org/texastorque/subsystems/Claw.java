@@ -65,7 +65,7 @@ public final class Claw extends TorqueStatorSubsystem<Claw.State> implements Sub
     }
 
     public static enum AlgaeState implements TorqueState {
-        INTAKE(-10), SHOOT_SLOW(2), SHOOT(6), SHOOT_SEMI_FAST(8), SHOOT_FAST(12), OFF(0);
+        INTAKE(-10), SHOOT_SLOW(2), SHOOT(6), SHOOT_SEMI_FAST(11), SHOOT_FAST(12), OFF(0);
 
         private final double volts;
 
