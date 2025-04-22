@@ -15,5 +15,5 @@ Codebase for [Texas Torque](https://texastorque.org)'s 2025 competition robot.
 ## Contributors
 
 - [Davey Adams (programming lead)](https://github.com/humandavey)
-- [Maaz Kattangere (programmer)](https://github.com/maazie2000)
+- [Maaz Kattangere (asst. programming lead)](https://github.com/maazie2000)
 - [Tima Gezalov (programmer)](https://github.com/timagez)
