@@ -18,7 +18,6 @@ import org.texastorque.torquelib.control.TorqueBoolSupplier;
 import org.texastorque.torquelib.control.TorqueClickSupplier;
 import org.texastorque.torquelib.control.TorqueRequestableTimeout;
 import org.texastorque.torquelib.sensors.TorqueController;
-// import org.texastorque.torquelib.sensors.TorquePS4Controller;
 import org.texastorque.torquelib.swerve.TorqueSwerveSpeeds;
 import org.texastorque.torquelib.util.TorqueMath;
 
@@ -94,8 +93,6 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         intakeAlgae = new TorqueBoolSupplier(operator::isRightCenterButtonDown);
 
         lollipop = new TorqueBoolSupplier(operator::isLeftCenterButtonDown);
-
-        // groundAlgaeIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
 
         pickupIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
         pickupScore = new TorqueBoolSupplier(driver::isYButtonDown);
@@ -290,60 +287,3 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         return instance == null ? instance = new Input() : instance;
     }
 }
-
-//------------------------- for PS4 controller -------------------------//
-// private Input() {
-    //     driver = new TorquePS4Controller(0, CONTROLLER_DEADBAND);
-    //     operator = new TorquePS4Controller(1, CONTROLLER_DEADBAND);
-
-    //     driverRumble = new TorqueRequestableTimeout();
-    //     operatorRumble = new TorqueRequestableTimeout();
-
-    //     endgameClick = new TorqueClickSupplier(() -> Timer.getMatchTime() < 30 && Timer.getMatchTime() > 28 && DriverStation.isTeleop());
-
-    //     resetGyro = new TorqueBoolSupplier(driver::isRightCenterButtonDown);
-
-    //     crashout = new TorqueBoolSupplier(driver::isDPADLeftDown);
-    //     intakeCoral = new TorqueBoolSupplier(driver::isLeftBumperDown);
-    //     alignToHP = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.useDistance);
-    //     align = new TorqueBoolSupplier(() -> driver.isRightTriggerDown() && perception.getCurrentZone() != null && !alignToHP.get());
-
-    //     goToSelected = new TorqueBoolSupplier(driver::isXButtonDown);
-
-    //     stow = new TorqueBoolSupplier(() -> driver.isDPADDownDown() || operator.isDPADDownDown());
-
-    //     slowInitial = new TorqueClickSupplier(() -> driver.isLeftTriggerDown() || driver.isRightBumperDown());
-    //     slow = new TorqueBoolSupplier(() -> driver.isLeftTriggerDown() || driver.isRightBumperDown());
-
-    //     L1 = new TorqueBoolSupplier(operator::isXButtonDown);
-    //     L2 = new TorqueBoolSupplier(operator::isSquareButtonDown);
-    //     L3 = new TorqueBoolSupplier(operator::isOButtonDown);
-    //     L4 = new TorqueBoolSupplier(operator::isTriangleButtonDown);
-
-    //     algaeExtractionHigh = new TorqueBoolSupplier(operator::isRightBumperDown);
-    //     algaeExtractionLow = new TorqueBoolSupplier(operator::isRightTriggerDown);
-
-    //     net = new TorqueBoolSupplier(operator::isLeftBumperDown);
-    //     processor = new TorqueBoolSupplier(operator::isLeftTriggerDown);
-
-    //     leftRelation = new TorqueBoolSupplier(operator::isDPADLeftDown);
-    //     rightRelation = new TorqueBoolSupplier(operator::isDPADRightDown);
-    //     centerRelation = new TorqueBoolSupplier(operator::isDPADUpDown);
-
-    //     climbUp = new TorqueBoolSupplier(() -> operator.getLeftYAxis() < -CONTROLLER_DEADBAND && !operator.isLeftStickClickDown());
-    //     climbDown = new TorqueBoolSupplier(() -> operator.getLeftYAxis() > CONTROLLER_DEADBAND);
-
-    //     climbMode = new TorqueBoolSupplier(driver::isDPADRightDown);
-
-    //     manualElevatorInitial = new TorqueClickSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND || operator.getRightYAxis() < -CONTROLLER_DEADBAND);
-    //     manualElevatorUp = new TorqueBoolSupplier(() -> operator.getRightYAxis() > CONTROLLER_DEADBAND);
-    //     manualElevatorDown = new TorqueBoolSupplier(() -> operator.getRightYAxis() < -CONTROLLER_DEADBAND);
-
-    //     outtakeCoral = new TorqueBoolSupplier(driver::isSquareButtonDown);
-    //     outtakeAlgae = new TorqueBoolSupplier(driver::isOButtonDown);
-
-    //     // groundAlgaeIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
-
-    //     pickupIntake = new TorqueBoolSupplier(driver::isRightBumperDown);
-    //     pickupScore = new TorqueBoolSupplier(driver::isTriangleButtonDown);
-    // }

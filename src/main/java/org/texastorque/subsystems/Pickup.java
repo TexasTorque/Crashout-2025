@@ -80,7 +80,7 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
             .apply();
 
         pivotPID = new PIDController(0.05, 0, 0);
-        pivotPID.enableContinuousInput(0, 360);
+        pivotPID.enableContinuousInput(0, 360); // Only because it never goes more than 180 degrees, and could possibly go negative
         
         pivotEncoder = new CANcoder(Ports.PICKUP_ENCODER);
     }
@@ -96,7 +96,6 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
         // Calculate volts for current setpoint
         final double PIVOT_MAX_VOLTS = 4;
         double volts = pivotPID.calculate(getPivotAngle(), desiredState.getAngle());
-        // final double ff = .5 * Math.cos(Math.toRadians(getPivotAngle() - 1.631949));
         if (Math.abs(volts) > PIVOT_MAX_VOLTS) volts = Math.signum(volts) * PIVOT_MAX_VOLTS;
 
         pivot.setVolts(-volts);
@@ -108,7 +107,6 @@ public final class Pickup extends TorqueStatorSubsystem<Pickup.State> implements
         }
 
         Debug.log("Pivot Volts", volts);
-        // Debug.log("Pivot FF", ff);
         Debug.log("Pivot Current", pivot.getOutputCurrent());
         Debug.log("Pivot Angle", getPivotAngle());
         Debug.log("Pivot At State", isAtState());

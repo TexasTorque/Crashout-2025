@@ -99,8 +99,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		createZones();
 
 		SmartDashboard.putBoolean("Gyro Zero", false);
-
-		// FALSE IS 0 - TRUE IS 180, 0 IS RED - 180 IS BLUE, FLIPPED BC AUTO RUNS THE OTHER WAY
 	}
 
 	final String LIMELIGHT_HIGH = "limelight-high";
@@ -212,8 +210,6 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 			new Pose3d(),
 			new Pose3d(),
 			new Pose3d(),
-			new Pose3d(),
-			new Pose3d(),
 			new Pose3d()
 		});
 		Logger.recordOutput("Real Component Poses", getRealComponentPoses());
@@ -226,15 +222,12 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Pose3d[] getRealComponentPoses() {
 		final double elevatorPos = elevator.getElevatorPosition();
 		final double shoulderAngle = claw.getShoulderAngle();
-		//final double armAngle = arm.getRotaryAngle();
 		final double elevatorMultiplier = elevatorPos / elevator.MAX_HEIGHT;
 		
 		return new Pose3d[] {
 			new Pose3d(0, 0, .5 * elevatorMultiplier, new Rotation3d()),
 			new Pose3d(0, 0, 1.05 * elevatorMultiplier, new Rotation3d()),
 			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0)),
-			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0)),
- 			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, 0, 0)),
 			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0))
 		};
 	}
@@ -242,15 +235,12 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 	public Pose3d[] getDesiredComponentPoses() {
 		final double elevatorPos = elevator.getState().position;
 		final double shoulderAngle = claw.getState().getAngle();
-		//final double armAngle = arm.getState().getAngle();
 		final double elevatorMultiplier = elevatorPos / elevator.MAX_HEIGHT;
 
 		return new Pose3d[] {
 			new Pose3d(0, 0, .5 * elevatorMultiplier, new Rotation3d()),
 			new Pose3d(0, 0, 1.05 * elevatorMultiplier, new Rotation3d()),
 			new Pose3d(.109, 0, .8 + (1.05 * elevatorMultiplier), new Rotation3d(0, Math.toRadians((shoulderAngle + 360) % 360), 0)),
-			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0)),
- 			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, 0, 0)),
 			new Pose3d(-0.31, 0, 0.24, new Rotation3d(0, Math.toRadians((-(climb.getClimbPosition() / 2.75) + 360) % 360), 0))
 		};
 	}
@@ -387,10 +377,9 @@ public class Perception extends TorqueStatelessSubsystem implements Subsystems {
 		final Translation2d farLeftRed = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 - 1.5);
 		final Translation2d farRightRed = new Translation2d(4.5 - 2.5980644 + allianceOffset, 4.0259 + 1.5);
 
-		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 3.429942); // far side of line
-		final Translation2d csLeftFrontRightBlue = new Translation2d(4.345927, 0); // near side of line
+		final Translation2d csLeftFrontLeftBlue = new Translation2d(0, 3.429942);
+		final Translation2d csLeftFrontRightBlue = new Translation2d(4.345927, 0);
 		final Translation2d csLeftBackBlue = new Translation2d(csLeftFrontLeftBlue.getX(), csLeftFrontRightBlue.getY()); 
-		// ^ out of the field to avoid zone errors
 
 		final Translation2d csRightFrontLeftBlue = new Translation2d(0, 4.621858);
 		final Translation2d csRightFrontRightBlue = new Translation2d(4.345927, 8.0518);

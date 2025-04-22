@@ -44,9 +44,9 @@ public final class Climb extends TorqueStatorSubsystem<Climb.State> implements S
         super(State.OFF);
 
         climb = new TorqueNEO(Ports.CLIMB)
-                .idleMode(IdleMode.kBrake)
-                .apply();
-        }
+            .idleMode(IdleMode.kBrake)
+            .apply();
+    }
 
     @Override
     public final void initialize(final TorqueMode mode) {}
