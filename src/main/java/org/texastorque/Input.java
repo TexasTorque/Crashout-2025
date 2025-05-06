@@ -126,9 +126,9 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         });
 
         goToSelected.onTrue(() -> {
-            elevator.setState(elevator.getSelectedState());
-            claw.setState(claw.getSelectedState());
-            perception.setDesiredAlignTarget(AlignableTarget.of(elevator.getSelectedState()));
+            elevator.setState(Elevator.State.SCORE_L4);
+            claw.setState(Claw.State.SCORE_L4);
+            perception.setDesiredAlignTarget(AlignableTarget.of(Elevator.State.SCORE_L4));
         });
     }
 
@@ -151,7 +151,10 @@ public final class Input extends TorqueInput<TorqueController> implements Subsys
         slowInitial.onTrue(() -> drivebase.startSlowMode());
         slow.onTrue(() -> drivebase.setState(Drivebase.State.SLOW));
 
-        align.onTrue(() -> drivebase.setState(Drivebase.State.ALIGN));
+        align.onTrue(() -> {
+            perception.setRelation(Relation.RIGHT);
+            drivebase.setState(Drivebase.State.ALIGN);
+        });
 
         alignToHP.onTrue(() -> drivebase.setState(Drivebase.State.HP_ALIGN));
 
